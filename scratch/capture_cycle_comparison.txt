@@ -1,0 +1,209 @@
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx (lines 5000-5100) ===
+5000:     // Sequential countdown cycle for each photo, avoiding overlapping ticks/races
+5001:     const runCaptureCycle = async () => {
+5002:       if (cancelled) return;
+5003: 
+5004:       for (let secondsLeft = GUEST_CAPTURE_INTERVAL_SECONDS; secondsLeft > 0; secondsLeft--) {
+5005:         if (cancelled) {
+5006:           if (boothMode === 'photobooth') {
+5007:             try {
+5008:               await stopClipRecording();
+5009:             } catch (e) {}
+5010:           }
+5011:           return;
+5012:         }
+5013: 
+5014:         // Start recording at the beginning of the countdown (always match the countdown time)
+5015:         if (boothMode === 'photobooth' && secondsLeft === GUEST_CAPTURE_INTERVAL_SECONDS) {
+5016:           startClipRecording();
+5017:           // Warm up for 300ms to let MediaRecorder initialize and buffer frames
+5018:           await wait(300);
+5019:         }
+5020: 
+5021:         setNextCaptureSecondsLeft(secondsLeft);
+5022:         setCaptureCountdown(String(secondsLeft));
+5023: 
+5024:         // Sleep 1 second respecting the pause state
+5025:         await new Promise((resolve) => {
+5026:           let elapsed = 0;
+5027:           const waitInterval = window.setInterval(() => {
+5028:             if (cancelled) {
+5029:               window.clearInterval(waitInterval);
+5030:               resolve();
+5031:               return;
+5032:             }
+5033:             if (capturePausedRef.current) return;
+5034: 
+5035:             elapsed += 1;
+5036:             if (elapsed >= 1) {
+5037:               window.clearInterval(waitInterval);
+5038:               resolve();
+5039:             }
+5040:           }, 1000);
+5041:         });
+5042:       }
+5043: 
+5044:       if (cancelled) {
+5045:         if (boothMode === 'photobooth') {
+5046:           try {
+5047:             await stopClipRecording();
+5048:           } catch (e) {}
+5049:         }
+5050:         return;
+5051:       }
+5052: 
+5053:       // Start capture
+5054:       setCaptureCountdown('📸');
+5055: 
+5056:       const didCapture = await captureGuestPhotoFrame();
+5057:       if (cancelled) return;
+5058: 
+5059:       const savedCount = capturedPhotosCountRef.current;
+5060:       if (didCapture && savedCount >= maxGuestPhotos) {
+5061:         window.clearInterval(totalTimerInterval);
+5062:         setIsLockedCaptureRunning(false);
+5063:         setCaptureCountdown(null);
+5064:         commitGuestStep('capture');
+5065:         autoAdvanceGuestStep(boothMode === 'photobooth' ? 'frame' : 'select', 650);
+5066:         return;
+5067:       }
+5068: 
+5069:       // Give the browser main thread and React rendering time to settle before starting the next cycle
+5070:       if (!cancelled && savedCount < maxGuestPhotos) {
+5071:         await wait(500);
+5072:         runCaptureCycle();
+5073:       }
+5074:     };
+5075: 
+5076:     runCaptureCycle();
+5077: 
+5078:     return () => {
+5079:       cancelled = true;
+5080:       if (boothMode === 'photobooth') {
+5081:         try {
+5082:           stopClipRecording();
+5083:         } catch (e) {}
+5084:       }
+5085:       window.clearInterval(totalTimerInterval);
+5086:       setCaptureCountdown(null);
+5087:     };
+5088:   }, [isLockedCaptureRunning]);
+5089: 
+5090:   useEffect(() => {
+5091:     if (
+5092:       isPartnerMode ||
+5093:       guestStep !== 'capture' ||
+5094:       isGuestStepLocked('capture') ||
+5095:       capturedPhotos.length < maxGuestPhotos
+5096:     ) {
+5097:       return;
+5098:     }
+5099: 
+5100:     setIsLockedCaptureRunning(false);
+
+
+========================================
+
+
+=== d:/my-photobooth/src/App.jsx (lines 5110-5210) ===
+5110:     // Sequential countdown cycle for each photo, avoiding overlapping ticks/races
+5111:     const runCaptureCycle = async () => {
+5112:       if (cancelled) return;
+5113: 
+5114:       for (let secondsLeft = GUEST_CAPTURE_INTERVAL_SECONDS; secondsLeft > 0; secondsLeft--) {
+5115:         if (cancelled) {
+5116:           if (boothMode === 'photobooth') {
+5117:             try {
+5118:               await stopClipRecording();
+5119:             } catch (e) {}
+5120:           }
+5121:           return;
+5122:         }
+5123: 
+5124:         // Start recording at the beginning of the countdown (always match the countdown time)
+5125:         if (boothMode === 'photobooth' && secondsLeft === GUEST_CAPTURE_INTERVAL_SECONDS) {
+5126:           startClipRecording();
+5127:           // Warm up for 300ms to let MediaRecorder initialize and buffer frames
+5128:           await wait(300);
+5129:         }
+5130: 
+5131:         setNextCaptureSecondsLeft(secondsLeft);
+5132:         setCaptureCountdown(String(secondsLeft));
+5133: 
+5134:         // Sleep 1 second respecting the pause state
+5135:         await new Promise((resolve) => {
+5136:           let elapsed = 0;
+5137:           const waitInterval = window.setInterval(() => {
+5138:             if (cancelled) {
+5139:               window.clearInterval(waitInterval);
+5140:               resolve();
+5141:               return;
+5142:             }
+5143:             if (capturePausedRef.current) return;
+5144: 
+5145:             elapsed += 1;
+5146:             if (elapsed >= 1) {
+5147:               window.clearInterval(waitInterval);
+5148:               resolve();
+5149:             }
+5150:           }, 1000);
+5151:         });
+5152:       }
+5153: 
+5154:       if (cancelled) {
+5155:         if (boothMode === 'photobooth') {
+5156:           try {
+5157:             await stopClipRecording();
+5158:           } catch (e) {}
+5159:         }
+5160:         return;
+5161:       }
+5162: 
+5163:       // Start capture
+5164:       setCaptureCountdown('📸');
+5165: 
+5166:       const didCapture = await captureGuestPhotoFrame();
+5167:       if (cancelled) return;
+5168: 
+5169:       const savedCount = capturedPhotosCountRef.current;
+5170:       if (didCapture && savedCount >= maxGuestPhotos) {
+5171:         window.clearInterval(totalTimerInterval);
+5172:         setIsLockedCaptureRunning(false);
+5173:         setCaptureCountdown(null);
+5174:         commitGuestStep('capture');
+5175:         autoAdvanceGuestStep(boothMode === 'photobooth' ? 'frame' : 'select', 650);
+5176:         return;
+5177:       }
+5178: 
+5179:       // Give the browser main thread and React rendering time to settle before starting the next cycle
+5180:       if (!cancelled && savedCount < maxGuestPhotos) {
+5181:         await wait(500);
+5182:         runCaptureCycle();
+5183:       }
+5184:     };
+5185: 
+5186:     runCaptureCycle();
+5187: 
+5188:     return () => {
+5189:       cancelled = true;
+5190:       captureCancelTriggerRef.current = null;
+5191:       if (boothMode === 'photobooth') {
+5192:         try {
+5193:           stopClipRecording();
+5194:         } catch (e) {}
+5195:       }
+5196:       window.clearInterval(totalTimerInterval);
+5197:       setCaptureCountdown(null);
+5198:     };
+5199:   }, [isLockedCaptureRunning, captureCycleIndex]);
+5200: 
+5201:   useEffect(() => {
+5202:     if (
+5203:       isPartnerMode ||
+5204:       guestStep !== 'capture' ||
+5205:       isGuestStepLocked('capture') ||
+5206:       capturedPhotos.length < maxGuestPhotos
+5207:     ) {
+5208:       return;
+5209:     }
+5210: 

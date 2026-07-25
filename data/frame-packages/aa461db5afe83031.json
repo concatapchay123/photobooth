@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "51 - Mây Tím Lơ",
+  "frameWidth": 1200,
+  "frameHeight": 3600,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 55
+        },
+        {
+          "x": 1145,
+          "y": 55
+        },
+        {
+          "x": 1145,
+          "y": 794
+        },
+        {
+          "x": 55,
+          "y": 794
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 851
+        },
+        {
+          "x": 1145,
+          "y": 851
+        },
+        {
+          "x": 1145,
+          "y": 1591
+        },
+        {
+          "x": 55,
+          "y": 1591
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 1648
+        },
+        {
+          "x": 1145,
+          "y": 1648
+        },
+        {
+          "x": 1145,
+          "y": 2388
+        },
+        {
+          "x": 55,
+          "y": 2388
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 2445
+        },
+        {
+          "x": 1145,
+          "y": 2445
+        },
+        {
+          "x": 1145,
+          "y": 3234
+        },
+        {
+          "x": 55,
+          "y": 3234
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-05-30T12:20:53.724Z",
+  "savedAt": "2026-05-30T12:20:53.726Z"
+}

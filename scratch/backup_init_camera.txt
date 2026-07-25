@@ -1,0 +1,142 @@
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx (lines 4440-4580) ===
+4440:       }
+4441: 
+4442:       setCameraError('Không thể mở camera. Hãy kiểm tra kết nối camera hoặc quyền trình duyệt.');
+4443:       return null;
+4444:     }
+4445:   };
+4446: 
+4447:   const initCameraStream = async (deviceId = null, { stopPolling = true, userSelected = false } = {}) => {
+4448:     if (stopPolling) stopReconnectionPolling();
+4449: 
+4450:     if (cameraStreamRef.current) {
+4451:       stopStreamTracks(cameraStreamRef.current);
+4452:       cameraStreamRef.current = null;
+4453:       setCameraStream(null);
+4454:     }
+4455: 
+4456:     setCameraError('');
+4457:     let targetDeviceId = deviceId || getStoredPreferredCameraId() || getStoredSelectedCameraId();
+4458: 
+4459:     if (!targetDeviceId && !userSelected) {
+4460:       try {
+4461:         const videoDevices = await updateCameraDevices({ allowDefaultSelection: false, preferPrimary: true });
+4462:         const preferredDevice = getPreferredCameraDevice(videoDevices);
+4463:         if (preferredDevice) targetDeviceId = preferredDevice.deviceId;
+4464:       } catch (e) {
+4465:         console.warn('Error finding initial preferred camera:', e);
+4466:       }
+4467:     }
+4468: 
+4469:     const constraints = {
+4470:       video: targetDeviceId
+4471:         ? { deviceId: { exact: targetDeviceId }, ...HIGH_QUALITY_CAMERA_CONSTRAINTS }
+4472:         : { facingMode: 'user', ...HIGH_QUALITY_CAMERA_CONSTRAINTS },
+4473:       audio: false,
+4474:     };
+4475: 
+4476:     try {
+4477:       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+4478:       const track = stream.getVideoTracks()[0];
+4479:       const openedDeviceId = track?.getSettings?.().deviceId || targetDeviceId || '';
+4480:       const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4481:       const preferredDevice = getPreferredCameraDevice(videoDevices);
+4482: 
+4483:       if (
+4484:         !userSelected &&
+4485:         preferredDevice &&
+4486:         openedDeviceId &&
+4487:         openedDeviceId !== preferredDevice.deviceId &&
+4488:         !isPreferredCameraLabel(track?.label)
+4489:       ) {
+4490:         stopStreamTracks(stream);
+4491:         return initCameraStream(preferredDevice.deviceId, { stopPolling: false });
+4492:       }
+4493: 
+4494:       setCameraStream(stream);
+4495:       cameraStreamRef.current = stream;
+4496:       reconnectAttemptsRef.current = 0;
+4497: 
+4498:       const isPrimaryStream = Boolean(
+4499:         isPreferredCameraLabel(track?.label) ||
+4500:         (preferredDevice && openedDeviceId === preferredDevice.deviceId),
+4501:       );
+4502: 
+4503:       if (isPrimaryStream) {
+4504:         rememberSelectedCamera(openedDeviceId || preferredDevice?.deviceId || targetDeviceId, { preferred: true });
+4505:         setIsCameraReconnecting(false);
+4506:         isUsingFallbackCameraRef.current = false;
+4507:       } else {
+4508:         const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || preferredDevice));
+4509:         if (userSelected || !getStoredSelectedCameraId()) {
+4510:           rememberSelectedCamera(openedDeviceId || targetDeviceId);
+4511:         }
+4512:         isUsingFallbackCameraRef.current = hasPrimaryToRecover;
+4513:         setIsCameraReconnecting(hasPrimaryToRecover);
+4514:         if (hasPrimaryToRecover) {
+4515:           handleCameraDisconnect({ allowFallback: false });
+4516:         }
+4517:       }
+4518: 
+4519:       stream.getVideoTracks().forEach((videoTrack) => {
+4520:         videoTrack.onended = () => {
+4521:           console.warn('Active video track ended.');
+4522:           handleCameraDisconnect();
+4523:         };
+4524:       });
+4525: 
+4526:       return stream;
+4527:     } catch (error) {
+4528:       console.error('Failed to init camera with constraints:', error);
+4529: 
+4530:       try {
+4531:         const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: true });
+4532:         const preferredDevice = getPreferredCameraDevice(videoDevices);
+4533: 
+4534:         if (!userSelected && preferredDevice && preferredDevice.deviceId !== targetDeviceId) {
+4535:           return initCameraStream(preferredDevice.deviceId, { stopPolling: false });
+4536:         }
+4537: 
+4538:         const webcam = videoDevices.find((device) => !isPreferredCameraDevice(device)) || videoDevices[0];
+4539: 
+4540:         if (webcam) {
+4541:           console.log('Opening fallback webcam:', webcam.label);
+4542:           const fallbackConstraints = {
+4543:             video: { deviceId: { exact: webcam.deviceId }, ...HIGH_QUALITY_CAMERA_CONSTRAINTS },
+4544:             audio: false,
+4545:           };
+4546: 
+4547:           const fallbackStream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+4548:           const fallbackTrack = fallbackStream.getVideoTracks()[0];
+4549:           const fallbackDeviceId = fallbackTrack?.getSettings?.().deviceId || webcam.deviceId;
+4550:           const refreshedDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4551:           const refreshedPreferredDevice = getPreferredCameraDevice(refreshedDevices);
+4552: 
+4553:           if (
+4554:             !userSelected &&
+4555:             refreshedPreferredDevice &&
+4556:             fallbackDeviceId !== refreshedPreferredDevice.deviceId
+4557:           ) {
+4558:             stopStreamTracks(fallbackStream);
+4559:             return initCameraStream(refreshedPreferredDevice.deviceId, { stopPolling: false });
+4560:           }
+4561: 
+4562:           setCameraStream(fallbackStream);
+4563:           cameraStreamRef.current = fallbackStream;
+4564:           reconnectAttemptsRef.current = 0;
+4565: 
+4566:           const targetDeviceIsKnownPrimary = Boolean(
+4567:             targetDeviceId &&
+4568:             refreshedDevices.some((device) => device.deviceId === targetDeviceId && isPreferredCameraDevice(device)),
+4569:           );
+4570:           const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || refreshedPreferredDevice || targetDeviceIsKnownPrimary));
+4571:           if (userSelected || !hasPrimaryToRecover) {
+4572:             rememberSelectedCamera(fallbackDeviceId || webcam.deviceId);
+4573:           }
+4574:           isUsingFallbackCameraRef.current = hasPrimaryToRecover;
+4575:           setIsCameraReconnecting(hasPrimaryToRecover);
+4576: 
+4577:           fallbackStream.getVideoTracks().forEach((videoTrack) => {
+4578:             videoTrack.onended = () => {
+4579:               console.warn('Fallback video track ended.');
+4580:               handleCameraDisconnect();

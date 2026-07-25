@@ -1,0 +1,169 @@
+const finishGuestAdjustment = async ({
+    draftsOverride = null,
+    selectedDraftIndexOverride = selectedAdjustFrameIndex,
+    slotEditsOverride = slotEdits,
+    slotAssignmentsOverride = slotAssignments,
+    selectedFrameOverride = selectedFrame,
+  } = {}) => {
+    const sessionId = guestSessionIdRef.current;
+    setIsGeneratingGuestResult(true);
+    setGuestShareStatus('');
+    setGuestPrintStatus('');
+    setGuestPrintFallbackAvailable(false);
+    try {
+      const activeSlotEdits = slotEditsOverride || [];
+      const activeSlotAssignments = slotAssignmentsOverride || [];
+      const draftSource = Array.isArray(draftsOverride) && draftsOverride.length > 0 ? draftsOverride : guestFrameDrafts;
+      const draftsForPrint = (draftSource.length > 0 ? draftSource : [{
+        frame: selectedFrameOverride,
+        originalImage: originalImgRef.current,
+        originalFrameUrl: originalFrame,
+        frameDimensions,
+        zones,
+        slotEdits: activeSlotEdits,
+        slotAssignments: activeSlotAssignments,
+      }]).map((draft, index) => (
+        index === selectedDraftIndexOverride
+          ? { ...draft, slotEdits: activeSlotEdits, slotAssignments: activeSlotAssignments }
+          : draft
+      )).slice(0, GUEST_FRAME_SELECTION_TARGET);
+      const frameCanvases = await Promise.all(draftsForPrint.map((draft) => renderGuestFrameDraftComposition(draft)));
+      const outputCanvas = createGuestPrintSheetCanvas(frameCanvases);
+      const outputUrl = outputCanvas.toDataURL('image/png');
+      const sharePrintJpegUrl = outputCanvas.toDataURL('image/jpeg', 0.95);
+
+      // Render the video composition sequentially for each draft frame to prevent hardware decoder congestion
+      const frameVideos = [];
+      for (let index = 0; index < draftsForPrint.length; index++) {
+        const draft = draftsForPrint[index];
+        try {
+          setGuestShareStatus(`Đang tạo video chuyển động cho khung ${index + 1}/${draftsForPrint.length}...`);
+          const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
+          if (videoBlob) {
+            const dataUrl = await blobToDataUrl(videoBlob);
+            const mimeType = videoBlob.type || 'video/webm';
+            const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+            frameVideos.push({ dataUrl, mimeType, ext });
+          } else {
+            frameVideos.push(null);
+          }
+        } catch (e) {
+          console.error(`Error rendering video composition for draft index ${index}:`, e);
+          frameVideos.push(null);
+        }
+      }
+
+      const outputMeta = {
+        boothMode: 'photobooth',
+        idPhotoService: null,
+        frameName: selectedFrameOverride?.name || '',
+        frameNames: draftsForPrint.flatMap((draft) => (draft.frame?.name ? [draft.frame.name] : [])),
+        frameWidth: STANDARD_PRINT_FRAME.width,
+        frameHeight: STANDARD_PRINT_FRAME.height,
+        sheetWidth: PRINT_SHEET.width,
+        sheetHeight: PRINT_SHEET.height,
+        sheetSizeCm: { width: 10, height: 15 },
+        sheetOrientation: 'portrait',
+        frameSizeCm: { width: 6.2, height: 8.7 },
+        cutGapCm: PRINT_CUT_GAP / PRINT_PIXELS_PER_CM,
+        selectedCaptureIndices,
+        frameDrafts: draftsForPrint.map((draft) => ({
+          frameName: draft.frame?.name || '',
+          slotEdits: (draft.slotEdits || []).map(({ url, ...edit }) => edit),
+          slotAssignments: draft.slotAssignments || [],
+        })),
+        createdAt: new Date().toISOString(),
+      };
+      if (sessionId !== guestSessionIdRef.current) return;
+      setPhotos(activeSlotEdits.map(slotEditToPhoto));
+      setGuestPreviewUrl(outputUrl);
+      setGuestOutputMeta(outputMeta);
+      setGuestShare(null);
+      setGuestQrUrl('');
+      setGuestNotice('');
+      commitGuestStep('adjust');
+      goToGuestStep('result');
+      setGuestTransitionPrompt(null);
+      setIsGeneratingGuestResult(false);
+
+      setGuestShareStatus('Đang tạo mã QR tải ảnh…');
+      
+      // Chuyển đổi video của ảnh chụp thành Data URL song song
+      const capturedPhotosForSave = await Promise.all(capturedPhotos.map(async (photo) => {
+        if (photo.videoBlob) {
+          try {
+            const videoDataUrl = await blobToDataUrl(photo.videoBlob);
+            const mimeType = photo.videoBlob.type || 'video/webm';
+            const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+            return {
+              ...photo,
+              video: {
+                dataUrl: videoDataUrl,
+                mimeType,
+                ext,
+              }
+            };
+          } catch (e) {
+            console.error('Error converting capture videoBlob to dataUrl:', e);
+          }
+        }
+        return photo;
+      }));
+
+      const sharePayload = createGuestOutputPayload({
+        printDataUrl: sharePrintJpegUrl,
+        printPngDataUrl: outputUrl,
+        frameCanvases,
+        draftsForPrint,
+        capturedPhotosForSave,
+        outputMeta,
+        frameVideos,
+      });
+      const shareData = await saveGuestOutputToServer(sharePayload);
+      if (sessionId !== guestSessionIdRef.current) return;
+      const shareUrl = resolveGuestShareUrl(shareData);
+      if (shareUrl) {
+        const isHttpsShare = isHttpsShareUrl(shareUrl);
+        const isLoopbackShare = isLoopbackShareOrigin(shareUrl);
+        const qrDataUrl = !isLoopbackShare ? createQrCodeDataUrl(shareUrl) : '';
+        setGuestShare({
+          id: shareData.id,
+          shareUrl,
+          sharePath: shareData.sharePath,
+          lanShareUrls: shareData.lanShareUrls || [],
+          expiresAt: shareData.expiresAt || '',
+          ttlSeconds: shareData.ttlSeconds || 0,
+          savedFiles: shareData.savedFiles || null,
+        });
+        setGuestQrUrl(qrDataUrl);
+        if (!qrDataUrl && isLoopbackShare) {
+          setGuestShareStatus('Link hiện tại chỉ mở trên laptop này. Hãy chạy kiosk/server ở chế độ LAN hoặc bật Cloudflare tunnel để tạo QR cho khách.');
+        } else if (!isHttpsShare) {
+          setGuestShareStatus('Mã QR LAN đã sẵn sàng. Điện thoại cần dùng cùng Wi-Fi với laptop để tải ảnh.');
+        } else {
+          setGuestShareStatus(
+            qrDataUrl
+              ? 'Mã QR tải ảnh đã sẵn sàng. Link có hiệu lực trong 2 giờ.'
+              : 'Đã tạo link tải, nhưng link quá dài nên không tạo được mã QR.',
+          );
+        }
+      } else {
+        setGuestShare(null);
+        setGuestQrUrl('');
+        setGuestShareStatus('Chưa tạo được mã QR/link tải. Bản in vẫn sẽ được gửi tới máy in.');
+      }
+
+      await sendGuestPrintJob(outputUrl, { sessionId });
+    } catch (error) {
+      console.error('Không thể hoàn tất chỉnh sửa:', error);
+      if (sessionId === guestSessionIdRef.current) {
+        setGuestNotice('Có lỗi khi hoàn tất chỉnh sửa. Hãy thử lại.');
+      }
+    } finally {
+      if (sessionId === guestSessionIdRef.current) {
+        setIsGeneratingGuestResult(false);
+      }
+    }
+  };
+
+  

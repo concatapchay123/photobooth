@@ -1,0 +1,82 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "68f215d332a18.png",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 3,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 59,
+          "y": 680
+        },
+        {
+          "x": 821,
+          "y": 680
+        },
+        {
+          "x": 821,
+          "y": 1237
+        },
+        {
+          "x": 59,
+          "y": 1237
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 61,
+          "y": 1293
+        },
+        {
+          "x": 822,
+          "y": 1293
+        },
+        {
+          "x": 822,
+          "y": 1849
+        },
+        {
+          "x": 61,
+          "y": 1849
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 59,
+          "y": 1905
+        },
+        {
+          "x": 821,
+          "y": 1905
+        },
+        {
+          "x": 821,
+          "y": 2461
+        },
+        {
+          "x": 59,
+          "y": 2461
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-05-25T17:35:52.600Z",
+  "savedAt": "2026-05-25T17:35:52.603Z"
+}

@@ -1,0 +1,8 @@
+      {/* Slide 1: Hero */}
+      <GuestHeroScreen
+        startGuestJourney={startGuestJourney}
+        guestNotice={guestNotice}
+        guestStep={guestStep}
+        hoveredStrip={hoveredStrip}
+        setHoveredStrip={setHoveredStrip}
+      />

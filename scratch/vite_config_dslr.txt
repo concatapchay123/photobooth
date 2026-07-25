@@ -1,0 +1,61 @@
+1408:       !req.url?.startsWith('/api/dslr')
+1409:     ) {
+1410:       next();
+1411:       return;
+1412:     }
+1413: 
+1414:     try {
+1415:       ensureStoreDir();
+1416:       ensureGuestOutputDir();
+1417:       const url = new URL(req.url, 'http://local');
+1418: 
+1419:       // ---- Kiosk ↔ Dashboard relay endpoints ----
+1420: 
+1421:       if (req.method === 'POST' && url.pathname === '/api/admin/kiosk-state') {
+1422:         const payload = JSON.parse(await readBody(req));
+1423:         if (payload.state) {
+1424:           kioskRelayState.state = payload.state;
+1425:           kioskRelayState.updatedAt = Date.now();
+1426:         }
+1427:         if (payload.cameraSnapshot !== undefined) {
+1428:           kioskRelayState.cameraSnapshot = payload.cameraSnapshot;
+1429:         }
+1430:         if (payload.sessionComplete) {
+1431:           kioskSessionCompleteEvent = payload.sessionComplete;
+1432:         }
+1433:         // Return pending commands and clear queue
+1434:         const commands = kioskPendingCommands.splice(0);
+1435:         sendJson(res, 200, { ok: true, commands });
+1436:         return;
+1437:       }
+1438: 
+1439:       if (req.method === 'GET' && url.pathname === '/api/admin/kiosk-state') {
+1440:         const connected = kioskRelayState.state && (Date.now() - kioskRelayState.updatedAt < 5000);
+1441:         const sessionComplete = kioskSessionCompleteEvent;
+1442:         kioskSessionCompleteEvent = null; // consume once
+1443:         sendJson(res, 200, {
+1444:           state: kioskRelayState.state,
+1445:           updatedAt: kioskRelayState.updatedAt,
+1446:           cameraSnapshot: kioskRelayState.cameraSnapshot,
+1447:           connected: !!connected,
+1448:           sessionComplete,
+1449:         });
+1450:         return;
+1451:       }
+1452: 
+1453:       if (req.method === 'POST' && url.pathname === '/api/admin/kiosk-command') {
+1454:         const payload = JSON.parse(await readBody(req));
+1455:         kioskPendingCommands.push({
+1456:           action: payload.action,
+1457:           payload: payload.payload || null,
+1458:           timestamp: Date.now(),
+1459:         });
+1460:         sendJson(res, 200, { ok: true });
+1461:         return;
+1462:       }
+1463: 
+1464:       // ---- End relay endpoints ----
+1465: 
+1466:       if (req.method === 'GET' && url.pathname === '/api/admin/sessions') {
+1467:         ensureSavedSessionDir();
+1468:         try {

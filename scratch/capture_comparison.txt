@@ -1,0 +1,224 @@
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx (lines 4830-4920) ===
+4830:       } catch (err) {
+4831:         console.warn('Error while calling recorder.stop():', err);
+4832:         resolve(null);
+4833:       }
+4834:       clipRecorderRef.current = null;
+4835:     });
+4836:   };
+4837: 
+4838:   const captureGuestPhotoFrame = async () => {
+4839:     if (captureBusyRef.current || capturedPhotosCountRef.current >= maxGuestPhotos || !cameraStreamRef.current) return false;
+4840:     captureBusyRef.current = true;
+4841:     setIsCapturingGuestPhoto(true);
+4842:     setGuestNotice('');
+4843: 
+4844:     try {
+4845:       setCaptureCountdown('📸');
+4846:       playShutterSound();
+4847:       setFlashActive(true);
+4848:       await wait(120);
+4849: 
+4850:       const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+4851:       const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+4852: 
+4853:       if (!rawCanvas) {
+4854:         if (boothMode === 'photobooth') {
+4855:           try {
+4856:             await stopClipRecording();
+4857:           } catch (e) {}
+4858:         }
+4859:         setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
+4860:         return false;
+4861:       }
+4862: 
+4863:       // Stop video recording right after we capture the rawCanvas frame so the video matches the snapshot moment exactly
+4864:       let videoBlob = null;
+4865:       if (boothMode === 'photobooth') {
+4866:         try {
+4867:           videoBlob = await stopClipRecording();
+4868:         } catch (e) {
+4869:           console.error('Error stopping clip recording in captureGuestPhotoFrame:', e);
+4870:         }
+4871:       }
+4872: 
+4873:       const rawDataUrl = rawCanvas.toDataURL('image/jpeg', 0.95);
+4874:       const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady()
+4875:         ? await beautyCameraRef.current.captureDataUrl('image/jpeg', 0.95)
+4876:         : null;
+4877:       let dataUrl = typeof filteredDataUrl === 'string' && filteredDataUrl.startsWith('data:')
+4878:         ? filteredDataUrl
+4879:         : rawDataUrl;
+4880: 
+4881:       if (boothMode === 'id_photo') {
+4882:         dataUrl = await cropDataUrlTo3x4(dataUrl);
+4883:       }
+4884: 
+4885:       const previewUrl = await createLowResPreview(dataUrl, 640);
+4886:       const photoIndex = capturedPhotosCountRef.current;
+4887:       const photo = {
+4888:         id: `capture-${Date.now()}-${photoIndex}`,
+4889:         url: dataUrl,
+4890:         previewUrl: previewUrl,
+4891:         name: `Ảnh ${photoIndex + 1}`,
+4892:         capturedAt: new Date().toISOString(),
+4893:         videoBlob,
+4894:       };
+4895:       capturedPhotosCountRef.current = Math.min(maxGuestPhotos, photoIndex + 1);
+4896: 
+4897:       setCapturedPhotos((prev) => {
+4898:         if (prev.length >= maxGuestPhotos) return prev;
+4899:         const nextPhotos = [...prev, photo];
+4900:         capturedPhotosCountRef.current = nextPhotos.length;
+4901:         analyzeGuestPhotoLocal(photo, nextPhotos);
+4902:         return nextPhotos;
+4903:       });
+4904:       setGuestPreviewUrl('');
+4905:       return true;
+4906:     } finally {
+4907:       setFlashActive(false);
+4908:       setIsCapturingGuestPhoto(false);
+4909:       captureBusyRef.current = false;
+4910:     }
+4911:   };
+4912: 
+4913:   const startGuestCaptureSession = async () => {
+4914:     if (isLockedCaptureRunning || isCaptureLocked) return;
+4915:     if (!cameraStreamRef.current) {
+4916:       setGuestNotice('Camera đang kết nối nè, bạn đợi màn hình hiện rõ rồi bấm chụp nha.');
+4917:       await startGuestJourney();
+4918:       return;
+4919:     }
+4920:     if (capturedPhotosCountRef.current >= maxGuestPhotos) {
+
+
+========================================
+
+
+=== d:/my-photobooth/src/App.jsx (lines 4900-5025) ===
+4900:       } catch (err) {
+4901:         console.warn('Error while calling recorder.stop():', err);
+4902:         resolve(null);
+4903:       }
+4904:       clipRecorderRef.current = null;
+4905:     });
+4906:   };
+4907: 
+4908:   const captureGuestPhotoFrame = async () => {
+4909:     if (captureBusyRef.current || capturedPhotosCountRef.current >= maxGuestPhotos || !cameraStreamRef.current) return false;
+4910:     captureBusyRef.current = true;
+4911:     setIsCapturingGuestPhoto(true);
+4912:     setGuestNotice('');
+4913: 
+4914:     let videoBlob = null;
+4915:     const shouldStopVideoImmediately = boothMode === 'photobooth';
+4916:     const stopVideo = async () => {
+4917:       if (shouldStopVideoImmediately) {
+4918:         try {
+4919:           videoBlob = await stopClipRecording();
+4920:         } catch (e) {
+4921:           console.error('Error stopping clip recording in captureGuestPhotoFrame:', e);
+4922:         }
+4923:       }
+4924:     };
+4925: 
+4926:     const flashTimeout = setTimeout(() => {
+4927:       setFlashActive(false);
+4928:     }, 250);
+4929: 
+4930:     try {
+4931:       setCaptureCountdown('📸');
+4932:       playShutterSound();
+4933:       setFlashActive(true);
+4934: 
+4935:       let dslrDataUrl = null;
+4936:       if (useDslrCapture) {
+4937:         await stopVideo();
+4938:         try {
+4939:           dslrDataUrl = await captureDslrPhotoHelper();
+4940:         } catch (error) {
+4941:           console.warn('DSLR capture failed, falling back to webcam/liveview stream:', error);
+4942:           setGuestNotice('⚠️ Không chụp được bằng DSLR (digiCamControl), đang tự động dùng ảnh liveview.');
+4943:         }
+4944:       }
+4945: 
+4946:       const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+4947:       const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+4948: 
+4949:       if (!rawCanvas && !dslrDataUrl) {
+4950:         if (!useDslrCapture) {
+4951:           await stopVideo();
+4952:         }
+4953:         setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
+4954:         return false;
+4955:       }
+4956: 
+4957:       if (!useDslrCapture) {
+4958:         await stopVideo();
+4959:       }
+4960: 
+4961:       const rawDataUrl = rawCanvas ? rawCanvas.toDataURL('image/jpeg', 0.95) : null;
+4962:       const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady() && rawCanvas
+4963:         ? await beautyCameraRef.current.captureDataUrl('image/jpeg', 0.95)
+4964:         : null;
+4965: 
+4966:       let dataUrl = dslrDataUrl;
+4967:       if (!dataUrl) {
+4968:         dataUrl = typeof filteredDataUrl === 'string' && filteredDataUrl.startsWith('data:')
+4969:           ? filteredDataUrl
+4970:           : rawDataUrl;
+4971:       }
+4972: 
+4973:       if (boothMode === 'id_photo') {
+4974:         dataUrl = await cropDataUrlTo3x4(dataUrl);
+4975:       }
+4976: 
+4977:       const previewUrl = await createLowResPreview(dataUrl, 640);
+4978:       const photoIndex = capturedPhotosCountRef.current;
+4979:       const photo = {
+4980:         id: `capture-${Date.now()}-${photoIndex}`,
+4981:         url: dataUrl,
+4982:         previewUrl: previewUrl,
+4983:         name: `Ảnh ${photoIndex + 1}`,
+4984:         capturedAt: new Date().toISOString(),
+4985:         videoBlob,
+4986:       };
+4987:       capturedPhotosCountRef.current = Math.min(maxGuestPhotos, photoIndex + 1);
+4988: 
+4989:       setCapturedPhotos((prev) => {
+4990:         if (prev.length >= maxGuestPhotos) return prev;
+4991:         const nextPhotos = [...prev, photo];
+4992:         capturedPhotosCountRef.current = nextPhotos.length;
+4993:         analyzeGuestPhotoLocal(photo, nextPhotos);
+4994:         return nextPhotos;
+4995:       });
+4996:       setGuestPreviewUrl('');
+4997: 
+4998:       // Restart stream if ended or DSLR capture was used, to restore liveview smoothly
+4999:       try {
+5000:         const activeTrack = cameraStreamRef.current?.getVideoTracks?.()[0];
+5001:         const isTrackEnded = !activeTrack || activeTrack.readyState === 'ended';
+5002:         if (useDslrCapture || isTrackEnded) {
+5003:           console.log('Re-initializing camera stream after capture...');
+5004:           const targetId = getStoredPreferredCameraId() || getStoredSelectedCameraId() || '';
+5005:           await initCameraStream(targetId);
+5006:         }
+5007:       } catch (e) {
+5008:         console.warn('Failed to re-initialize camera stream after capture:', e);
+5009:       }
+5010: 
+5011:       return true;
+5012:     } finally {
+5013:       clearTimeout(flashTimeout);
+5014:       setFlashActive(false);
+5015:       setIsCapturingGuestPhoto(false);
+5016:       captureBusyRef.current = false;
+5017:     }
+5018:   };
+5019: 
+5020:   const startGuestCaptureSession = async () => {
+5021:     if (isLockedCaptureRunning || isCaptureLocked) return;
+5022:     if (!cameraStreamRef.current) {
+5023:       setGuestNotice('Camera đang kết nối nè, bạn đợi màn hình hiện rõ rồi bấm chụp nha.');
+5024:       await startGuestJourney();
+5025:       return;

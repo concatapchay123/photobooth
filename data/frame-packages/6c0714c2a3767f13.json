@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Gumball",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 63
+        },
+        {
+          "x": 825,
+          "y": 63
+        },
+        {
+          "x": 825,
+          "y": 628
+        },
+        {
+          "x": 55,
+          "y": 628
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 57,
+          "y": 676
+        },
+        {
+          "x": 826,
+          "y": 676
+        },
+        {
+          "x": 826,
+          "y": 1241
+        },
+        {
+          "x": 57,
+          "y": 1241
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 57,
+          "y": 1287
+        },
+        {
+          "x": 826,
+          "y": 1287
+        },
+        {
+          "x": 826,
+          "y": 1852
+        },
+        {
+          "x": 57,
+          "y": 1852
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 1908
+        },
+        {
+          "x": 825,
+          "y": 1908
+        },
+        {
+          "x": 825,
+          "y": 2473
+        },
+        {
+          "x": 55,
+          "y": 2473
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-21T08:21:49.288Z",
+  "savedAt": "2026-06-21T08:21:49.290Z"
+}

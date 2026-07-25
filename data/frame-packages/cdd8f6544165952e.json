@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Just being yourself",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 61,
+          "y": 71
+        },
+        {
+          "x": 819,
+          "y": 71
+        },
+        {
+          "x": 819,
+          "y": 624
+        },
+        {
+          "x": 61,
+          "y": 624
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 62,
+          "y": 682
+        },
+        {
+          "x": 820,
+          "y": 682
+        },
+        {
+          "x": 820,
+          "y": 1235
+        },
+        {
+          "x": 62,
+          "y": 1235
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 66,
+          "y": 1294
+        },
+        {
+          "x": 824,
+          "y": 1294
+        },
+        {
+          "x": 824,
+          "y": 1846
+        },
+        {
+          "x": 66,
+          "y": 1846
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 62,
+          "y": 1905
+        },
+        {
+          "x": 820,
+          "y": 1905
+        },
+        {
+          "x": 820,
+          "y": 2457
+        },
+        {
+          "x": 62,
+          "y": 2457
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-28T09:28:10.092Z",
+  "savedAt": "2026-06-28T09:28:10.094Z"
+}

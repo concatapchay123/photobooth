@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "56 - Bảng Tin Yêu Thương",
+  "frameWidth": 724,
+  "frameHeight": 2172,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 81,
+          "y": 201
+        },
+        {
+          "x": 644,
+          "y": 201
+        },
+        {
+          "x": 644,
+          "y": 590
+        },
+        {
+          "x": 81,
+          "y": 590
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 80,
+          "y": 639
+        },
+        {
+          "x": 644,
+          "y": 639
+        },
+        {
+          "x": 644,
+          "y": 1026
+        },
+        {
+          "x": 80,
+          "y": 1026
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 81,
+          "y": 1079
+        },
+        {
+          "x": 644,
+          "y": 1079
+        },
+        {
+          "x": 644,
+          "y": 1468
+        },
+        {
+          "x": 81,
+          "y": 1468
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 81,
+          "y": 1518
+        },
+        {
+          "x": 644,
+          "y": 1518
+        },
+        {
+          "x": 644,
+          "y": 2007
+        },
+        {
+          "x": 81,
+          "y": 2007
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-06T09:05:24.973Z",
+  "savedAt": "2026-06-06T09:05:24.976Z"
+}

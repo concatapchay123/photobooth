@@ -1,0 +1,8 @@
+15: const GUEST_OUTPUT_SCHEMA = 'photobooth-guest-output:v1';
+17: const GUEST_OUTPUT_DIR = path.resolve(process.cwd(), 'data/guest-outputs');
+607: const imageUrl = `/api/guest-output/${id}/frame/${index + 1}.jpg`;
+628: const videoUrl = `/api/guest-output/${id}/frame/${index + 1}/video.${ext}`;
+652: const printUrl = `/api/guest-output/${id}/print.jpg`;
+1223: !req.url?.startsWith('/api/guest-output') &&
+1397: if (req.method === 'POST' && url.pathname === '/api/guest-output/save') {
+1483: if (req.method === 'GET' && url.pathname.startsWith('/api/guest-output/')) {

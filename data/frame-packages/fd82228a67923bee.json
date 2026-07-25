@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "07 - Trà Đào Mộng Mơ",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 63,
+          "y": 71
+        },
+        {
+          "x": 817,
+          "y": 71
+        },
+        {
+          "x": 817,
+          "y": 620
+        },
+        {
+          "x": 63,
+          "y": 620
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 64,
+          "y": 684
+        },
+        {
+          "x": 818,
+          "y": 684
+        },
+        {
+          "x": 818,
+          "y": 1233
+        },
+        {
+          "x": 64,
+          "y": 1233
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 64,
+          "y": 1295
+        },
+        {
+          "x": 818,
+          "y": 1295
+        },
+        {
+          "x": 818,
+          "y": 1844
+        },
+        {
+          "x": 64,
+          "y": 1844
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 63,
+          "y": 1916
+        },
+        {
+          "x": 817,
+          "y": 1916
+        },
+        {
+          "x": 817,
+          "y": 2465
+        },
+        {
+          "x": 63,
+          "y": 2465
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-05-30T13:36:27.352Z",
+  "savedAt": "2026-05-30T13:36:27.355Z"
+}

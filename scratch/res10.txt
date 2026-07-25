@@ -1,0 +1,5 @@
+4811: const stopClipRecording = () => {
+4981: if (boothMode === 'photobooth') stopClipRecording();
+5016: if (boothMode === 'photobooth') stopClipRecording();
+5022: videoBlob = await stopClipRecording();
+5052: stopClipRecording();

@@ -1,0 +1,185 @@
+{
+   "checksum": "612bacf461f91f7ef4f970ad6a426b9e",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "children": [ {
+               "date_added": "13265712189908795",
+               "date_last_used": "0",
+               "guid": "0d183901-5897-4d74-8cae-071a61f6945f",
+               "id": "17",
+               "name": "Dell Auction",
+               "show_icon": false,
+               "source": "sync",
+               "type": "url",
+               "url": "http://www.dellauction.com/",
+               "visit_count": 0
+            }, {
+               "date_added": "13265712189908795",
+               "date_last_used": "0",
+               "guid": "d823494a-d762-43fb-99c5-6f2aa69f5581",
+               "id": "18",
+               "name": "Dell",
+               "show_icon": false,
+               "source": "sync",
+               "type": "url",
+               "url": "http://www.dell.com/",
+               "visit_count": 0
+            }, {
+               "date_added": "13265712189924425",
+               "date_last_used": "0",
+               "guid": "1376da3e-b988-44eb-9381-59fce2d99c56",
+               "id": "19",
+               "name": "Support.Dell.Com",
+               "show_icon": false,
+               "source": "sync",
+               "type": "url",
+               "url": "http://www.dell.com/support/home",
+               "visit_count": 0
+            } ],
+            "date_added": "13309771948869151",
+            "date_last_used": "0",
+            "date_modified": "13309771948869151",
+            "guid": "bdbba166-1069-4cd3-b6c0-1dc00b999847",
+            "id": "16",
+            "name": "Dell",
+            "source": "unknown",
+            "type": "folder"
+         } ],
+         "date_added": "13424546667045981",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Thanh mục yêu thích",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "children": [  ],
+            "date_added": "13377063305885914",
+            "date_last_used": "0",
+            "date_modified": "13377063305885914",
+            "guid": "30777b44-638a-40fd-87de-b207660a685f",
+            "id": "11",
+            "name": "Other Bookmarks",
+            "source": "unknown",
+            "type": "folder"
+         }, {
+            "children": [ {
+               "date_added": "13193458712000000",
+               "date_last_used": "0",
+               "guid": "49d283a3-02de-4f98-a566-0887e80b5634",
+               "id": "13",
+               "name": "Bảo Bối Thần Kỳ - Game H5",
+               "show_icon": false,
+               "source": "sync",
+               "type": "url",
+               "url": "https://h5.bb.360game.vn/play-game?",
+               "visit_count": 0
+            }, {
+               "date_added": "13196503100000000",
+               "date_last_used": "0",
+               "guid": "8d67c85c-0d3f-4b84-8267-98341b2794e3",
+               "id": "14",
+               "name": "nfkd2ug8d9.com/iuqasfg3?key=0f22c1fd609f13cb7947c8cabfe1a90d&psid=14611688",
+               "show_icon": false,
+               "source": "sync",
+               "type": "url",
+               "url": "http://nfkd2ug8d9.com/iuqasfg3?key=0f22c1fd609f13cb7947c8cabfe1a90d&psid=14611688",
+               "visit_count": 0
+            } ],
+            "date_added": "13377063305886034",
+            "date_last_used": "0",
+            "date_modified": "13377063305886034",
+            "guid": "4ac7df78-96df-41ad-b893-aa70cf104798",
+            "id": "12",
+            "name": "Synced Bookmarks",
+            "source": "unknown",
+            "type": "folder"
+         }, {
+            "children": [  ],
+            "date_added": "13377063305886107",
+            "date_last_used": "0",
+            "date_modified": "13377063305886107",
+            "guid": "423755bf-3532-405f-b8a0-2b52156fd819",
+            "id": "15",
+            "name": "Bookmark Bar",
+            "source": "unknown",
+            "type": "folder"
+         } ],
+         "date_added": "13424546667045981",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Các mục yêu thích khác",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13424546667045981",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Yêu thích trên Di động",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "workspaces_v2": {
+         "children": [ {
+            "children": [  ],
+            "date_added": "13420143293139488",
+            "date_last_used": "0",
+            "date_modified": "13420143293139488",
+            "guid": "81120f35-c9ff-429c-9b51-d508225b6c86",
+            "id": "7",
+            "name": "JPD113",
+            "source": "unknown",
+            "type": "folder"
+         }, {
+            "children": [  ],
+            "date_added": "13418036897730883",
+            "date_last_used": "0",
+            "date_modified": "13418036897730883",
+            "guid": "97d90d08-d4fc-40d5-96d0-4207af52e4e7",
+            "id": "8",
+            "name": "hoctoikhithanhcong",
+            "source": "unknown",
+            "type": "folder"
+         }, {
+            "children": [  ],
+            "date_added": "13418036897730533",
+            "date_last_used": "0",
+            "date_modified": "13418036897730533",
+            "guid": "21eda2cf-f4d1-4d94-afc9-8205629b54dc",
+            "id": "9",
+            "name": "phucdeptrainhatvutru",
+            "source": "unknown",
+            "type": "folder"
+         }, {
+            "children": [  ],
+            "date_added": "13418036897729325",
+            "date_last_used": "0",
+            "date_modified": "13418036897729325",
+            "guid": "aea6a907-25bd-4170-9f3f-774c07ed315c",
+            "id": "10",
+            "name": "FPT",
+            "source": "unknown",
+            "type": "folder"
+         } ],
+         "date_added": "13424546667045981",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "75aa6670-344f-549d-b742-660f029506ab",
+         "id": "5",
+         "name": "Không gian làm việc",
+         "source": "unknown",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

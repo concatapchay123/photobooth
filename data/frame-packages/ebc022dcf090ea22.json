@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Ngôi sao tím",
+  "frameWidth": 1000,
+  "frameHeight": 3000,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 70,
+          "y": 82
+        },
+        {
+          "x": 931,
+          "y": 82
+        },
+        {
+          "x": 931,
+          "y": 726
+        },
+        {
+          "x": 70,
+          "y": 726
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 70,
+          "y": 772
+        },
+        {
+          "x": 930,
+          "y": 772
+        },
+        {
+          "x": 930,
+          "y": 1416
+        },
+        {
+          "x": 70,
+          "y": 1416
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 70,
+          "y": 1462
+        },
+        {
+          "x": 931,
+          "y": 1462
+        },
+        {
+          "x": 931,
+          "y": 2106
+        },
+        {
+          "x": 70,
+          "y": 2106
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 70,
+          "y": 2152
+        },
+        {
+          "x": 930,
+          "y": 2152
+        },
+        {
+          "x": 930,
+          "y": 2796
+        },
+        {
+          "x": 70,
+          "y": 2796
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-14T15:40:30.306Z",
+  "savedAt": "2026-06-14T15:40:30.307Z"
+}

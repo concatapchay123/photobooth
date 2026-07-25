@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "16 - Tim Nhỏ Lấp Lánh",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 64,
+          "y": 95
+        },
+        {
+          "x": 818,
+          "y": 95
+        },
+        {
+          "x": 818,
+          "y": 644
+        },
+        {
+          "x": 64,
+          "y": 644
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 64,
+          "y": 684
+        },
+        {
+          "x": 818,
+          "y": 684
+        },
+        {
+          "x": 818,
+          "y": 1233
+        },
+        {
+          "x": 64,
+          "y": 1233
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 63,
+          "y": 1296
+        },
+        {
+          "x": 817,
+          "y": 1296
+        },
+        {
+          "x": 817,
+          "y": 1844
+        },
+        {
+          "x": 63,
+          "y": 1844
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 64,
+          "y": 1907
+        },
+        {
+          "x": 818,
+          "y": 1907
+        },
+        {
+          "x": 818,
+          "y": 2455
+        },
+        {
+          "x": 64,
+          "y": 2455
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-02T12:29:58.651Z",
+  "savedAt": "2026-06-02T12:29:58.653Z"
+}

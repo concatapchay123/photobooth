@@ -1,0 +1,871 @@
+﻿{
+    "schema":  "photobooth-slot-analysis-report:v1",
+    "generatedAt":  "2026-06-27T03:02:45.0534738Z",
+    "source":  "transparent-alpha-source",
+    "algorithm":  {
+                      "transparent":  "alpha \u003c= 24",
+                      "component":  "connected transparent components",
+                      "merge":  "same vertical band and nearby horizontal gap",
+                      "ordering":  "top-to-bottom, left-to-right within row tolerance"
+                  },
+    "frameCount":  14,
+    "dimensions":  [
+                       {
+                           "width":  880,
+                           "height":  2650,
+                           "count":  13
+                       },
+                       {
+                           "width":  1200,
+                           "height":  3600,
+                           "count":  1
+                       }
+                   ],
+    "frames":  [
+                   {
+                       "id":  "App love",
+                       "name":  "App love",
+                       "source":  "source/App love.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1689726,
+                       "transparentPercent":  72.4582,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  64,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  432313
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432313
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  676,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  419324
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  419324
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1289,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  421118
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  421118
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1901,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  415699
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  415699
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Film ảnh",
+                       "name":  "Film ảnh",
+                       "source":  "source/Film ảnh.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1729987,
+                       "transparentPercent":  74.1847,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  63,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  432779
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432779
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  432322
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432322
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1290,
+                                                              "width":  770,
+                                                              "height":  564,
+                                                              "area":  432091
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432091
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1908,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  432795
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432795
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Giấy chứng nhận kết hôn",
+                       "name":  "Giấy chứng nhận kết hôn",
+                       "source":  "source/Giấy chứng nhận kết hôn.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1648218,
+                       "transparentPercent":  70.6783,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  73,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  410959
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  410959
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  684,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  409654
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  409654
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  68,
+                                                              "y":  1296,
+                                                              "width":  754,
+                                                              "height":  548,
+                                                              "area":  398002
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  398002
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  1907,
+                                                              "width":  755,
+                                                              "height":  553,
+                                                              "area":  417293
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  417293
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Grow up girl",
+                       "name":  "Grow up girl",
+                       "source":  "source/Grow up girl.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1554518,
+                       "transparentPercent":  66.6603,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  74,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  397948
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  397948
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  686,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  396441
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  396441
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  65,
+                                                              "y":  1298,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  396946
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  396946
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  65,
+                                                              "y":  1910,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  363182
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  363182
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Iphone screen",
+                       "name":  "Iphone screen",
+                       "source":  "source/Iphone screen.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1617327,
+                       "transparentPercent":  69.3536,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  71,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  405719
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  405719
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  684,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  406584
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  406584
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  1295,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  401573
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  401573
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  1916,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  401730
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  401730
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Just being yourself",
+                       "name":  "Just being yourself",
+                       "source":  "source/Just being yourself.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1643547,
+                       "transparentPercent":  70.478,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  61,
+                                                              "y":  71,
+                                                              "width":  758,
+                                                              "height":  553,
+                                                              "area":  401885
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  401885
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  62,
+                                                              "y":  682,
+                                                              "width":  758,
+                                                              "height":  553,
+                                                              "area":  417966
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  417966
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  66,
+                                                              "y":  1294,
+                                                              "width":  758,
+                                                              "height":  552,
+                                                              "area":  414135
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  414135
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  62,
+                                                              "y":  1905,
+                                                              "width":  758,
+                                                              "height":  552,
+                                                              "area":  407525
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  407525
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Just love yourself",
+                       "name":  "Just love yourself",
+                       "source":  "source/Just love yourself.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1700188,
+                       "transparentPercent":  72.9069,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  65,
+                                                              "width":  770,
+                                                              "height":  564,
+                                                              "area":  415423
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  415423
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  432880
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432880
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  61,
+                                                              "y":  1288,
+                                                              "width":  769,
+                                                              "height":  564,
+                                                              "area":  428953
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  428953
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  1899,
+                                                              "width":  769,
+                                                              "height":  564,
+                                                              "area":  420170
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  420170
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Locket",
+                       "name":  "Locket",
+                       "source":  "source/Locket.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1684580,
+                       "transparentPercent":  72.2376,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  62,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  418001
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  418001
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  676,
+                                                              "width":  770,
+                                                              "height":  564,
+                                                              "area":  431605
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  431605
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1287,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  431185
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  431185
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1909,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  403789
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  403789
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Sơn Tùng MTP",
+                       "name":  "Sơn Tùng MTP",
+                       "source":  "source/Sơn Tùng MTP.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1717665,
+                       "transparentPercent":  73.6563,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  53,
+                                                              "y":  51,
+                                                              "width":  768,
+                                                              "height":  560,
+                                                              "area":  430080
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  430080
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  668,
+                                                              "width":  767,
+                                                              "height":  560,
+                                                              "area":  429520
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  429520
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1283,
+                                                              "width":  767,
+                                                              "height":  559,
+                                                              "area":  428753
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  428753
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  53,
+                                                              "y":  1908,
+                                                              "width":  768,
+                                                              "height":  559,
+                                                              "area":  429312
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  429312
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "starry nights",
+                       "name":  "starry nights",
+                       "source":  "source/starry nights.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1740918,
+                       "transparentPercent":  74.6534,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  64,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  676,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1289,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1901,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "starrynight",
+                       "name":  "starrynight",
+                       "source":  "source/starrynight.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1740918,
+                       "transparentPercent":  74.6534,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  64,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  676,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1289,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1901,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Thư tay",
+                       "name":  "Thư tay",
+                       "source":  "source/Thư tay.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1726008,
+                       "transparentPercent":  74.0141,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  63,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  424201
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  424201
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  432615
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432615
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  1287,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  434485
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  434485
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1908,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  432946
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  432946
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Tròn vuông tam giác",
+                       "name":  "Tròn vuông tam giác",
+                       "source":  "source/Tròn vuông tam giác.png",
+                       "width":  1200,
+                       "height":  3600,
+                       "transparentPixels":  3091345,
+                       "transparentPercent":  71.5589,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  75,
+                                                              "y":  84,
+                                                              "width":  1046,
+                                                              "height":  766,
+                                                              "area":  792084
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  792084
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  78,
+                                                              "y":  928,
+                                                              "width":  1040,
+                                                              "height":  760,
+                                                              "area":  738851
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  738851
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  75,
+                                                              "y":  1766,
+                                                              "width":  1046,
+                                                              "height":  766,
+                                                              "area":  718580
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  718580
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  75,
+                                                              "y":  2607,
+                                                              "width":  1046,
+                                                              "height":  765,
+                                                              "area":  783442
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  783442
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Xanh Jean",
+                       "name":  "Xanh Jean",
+                       "source":  "source/Xanh Jean.png",
+                       "width":  880,
+                       "height":  2650,
+                       "transparentPixels":  1635150,
+                       "transparentPercent":  70.1179,
+                       "slotCount":  4,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  63,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  414552
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  414552
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  414270
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  414270
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  1287,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  400719
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  400719
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1908,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  405609
+                                                          },
+                                         "pointCount":  4,
+                                         "area":  405609
+                                     }
+                                 ]
+                   }
+               ],
+    "warnings":  {
+                     "framesWithoutSlots":  [
+
+                                            ]
+                 }
+}

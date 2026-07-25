@@ -1,0 +1,638 @@
+13:   Camera,
+51: import BeautyFilterCamera from './BeautyFilterCamera.jsx';
+64: import { ConfirmCapturePopup } from '../popup-drafts/ConfirmCapturePopup.jsx';
+396: const GUEST_STEP_ORDER = ['capture', 'frame', 'select', 'adjust', 'result'];
+397: const GUEST_CAPTURE_TARGET = 6;
+398: const GUEST_CAPTURE_MIN_TO_CONTINUE = 6;
+400: const GUEST_CAPTURE_TOTAL_SECONDS = 60;
+401: const GUEST_CAPTURE_INTERVAL_SECONDS = 10;
+414: const SELECTED_CAMERA_STORAGE_KEY = 'selectedCameraId';
+415: const PREFERRED_CAMERA_STORAGE_KEY = 'preferredCameraId';
+447:   capture: 0.2197,
+452: const GUEST_TOTAL_TIMER_STEPS = ['capture', 'frame', 'select', 'adjust'];
+466:   // Ensure capture budget is at least enough for GUEST_CAPTURE_TARGET photos + overhead (e.g. 90 seconds)
+467:   const minCaptureBudget = GUEST_CAPTURE_TARGET * (GUEST_CAPTURE_INTERVAL_SECONDS + 5);
+468:   if (budgets.capture < minCaptureBudget) {
+469:     budgets.capture = minCaptureBudget;
+479: const HIGH_QUALITY_CAMERA_CONSTRAINTS = {
+1252: const getFirstCaptureIndices = (photoCount, targetCount = 4) =>
+1854: const createGuestOutputPayload = ({ printDataUrl, printPngDataUrl = '', frameCanvases, draftsForPrint, capturedPhotosForSave = [], outputMeta, frameVideos = [] }) => {
+1892:     captures: capturedPhotosForSave.slice(0, GUEST_CAPTURE_TARGET).map((photo, index) => {
+1893:       const captureData = {
+1897:         capturedAt: photo.capturedAt || '',
+1901:         captureData.video = {
+1908:       return captureData;
+2238:   const [capturedPhotos, setCapturedPhotos] = useState([]);
+2239:   const [selectedCaptureIndices, setSelectedCaptureIndices] = useState([]);
+2240:   const [guestAutoCaptureIndices, setGuestAutoCaptureIndices] = useState([]);
+2245:   const [cameraStream, setCameraStream] = useState(null);
+2246:   const [cameraDevices, setCameraDevices] = useState([]);
+2247:   const [selectedCameraId, setSelectedCameraId] = useState(() => localStorage.getItem(SELECTED_CAMERA_STORAGE_KEY) || '');
+2248:   const [isCameraReconnecting, setIsCameraReconnecting] = useState(false);
+2249:   const [cameraError, setCameraError] = useState('');
+2250:   const [showDslrGuide, setShowDslrGuide] = useState(false);
+2255:   const isUsingFallbackCameraRef = useRef(false);
+2256:   const preferredCameraIdRef = useRef(localStorage.getItem(PREFERRED_CAMERA_STORAGE_KEY) || '');
+2258:   const [captureCountdown, setCaptureCountdown] = useState(null);
+2259:   const [captureSessionSecondsLeft, setCaptureSessionSecondsLeft] = useState(GUEST_CAPTURE_TOTAL_SECONDS);
+2260:   const [nextCaptureSecondsLeft, setNextCaptureSecondsLeft] = useState(GUEST_CAPTURE_INTERVAL_SECONDS);
+2261:   const [isLockedCaptureRunning, setIsLockedCaptureRunning] = useState(false);
+2273:   const latestIsLockedCaptureRunningRef = useRef(isLockedCaptureRunning);
+2274:   latestIsLockedCaptureRunningRef.current = isLockedCaptureRunning;
+2276:   const latestCaptureSessionSecondsLeftRef = useRef(captureSessionSecondsLeft);
+2277:   latestCaptureSessionSecondsLeftRef.current = captureSessionSecondsLeft;
+2334:   const beautyCameraRef = useRef(null);
+2342:   const cameraStreamRef = useRef(null);
+2343:   const capturedPhotosCountRef = useRef(0);
+2344:   const captureBusyRef = useRef(false);
+2345:   const capturePausedRef = useRef(false);
+2715:     () => guestAutoCaptureIndices
+2716:       .flatMap((captureIndex) => {
+2717:         const photo = capturedPhotos[captureIndex];
+2718:         return photo ? [{ captureIndex, photo }] : [];
+2720:     [guestAutoCaptureIndices, capturedPhotos],
+2722:   const guestAutoCapturePhotoKey = useMemo(
+2723:     () => guestAutoCaptureIndices
+2724:       .map((captureIndex) => capturedPhotos[captureIndex]?.id || '')
+2727:     [guestAutoCaptureIndices, capturedPhotos],
+2730:   const maxGuestPhotos = boothMode === 'photobooth' ? GUEST_CAPTURE_TARGET : 4;
+2731:   const minGuestPhotosToContinue = boothMode === 'photobooth' ? GUEST_CAPTURE_MIN_TO_CONTINUE : 4;
+2749:     cameraStreamRef.current = cameraStream;
+2750:   }, [cameraStream]);
+2753:     if (guestStep !== 'capture' && guestStep !== 'hero' && cameraStream) {
+2754:       cameraStream.getTracks().forEach((track) => track.stop());
+2755:       setCameraStream(null);
+2757:   }, [guestStep, cameraStream]);
+2760:     capturePausedRef.current = guestTransitionPrompt?.stepId === 'capture';
+2764:     capturedPhotosCountRef.current = capturedPhotos.length;
+2765:   }, [capturedPhotos.length]);
+2769:     stopStreamTracks(cameraStreamRef.current);
+2770:     cameraStreamRef.current = null;
+3710:   const captureRawGuestVideoCanvas = (video) => {
+3723:   const captureRawGuestVideoFrame = (video) => {
+3724:     const canvas = captureRawGuestVideoCanvas(video);
+3732:       const canvas = captureRawGuestVideoCanvas(video);
+3783:   const getGuestPreviewPhotoItem = async (captureIndex) => {
+3784:     const photo = capturedPhotos[captureIndex];
+3790:       return { ...cached, Helper: 'Cached', captureIndex, photo };
+3794:     const item = { captureIndex, photo, img, subject: createSlotFitSubject(img), url: previewUrl };
+3797:     if (guestPreviewPhotoCacheRef.current.size > GUEST_CAPTURE_TARGET) {
+3798:       const validIds = new Set(capturedPhotos.map((itemPhoto) => itemPhoto.id));
+3962:     if (stepId === 'capture') {
+3963:       return latestGuestStepRef.current === 'capture' || latestIsLockedCaptureRunningRef.current
+3964:         ? latestCaptureSessionSecondsLeftRef.current
+3965:         : latestGuestStepBudgetsRef.current.capture;
+4029:     const activeStepsForScroll = boothMode === 'photobooth' ? GUEST_STEP_ORDER : ['capture', 'select', 'result'];
+4142:   const DSLR_CAPTURE_REGEX = /eos|canon|nikon|sony|fuji|virtual|obs|sparko|capture|hdmi|cam\s?link|elgato|usb\s?video/i;
+4143:   const getStoredSelectedCameraId = () => localStorage.getItem(SELECTED_CAMERA_STORAGE_KEY) || '';
+4144:   const getStoredPreferredCameraId = () => (
+4145:     preferredCameraIdRef.current ||
+4146:     localStorage.getItem(PREFERRED_CAMERA_STORAGE_KEY) ||
+4149:   const isPreferredCameraLabel = (label) => DSLR_CAPTURE_REGEX.test(String(label || ''));
+4150:   const isPreferredCameraDevice = (device) => isPreferredCameraLabel(device?.label);
+4151:   const getPreferredCameraDevice = (devices) => devices.find(isPreferredCameraDevice) || null;
+4152:   const hasReadableCameraLabels = (devices) => devices.some((device) => String(device.label || '').trim());
+4154:   const rememberSelectedCamera = (deviceId, { preferred = false } = {}) => {
+4156:     setSelectedCameraId(deviceId);
+4157:     localStorage.setItem(SELECTED_CAMERA_STORAGE_KEY, deviceId);
+4159:       preferredCameraIdRef.current = deviceId;
+4160:       localStorage.setItem(PREFERRED_CAMERA_STORAGE_KEY, deviceId);
+4172:       console.warn('Error stopping camera stream:', error);
+4187:   const updateCameraDevices = async ({ allowDefaultSelection = false, preferPrimary = true } = {}) => {
+4192:       setCameraDevices(videoDevices);
+4196:       const labelsAreReadable = hasReadableCameraLabels(videoDevices);
+4197:       const preferredDevice = getPreferredCameraDevice(videoDevices);
+4199:         preferredCameraIdRef.current = preferredDevice.deviceId;
+4200:         localStorage.setItem(PREFERRED_CAMERA_STORAGE_KEY, preferredDevice.deviceId);
+4203:       const activeId = getStoredSelectedCameraId();
+4206:       if (preferredDevice && preferPrimary && (!activeId || !stillExists || isUsingFallbackCameraRef.current)) {
+4207:         rememberSelectedCamera(preferredDevice.deviceId, { preferred: true });
+4212:         setSelectedCameraId(activeId);
+4218:         rememberSelectedCamera(defaultDevice.deviceId, { preferred: Boolean(preferredDevice) });
+4223:       console.warn('Error enumerating camera devices:', error);
+4228:   const handleCameraDisconnect = ({ allowFallback = true } = {}) => {
+4229:     if (capturePausedRef.current) return;
+4231:     setIsCameraReconnecting(true);
+4238:     const selectedCameraIdAtStart = getStoredSelectedCameraId();
+4243:       console.log(`Polling to check camera reconnect (${timeElapsed}s passed)…`);
+4248:         setCameraDevices(videoDevices);
+4250:         const preferredByLabel = getPreferredCameraDevice(videoDevices);
+4252:           preferredCameraIdRef.current = preferredByLabel.deviceId;
+4253:           localStorage.setItem(PREFERRED_CAMERA_STORAGE_KEY, preferredByLabel.deviceId);
+4256:         const storedPreferredId = getStoredPreferredCameraId();
+4260:         const selectedDevice = selectedCameraIdAtStart
+4261:           ? videoDevices.find((device) => device.deviceId === selectedCameraIdAtStart)
+4267:           const activeTrack = cameraStreamRef.current?.getVideoTracks?.()[0];
+4270:           const isAlreadyUsingPrimary = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4273:             console.log('Reconnecting to preferred camera:', targetDevice.deviceId);
+4274:             const stream = await initCameraStream(targetDevice.deviceId, { stopPolling: false });
+4278:             const restoredIsPrimary = restoredTrack && isPreferredCameraLabel(restoredTrack.label);
+4281:               console.log('Camera restored successfully!');
+4283:               rememberSelectedCamera(targetDevice.deviceId, { preferred: targetIsPrimary });
+4284:               isUsingFallbackCameraRef.current = false;
+4285:               setIsCameraReconnecting(false);
+4290:             isUsingFallbackCameraRef.current = false;
+4291:             setIsCameraReconnecting(false);
+4299:       if (allowFallback && timeElapsed >= 5.0 && !cameraStreamRef.current && !isUsingFallbackCameraRef.current) {
+4300:         console.log('No active camera stream after 5s. Opening webcam fallback…');
+4304:           const webcamDevice = videoDevices.find((d) => !isPreferredCameraDevice(d));
+4309:               video: { deviceId: { exact: fallbackId }, ...HIGH_QUALITY_CAMERA_CONSTRAINTS },
+4313:             setCameraStream(stream);
+4314:             const hasPrimaryToRecover = Boolean(getStoredPreferredCameraId() || getPreferredCameraDevice(videoDevices));
+4315:             isUsingFallbackCameraRef.current = hasPrimaryToRecover;
+4316:             setIsCameraReconnecting(hasPrimaryToRecover);
+4320:                 console.warn('Temporary fallback camera track ended.');
+4321:                 handleCameraDisconnect();
+4336:   const initCameraStreamLegacy = async (deviceId = null) => {
+4339:     if (cameraStreamRef.current) {
+4341:         cameraStreamRef.current.getTracks().forEach((track) => track.stop());
+4343:         console.warn('Error stopping old camera track:', e);
+4345:       setCameraStream(null);
+4348:     setCameraError('');
+4349:     let targetDeviceId = deviceId || localStorage.getItem('selectedCameraId') || '';
+4355:         const dslr = videoDevices.find((d) => DSLR_CAPTURE_REGEX.test(d.label));
+4356:         if (dslr) {
+4357:           targetDeviceId = dslr.deviceId;
+4358:           setSelectedCameraId(dslr.deviceId);
+4359:           localStorage.setItem('selectedCameraId', dslr.deviceId);
+4362:         console.warn('Error finding initial DSLR:', e);
+4368:         ? { deviceId: { exact: targetDeviceId }, ...HIGH_QUALITY_CAMERA_CONSTRAINTS }
+4369:         : { facingMode: 'user', ...HIGH_QUALITY_CAMERA_CONSTRAINTS },
+4377:       const isDslr = track && DSLR_CAPTURE_REGEX.test(track.label);
+4379:       setCameraStream(stream);
+4382:       if (isDslr) {
+4383:         setIsCameraReconnecting(false);
+4384:         isUsingFallbackCameraRef.current = false;
+4386:           preferredCameraIdRef.current = targetDeviceId;
+4389:         setIsCameraReconnecting(true);
+4390:         isUsingFallbackCameraRef.current = true;
+4391:         handleCameraDisconnect();
+4394:       await updateCameraDevices();
+4399:           handleCameraDisconnect();
+4405:       console.error('Failed to init camera with constraints:', error);
+4410:         const webcam = videoDevices.find((d) => !DSLR_CAPTURE_REGEX.test(d.label)) || videoDevices[0];
+4415:             video: { deviceId: { exact: webcam.deviceId }, ...HIGH_QUALITY_CAMERA_CONSTRAINTS },
+4420:           setCameraStream(fallbackStream);
+4421:           setIsCameraReconnecting(true);
+4423:           isUsingFallbackCameraRef.current = true;
+4425:           await updateCameraDevices();
+4430:               handleCameraDisconnect();
+4434:           handleCameraDisconnect();
+4442:       setCameraError('Không thể mở camera. Hãy kiểm tra kết nối camera hoặc quyền trình duyệt.');
+4447:   const initCameraStream = async (deviceId = null, { stopPolling = true, userSelected = false } = {}) => {
+4450:     if (cameraStreamRef.current) {
+4451:       stopStreamTracks(cameraStreamRef.current);
+4452:       cameraStreamRef.current = null;
+4453:       setCameraStream(null);
+4456:     setCameraError('');
+4457:     let targetDeviceId = deviceId || getStoredPreferredCameraId() || getStoredSelectedCameraId();
+4461:         const videoDevices = await updateCameraDevices({ allowDefaultSelection: false, preferPrimary: true });
+4462:         const preferredDevice = getPreferredCameraDevice(videoDevices);
+4465:         console.warn('Error finding initial preferred camera:', e);
+4471:         ? { deviceId: { exact: targetDeviceId }, ...HIGH_QUALITY_CAMERA_CONSTRAINTS }
+4472:         : { facingMode: 'user', ...HIGH_QUALITY_CAMERA_CONSTRAINTS },
+4480:       const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4481:       const preferredDevice = getPreferredCameraDevice(videoDevices);
+4488:         !isPreferredCameraLabel(track?.label)
+4491:         return initCameraStream(preferredDevice.deviceId, { stopPolling: false });
+4494:       setCameraStream(stream);
+4495:       cameraStreamRef.current = stream;
+4499:         isPreferredCameraLabel(track?.label) ||
+4504:         rememberSelectedCamera(openedDeviceId || preferredDevice?.deviceId || targetDeviceId, { preferred: true });
+4505:         setIsCameraReconnecting(false);
+4506:         isUsingFallbackCameraRef.current = false;
+4508:         const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || preferredDevice));
+4509:         if (userSelected || !getStoredSelectedCameraId()) {
+4510:           rememberSelectedCamera(openedDeviceId || targetDeviceId);
+4512:         isUsingFallbackCameraRef.current = hasPrimaryToRecover;
+4513:         setIsCameraReconnecting(hasPrimaryToRecover);
+4515:           handleCameraDisconnect({ allowFallback: false });
+4522:           handleCameraDisconnect();
+4528:       console.error('Failed to init camera with constraints:', error);
+4531:         const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: true });
+4532:         const preferredDevice = getPreferredCameraDevice(videoDevices);
+4535:           return initCameraStream(preferredDevice.deviceId, { stopPolling: false });
+4538:         const webcam = videoDevices.find((device) => !isPreferredCameraDevice(device)) || videoDevices[0];
+4543:             video: { deviceId: { exact: webcam.deviceId }, ...HIGH_QUALITY_CAMERA_CONSTRAINTS },
+4550:           const refreshedDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4551:           const refreshedPreferredDevice = getPreferredCameraDevice(refreshedDevices);
+4559:             return initCameraStream(refreshedPreferredDevice.deviceId, { stopPolling: false });
+4562:           setCameraStream(fallbackStream);
+4563:           cameraStreamRef.current = fallbackStream;
+4568:             refreshedDevices.some((device) => device.deviceId === targetDeviceId && isPreferredCameraDevice(device)),
+4570:           const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || refreshedPreferredDevice || targetDeviceIsKnownPrimary));
+4572:             rememberSelectedCamera(fallbackDeviceId || webcam.deviceId);
+4574:           isUsingFallbackCameraRef.current = hasPrimaryToRecover;
+4575:           setIsCameraReconnecting(hasPrimaryToRecover);
+4580:               handleCameraDisconnect();
+4585:             handleCameraDisconnect({ allowFallback: false });
+4594:       setCameraError('Không thể mở camera. Hãy kiểm tra kết nối camera hoặc quyền trình duyệt.');
+4599:   const handleCameraChange = async (deviceId) => {
+4600:     rememberSelectedCamera(deviceId);
+4601:     await initCameraStream(deviceId, { userSelected: true });
+4609:       await updateCameraDevices({ allowDefaultSelection: false, preferPrimary: true });
+4614:       const targetId = getStoredPreferredCameraId() || getStoredSelectedCameraId();
+4615:       const activeStream = cameraStreamRef.current;
+4617:       const dslrDevice = getPreferredCameraDevice(videoDevices);
+4619:       if (dslrDevice) {
+4621:         const isCurrentlyUsingDslr = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4623:         if (!isCurrentlyUsingDslr) {
+4624:           console.log('DSLR or Capture Card detected! Auto-switching to:', dslrDevice.label);
+4625:           rememberSelectedCamera(dslrDevice.deviceId, { preferred: true });
+4626:           isUsingFallbackCameraRef.current = false;
+4627:           await initCameraStream(dslrDevice.deviceId);
+4634:         await initCameraStream(targetId);
+4645:     updateCameraDevices();
+4677:     capturePausedRef.current = false;
+4679:     setCapturedPhotos([]);
+4680:     setSelectedCaptureIndices([]);
+4681:     setGuestAutoCaptureIndices([]);
+4703:     const initialCaptureSeconds = Math.ceil(initialBudgets.capture);
+4705:     setCaptureSessionSecondsLeft(initialCaptureSeconds);
+4706:     setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);
+4707:     setCaptureCountdown(null);
+4708:     setIsLockedCaptureRunning(false);
+4709:     capturedPhotosCountRef.current = 0;
+4710:     setGuestStep('capture');
+4711:     setVisibleGuestStep('capture');
+4712:     scrollToGuestStep('capture');
+4714:     await initCameraStream(getStoredPreferredCameraId() || getStoredSelectedCameraId() || '');
+4747:       if (nextPhotos.length >= GUEST_CAPTURE_TARGET && !guestAiAnalysisStartedRef.current) {
+4749:         runGuestAiAnalysis(nextPhotos.slice(0, GUEST_CAPTURE_TARGET));
+4752:       if (nextPhotos.length >= GUEST_CAPTURE_TARGET && !guestAiAnalysisStartedRef.current) {
+4754:         runGuestAiAnalysis(nextPhotos.slice(0, GUEST_CAPTURE_TARGET));
+4761:       const canvas = beautyCameraRef.current?.getCanvas();
+4778:       // Always reuse the same captureStream within the same session. DO NOT stop tracks between photos!
+4780:         clipStreamRef.current = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
+4838:   const captureGuestPhotoFrame = async () => {
+4839:     if (captureBusyRef.current || capturedPhotosCountRef.current >= maxGuestPhotos || !cameraStreamRef.current) return false;
+4840:     captureBusyRef.current = true;
+4845:       setCaptureCountdown('📸');
+4850:       const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+4859:         setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
+4863:       // Stop video recording right after we capture the rawCanvas frame so the video matches the snapshot moment exactly
+4869:           console.error('Error stopping clip recording in captureGuestPhotoFrame:', e);
+4874:       const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady()
+4875:         ? await beautyCameraRef.current.captureDataUrl('image/jpeg', 0.95)
+4886:       const photoIndex = capturedPhotosCountRef.current;
+4888:         id: `capture-${Date.now()}-${photoIndex}`,
+4892:         capturedAt: new Date().toISOString(),
+4895:       capturedPhotosCountRef.current = Math.min(maxGuestPhotos, photoIndex + 1);
+4897:       setCapturedPhotos((prev) => {
+4900:         capturedPhotosCountRef.current = nextPhotos.length;
+4909:       captureBusyRef.current = false;
+4913:   const startGuestCaptureSession = async () => {
+4914:     if (isLockedCaptureRunning || isCaptureLocked) return;
+4915:     if (!cameraStreamRef.current) {
+4916:       setGuestNotice('Camera đang kết nối nè, bạn đợi màn hình hiện rõ rồi bấm chụp nha.');
+4920:     if (capturedPhotosCountRef.current >= maxGuestPhotos) {
+4921:       finishCaptureEarly();
+4938:     setCaptureSessionSecondsLeft(Math.ceil(guestStepBudgets.capture));
+4939:     setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);
+4940:     setCaptureCountdown(String(GUEST_CAPTURE_INTERVAL_SECONDS));
+4941:     setIsLockedCaptureRunning(true);
+4944:   const requestFinishCaptureEarly = () => {
+4945:     if (capturedPhotos.length < minGuestPhotosToContinue) {
+4949:     finishCaptureEarly();
+4952:   const finishCaptureEarly = () => {
+4953:     if (capturedPhotosCountRef.current < minGuestPhotosToContinue) {
+4958:     setIsLockedCaptureRunning(false);
+4959:     setCaptureCountdown(null);
+4963:     commitGuestStep('capture');
+4968:     if (!isLockedCaptureRunning) return undefined;
+4969:     if (isPartnerMode || guestStep !== 'capture' || !cameraStreamRef.current) return undefined;
+4970:     if (capturedPhotosCountRef.current >= maxGuestPhotos) return undefined;
+4975:       Math.ceil(guestStepBudgets.capture),
+4976:       maxGuestPhotos * (GUEST_CAPTURE_INTERVAL_SECONDS + 5)
+4980:     setCaptureSessionSecondsLeft(totalSeconds);
+4981:     setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);
+4982:     setCaptureCountdown(String(GUEST_CAPTURE_INTERVAL_SECONDS));
+4987:       if (capturePausedRef.current) return;
+4990:       setCaptureSessionSecondsLeft(totalSecondsLeft);
+4992:       if (totalSecondsLeft <= 0 && capturedPhotosCountRef.current < maxGuestPhotos) {
+4994:         setIsLockedCaptureRunning(false);
+4995:         setCaptureCountdown(null);
+4996:         setGuestNotice(`Mình chưa chụp đủ ${maxGuestPhotos} tấm vì camera chưa kịp sẵn sàng. Bạn bấm chụp lại từ đầu giúp mình nha.`);
+5001:     const runCaptureCycle = async () => {
+5004:       for (let secondsLeft = GUEST_CAPTURE_INTERVAL_SECONDS; secondsLeft > 0; secondsLeft--) {
+5015:         if (boothMode === 'photobooth' && secondsLeft === GUEST_CAPTURE_INTERVAL_SECONDS) {
+5021:         setNextCaptureSecondsLeft(secondsLeft);
+5022:         setCaptureCountdown(String(secondsLeft));
+5033:             if (capturePausedRef.current) return;
+5053:       // Start capture
+5054:       setCaptureCountdown('📸');
+5056:       const didCapture = await captureGuestPhotoFrame();
+5059:       const savedCount = capturedPhotosCountRef.current;
+5060:       if (didCapture && savedCount >= maxGuestPhotos) {
+5062:         setIsLockedCaptureRunning(false);
+5063:         setCaptureCountdown(null);
+5064:         commitGuestStep('capture');
+5072:         runCaptureCycle();
+5076:     runCaptureCycle();
+5086:       setCaptureCountdown(null);
+5088:   }, [isLockedCaptureRunning]);
+5093:       guestStep !== 'capture' ||
+5094:       isGuestStepLocked('capture') ||
+5095:       capturedPhotos.length < maxGuestPhotos
+5100:     setIsLockedCaptureRunning(false);
+5101:     setCaptureCountdown(null);
+5105:     commitGuestStep('capture');
+5107:   }, [capturedPhotos.length, guestCommittedStepIndex, guestStep, isPartnerMode, maxGuestPhotos]);
+5110:     if (isPartnerMode || !['capture', 'frame'].includes(guestStep) || capturedPhotos.length === 0) return;
+5111:     const targetCount = Math.min(4, capturedPhotos.length);
+5112:     setGuestAutoCaptureIndices((current) => {
+5113:       const firstCaptureIndices = getFirstCaptureIndices(capturedPhotos.length, targetCount);
+5115:         current.length === firstCaptureIndices.length &&
+5116:         current.every((captureIndex, index) => captureIndex === firstCaptureIndices[index]);
+5117:       return isCurrentValid ? current : firstCaptureIndices;
+5119:   }, [capturedPhotos.length, guestStep, isPartnerMode]);
+5124:       !['capture', 'frame'].includes(guestStep) ||
+5125:       guestAutoCaptureIndices.length < GUEST_FRAME_PREVIEW_PHOTO_TARGET ||
+5126:       !guestAutoCapturePhotoKey ||
+5179:         card.previewPhotoKey === guestAutoCapturePhotoKey &&
+5200:         card?.previewPhotoKey === guestAutoCapturePhotoKey &&
+5226:         const photoItems = (await Promise.all(guestAutoCaptureIndices.map(getGuestPreviewPhotoItem))).filter(Boolean);
+5245:                 previewPhotoKey: guestAutoCapturePhotoKey,
+5257:               previewPhotoKey: guestAutoCapturePhotoKey,
+5263:           await wait(guestStep === 'capture' ? 80 : 50);
+5280:     const debounceMs = guestStep === 'capture' ? 500 : (guestStep === 'frame' ? 800 : 0);
+5287:   }, [guestAutoCaptureIndices, guestAutoCapturePhotoKey, guestFrameDisplayLibrary, guestFramePageIndex, guestStep, isPartnerMode]);
+5409:       setSelectedCaptureIndices([]);
+5479:       setSelectedCaptureIndices([index]);
+5492:     if (selectedCaptureIndices.includes(index)) {
+5493:       setSelectedCaptureIndices(selectedCaptureIndices.filter((item) => item !== index));
+5496:     if (selectedCaptureIndices.length >= zones.length) {
+5502:     const nextSelection = [...selectedCaptureIndices, index];
+5503:     setSelectedCaptureIndices(nextSelection);
+5505:       window.setTimeout(() => openGuestTransitionPrompt('select', { captureIndices: nextSelection }), 260);
+5509:   const requestCreateGuestResult = (captureIndicesOverride = null) => {
+5510:     const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+5512:       if (captureIndicesForResult.length === 0) {
+5516:       openGuestTransitionPrompt('select', { captureIndices: captureIndicesForResult });
+5527:     if (captureIndicesForResult.length === 0) {
+5535:     openGuestTransitionPrompt('select', { captureIndices: captureIndicesForResult });
+5538:   const pickGuestCaptureIndicesForAutoCommit = () => {
+5539:     if (selectedCaptureIndices.length > 0) return selectedCaptureIndices;
+5540:     if (guestAutoCaptureIndices.length > 0) return guestAutoCaptureIndices;
+5542:       capturedPhotos.length,
+5543:       Math.max(1, requiredGuestPhotoCount || Math.min(4, capturedPhotos.length)),
+5545:     return getFirstCaptureIndices(capturedPhotos.length, targetCount);
+5548:   const buildGuestFrameDraft = async (frame, captureIndicesForResult, draftIndex = 0) => {
+5559:       const sourceSelectionIndex = index % captureIndicesForResult.length;
+5560:       const capturedPhoto = capturedPhotos[captureIndicesForResult[sourceSelectionIndex]];
+5561:       if (!capturedPhoto) return null;
+5562:       const img = await loadImage(capturedPhoto.url);
+5570:           capturedPhotoId: capturedPhoto.id,
+5571:           videoBlob: capturedPhoto.videoBlob,
+5572:           name: capturedPhoto.name,
+5573:           url: capturedPhoto.url,
+5658:   const createGuestResult = async (captureIndicesOverride = null, frameOverride = null) => {
+5659:     const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+5673:     if (captureIndicesForResult.length === 0) {
+5690:         buildGuestFrameDraft(frame, captureIndicesForResult, index),
+5718:       if (cameraStream) {
+5719:         cameraStream.getTracks().forEach((track) => track.stop());
+5720:         setCameraStream(null);
+5819:           const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+5877:             const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+5964:         // Start canvas capture
+5965:         const stream = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
+6053:         }, GUEST_CAPTURE_INTERVAL_SECONDS * 1000);
+6062:   const renderAutoGuestFrameComposition = async (frame, captureIndicesForResult) => {
+6078:       const sourceSelectionIndex = index % captureIndicesForResult.length;
+6079:       const capturedPhoto = capturedPhotos[captureIndicesForResult[sourceSelectionIndex]];
+6080:       if (!capturedPhoto) return null;
+6081:       const img = await loadImage(capturedPhoto.url);
+6313:         selectedCaptureIndices,
+6336:       const capturedPhotosForSave = await Promise.all(capturedPhotos.map(async (photo) => {
+6351:             console.error('Error converting capture videoBlob to dataUrl:', e);
+6362:         capturedPhotosForSave,
+6413:   const createIdPhotoResult = async (captureIndicesOverride = null) => {
+6414:     const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+6415:     if (captureIndicesForResult.length === 0) {
+6431:       const selectedIndex = captureIndicesForResult[0];
+6432:       const photo = capturedPhotos[selectedIndex];
+6567:         captures: capturedPhotos.map((photo, index) => ({
+6571:           capturedAt: photo.capturedAt || '',
+6644:       } else if (prompt.stepId === 'capture') {
+6645:         finishCaptureEarly();
+6648:           await createIdPhotoResult(prompt.captureIndices);
+6650:           await createGuestResult(prompt.captureIndices);
+6703:     if (cameraStream) {
+6704:       cameraStream.getTracks().forEach((track) => track.stop());
+6705:       setCameraStream(null);
+6731:     capturePausedRef.current = false;
+6732:     setCapturedPhotos([]);
+6733:     setSelectedCaptureIndices([]);
+6734:     setGuestAutoCaptureIndices([]);
+6742:     capturedPhotosCountRef.current = 0;
+6743:     captureBusyRef.current = false;
+6744:     setCaptureCountdown(null);
+6747:     setCaptureSessionSecondsLeft(Math.ceil(initialBudgets.capture));
+6748:     setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);
+6749:     setIsLockedCaptureRunning(false);
+6810:   const activeSteps = boothMode === 'photobooth' ? GUEST_STEP_ORDER : ['capture', 'select', 'result'];
+6814:   const isCaptureUnlocked = isModeSelected && currentGuestStepIndex >= activeSteps.indexOf('capture');
+6815:   const shouldShowModeSelectorPopup = showModeSelector || (guestStep === 'capture' && !isModeSelected);
+6816:   const isCaptureLocked = isGuestStepLocked('capture');
+6817:   const hasFinishedGuestCapture = isGuestStepLocked('capture') && capturedPhotos.length >= minGuestPhotosToContinue;
+6818:   const canFinishCaptureEarly = guestStep === 'capture' && !isCaptureLocked && capturedPhotos.length >= minGuestPhotosToContinue;
+6819:   const isFrameUnlocked = boothMode === 'photobooth' && currentGuestStepIndex >= activeSteps.indexOf('frame') && hasFinishedGuestCapture;
+6821:     ? (currentGuestStepIndex >= activeSteps.indexOf('select') && hasFinishedGuestCapture && Boolean(hasEnoughGuestSetup))
+6822:     : (currentGuestStepIndex >= activeSteps.indexOf('select') && hasFinishedGuestCapture);
+6882:         capturedPhotosCount: capturedPhotos.length,
+6883:         capturedPhotos: capturedPhotos.map((p) => ({ id: p.id, name: p.name, url: p.url })),
+6886:         captureCountdown,
+6887:         captureSessionSecondsLeft,
+6888:         nextCaptureSecondsLeft,
+6889:         isLockedCaptureRunning,
+6938:             captureGuestPhotoFrame();
+6940:           case 'FINISH_CAPTURE_EARLY':
+6941:             finishCaptureEarly();
+6943:           case 'TRIGGER_PRINT':
+6946:           case 'TRIGGER_BROWSER_PRINT':
+6995:     capturedPhotos,
+6998:     captureCountdown,
+6999:     captureSessionSecondsLeft,
+7000:     nextCaptureSecondsLeft,
+7001:     isLockedCaptureRunning,
+7015:   // 1 FPS webcam live-view stream to dashboard during capture
+7017:     if (isPartnerMode || isDashboardMode || guestStep !== 'capture' || !cameraStream) return undefined;
+7026:       const video = beautyCameraRef.current?.getVideoElement() || document.querySelector('video');
+7032:           channel.postMessage({ type: 'CAMERA_SNAPSHOT', dataUrl });
+7037:             body: JSON.stringify({ cameraSnapshot: dataUrl }),
+7049:   }, [isPartnerMode, isDashboardMode, guestStep, cameraStream]);
+7073:     if (stepId === 'capture') {
+7074:       if (guestStep !== 'capture') return 0;
+7075:       return captureSessionSecondsLeft;
+7095:         ? requiredGuestPhotoCount > 0 && selectedCaptureIndices.length > 0
+7106:         selectedCount: selectedCaptureIndices.length,
+7110:   const shouldTriggerGuestTimedWarningPopup = Boolean(guestTimedWarning && !guestTransitionPrompt);
+7113:     hasEnoughGuestSetup && selectedCaptureIndices.length > 0 && selectedCaptureIndices.length < requiredGuestPhotoCount
+7114:       ? `Bạn đang chọn ${selectedCaptureIndices.length}/${requiredGuestPhotoCount} ảnh.`
+7118:     ? (hasEnoughGuestSetup && selectedCaptureIndices.length > 0 && !isAutoDetecting)
+7119:     : (selectedCaptureIndices.length > 0);
+7123:       if (guestTransitionPrompt.stepId === 'capture') {
+7125:           <ConfirmCapturePopup
+7126:             capturedCount={guestTransitionPrompt.capturedCount || capturedPhotos.length}
+7172:         const selectedCount = guestTransitionPrompt.captureIndices?.length || selectedCaptureIndices.length;
+7210:           selectedCount={selectedCaptureIndices.length}
+7296:     const captureIndicesToCommit = pickGuestCaptureIndicesForAutoCommit();
+7297:     if (captureIndicesToCommit.length === 0) {
+7302:     setSelectedCaptureIndices(captureIndicesToCommit);
+7304:     void createGuestResult(captureIndicesToCommit);
+7307:     capturedPhotos.length,
+7309:     guestAutoCaptureIndices,
+7317:     selectedCaptureIndices,
+7323:       !shouldTriggerGuestTimedWarningPopup ||
+7343:   }, [guestTimedWarningKey, shouldTriggerGuestTimedWarningPopup]);
+7405:           <div className="capture-popup-backdrop" style={{ zIndex: 1700 }} onClick={() => {
+7411:               className="capture-popup korean-vibe-popup"
+7432:               <div className="capture-popup__body">
+7891:                     <Camera className="size-6" /> Bắt đầu chụp
+7969:                         <p>Nhìn vào camera. Máy tự động chụp nhanh từ 4 đến 6 khoảnh khắc tùy chế độ.</p>
+8017:                   <Camera className="size-5" />
+8044:                   <Camera className="size-7 transition group-hover:rotate-[-8deg]" />
+8071:                     <Camera className="size-16 text-pink-500" />
+8074:                     Nhìn vào camera nhé!
+8147:           <section id="guest-capture" className={`pink-step ${isCaptureUnlocked ? 'active' : ''} ${isCaptureLocked ? 'locked' : ''}`} data-disabled={!isCaptureUnlocked || isCaptureLocked}>
+8149:             <div className="pink-card pink-capture-card p-5 md:p-6">
+8156:               <div className={`pink-camera mb-4 ${boothMode === 'id_photo' ? 'pink-camera-id' : 'pink-camera-large'}`}>
+8157:                 {guestStep === 'capture' && (
+8158:                   <BeautyFilterCamera
+8159:                     ref={beautyCameraRef}
+8160:                     stream={cameraStream}
+8169:                     {/* SVG viewBox khớp với aspect-ratio 3:4 của camera (300 x 400) */}
+8268:                 <div className="pink-camera-top-bar">
+8271:                     <div className="pink-camera-counter" aria-live="polite">
+8273:                       <strong>{capturedPhotos.length}/{maxGuestPhotos}</strong>
+8278:                     {cameraStream && !isCameraReconnecting && (
+8279:                       <div className="pink-camera-live-indicator">
+8286:                   {cameraDevices.length > 0 && boothMode !== 'id_photo' && (
+8288:                       <div className="pink-camera-select-wrapper">
+8289:                         <Camera className="size-4 text-pink-600 shrink-0" />
+8291:                           value={selectedCameraId}
+8292:                           onChange={(e) => handleCameraChange(e.target.value)}
+8293:                           className="pink-camera-select"
+8294:                           aria-label="Select camera"
+8295:                           title="Chọn Camera / Máy ảnh"
+8296:                           disabled={isLockedCaptureRunning || isCapturingGuestPhoto}
+8298:                           {cameraDevices.map((device) => (
+8300:                               {device.label || `Camera ${device.deviceId.slice(0, 5)}`}
+8308:                         onClick={() => setShowDslrGuide(!showDslrGuide)}
+8310:                         title="Hướng dẫn kết nối Canon M50 / DSLR"
+8319:                 {isCameraReconnecting && !isUsingFallbackCameraRef.current && (
+8324:                     <h3>Mất kết nối camera</h3>
+8325:                     <p>Đang tự động kết nối lại máy ảnh/camera của bạn…</p>
+8330:                 {/* Fallback Camera Banner */}
+8331:                 {isCameraReconnecting && isUsingFallbackCameraRef.current && (
+8334:                     <span>⚠️ Đang chạy camera dự phòng. Cắm lại Canon M50 / Dây Capture để tự động nhận dạng lại…</span>
+8338:                 {/* DSLR Guide Popover */}
+8339:                 {showDslrGuide && (
+8344:                           📸 Hướng Dẫn Kết Nối Canon M50 & DSLR
+8348:                           onClick={() => setShowDslrGuide(false)}
+8357:                           <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 1: Kết nối bằng dây Capture Card (Khuyên dùng - Ổn định nhất)</p>
+8359:                             <li>Cắm cáp **Micro-HDMI** từ Canon M50 vào cổng HDMI của **Capture Card**.</li>
+8360:                             <li>Cắm đầu USB của Capture Card vào máy tính.</li>
+8361:                             <li>Ở danh sách camera phía trên, chọn thiết bị tên là **USB Video** hoặc **HDMI Video**.</li>
+8368:                             <li>Cắm cáp USB trực tiếp từ máy ảnh Canon M50 vào cổng USB máy tính.</li>
+8369:                             <li>Tải và cài đặt driver miễn phí **Canon EOS Webcam Utility** từ trang chủ Canon.</li>
+8370:                             <li>Chọn thiết bị camera là **EOS Webcam Utility** trong danh sách phía trên.</li>
+8387:                       onClick={() => setShowDslrGuide(false)}
+8396:                 {captureCountdown && <div key={captureCountdown} className="pink-countdown">{captureCountdown}</div>}
+8398:                 {!cameraStream && !isCameraReconnecting && (
+8399:                   <div className="pink-camera-off">
+8402:                       {cameraError || 'Chưa bật camera'}
+8405:                       Bật camera
+8413:                       onClick={startGuestCaptureSession}
+8414:                       disabled={!cameraStream || isLockedCaptureRunning || isCapturingGuestPhoto || capturedPhotos.length >= maxGuestPhotos}
+8415:                       className={`pink-shutter ${isLockedCaptureRunning ? 'locked' : ''}`}
+8416:                       aria-label="Start automatic capture"
+8422:                       {!cameraStream
+8423:                         ? 'Camera đang kết nối, đợi màn hình hiện rõ rồi bấm chụp nha.'
+8424:                         : capturedPhotos.length >= maxGuestPhotos
+8426:                           : capturedPhotos.length >= minGuestPhotosToContinue
+8427:                             ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng tại đây hoặc chụp thêm.`
+8428:                             : isLockedCaptureRunning
+8429:                               ? `Máy tự chụp sau ${nextCaptureSecondsLeft}s. Bạn cứ tạo dáng thật thoải mái.`
+8436:               {/* Chế độ chụp ảnh thẻ: Đặt nút chụp và các điều khiển ở bên dưới camera để tránh đè giao diện */}
+8440:                   {cameraDevices.length > 0 && (
+8442:                       <div className="pink-camera-select-wrapper" style={{ padding: '0.15rem 0.45rem', minHeight: 'auto', borderRadius: '10px', border: '1px solid #ffd2e8', boxShadow: 'none' }}>
+8443:                         <Camera className="size-3 text-pink-600 shrink-0" />
+8445:                           value={selectedCameraId}
+8446:                           onChange={(e) => handleCameraChange(e.target.value)}
+8447:                           className="pink-camera-select text-[11px] font-bold text-[#74194a]"
+8449:                           aria-label="Select camera"
+8450:                           title="Chọn Camera / Máy ảnh"
+8451:                           disabled={isLockedCaptureRunning || isCapturingGuestPhoto}
+8453:                           {cameraDevices.map((device) => (
+8455:                               {device.label || `Camera ${device.deviceId.slice(0, 5)}`}
+8463:                         onClick={() => setShowDslrGuide(!showDslrGuide)}
+8465:                         title="Hướng dẫn kết nối Canon M50 / DSLR"
+8473:                     {canFinishCaptureEarly && (
+8476:                         onClick={requestFinishCaptureEarly}
+8486:                       onClick={startGuestCaptureSession}
+8487:                       disabled={!cameraStream || isLockedCaptureRunning || isCapturingGuestPhoto || capturedPhotos.length >= maxGuestPhotos}
+8488:                       className={`pink-shutter ${isLockedCaptureRunning ? 'locked' : ''} hover:scale-105 active:scale-95 transition-transform shrink-0 cursor-pointer`}
+8489:                       aria-label="Start automatic capture"
+8491:                       style={{ position: 'static', transform: 'none', width: '56px', height: '56px', borderWidth: '3px', padding: '4px', cursor: (!cameraStream || isLockedCaptureRunning || isCapturingGuestPhoto || capturedPhotos.length >= maxGuestPhotos) ? 'not-allowed' : 'pointer' }}
+8497:                     {canFinishCaptureEarly && <div className="w-[95px] hidden sm:block" />}
+8501:                     {!cameraStream
+8502:                       ? 'Camera đang kết nối, đợi màn hình hiện rõ rồi bấm chụp nha.'
+8503:                       : capturedPhotos.length >= maxGuestPhotos
+8505:                         : capturedPhotos.length >= minGuestPhotosToContinue
+8506:                           ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng chụp tại đây hoặc chụp tiếp.`
+8507:                           : isLockedCaptureRunning
+8508:                             ? `Máy tự chụp sau ${nextCaptureSecondsLeft}s. Bạn cứ tạo dáng thật thoải mái.`
+8514:               {canFinishCaptureEarly && boothMode !== 'id_photo' && (
+8515:                 <div className="pink-capture-actions mb-4">
+8516:                   <button type="button" onClick={requestFinishCaptureEarly} className="pink-btn">
+8519:                   <p>Đã có {capturedPhotos.length} tấm rồi, muốn qua chọn khung luôn cũng được nha.</p>
+8523:               {guestNotice && guestStep === 'capture' && (
+8573:               {capturedPhotos.length > 0 && (
+8574:                 <div className="pink-capture-strip" aria-label="Ảnh vừa chụp">
+8575:                   <div className="pink-capture-strip-header">
+8577:                       <Camera className="size-5 text-[#ff2f93]" />
+8580:                         <p>{capturedPhotos.length} / {maxGuestPhotos} tấm đã lưu</p>
+8584:                   <div className="pink-capture-track">
+8585:                     {capturedPhotos.map((photo, index) => (
+8586:                       <div key={photo.id} className="pink-capture-thumb">
+8729:                   <strong>{selectedCaptureIndices.length} ảnh đã chọn</strong>
+8735:                   {capturedPhotos.map((photo, index) => {
+8736:                     const selectionOrder = selectedCaptureIndices.indexOf(index);
+9830:   const [cameraSnapshotUrl, setCameraSnapshotUrl] = useState('');
+9883:           capture: 'Đang chụp ảnh',
+9900:       } else if (data.type === 'CAMERA_SNAPSHOT') {
+9901:         setCameraSnapshotUrl(data.dataUrl);
+9918:         if (data.cameraSnapshot) {
+9919:           setCameraSnapshotUrl(data.cameraSnapshot);
+9975:       FINISH_CAPTURE_EARLY: 'Bỏ qua lượt chụp & Xong sớm',
+9976:       TRIGGER_PRINT: 'Ra lệnh in tự động',
+9977:       TRIGGER_BROWSER_PRINT: 'Mở hộp thoại in trình duyệt',
+10063:     const steps = ['hero', 'capture', 'frame', 'select', 'adjust', 'result'];
+10073:             <Camera className="size-6" />
+10185:                       {['hero', 'capture', 'frame', 'select', 'adjust', 'result'].map((step, idx) => {
+10188:                           capture: 'Chụp',
+10240:               {/* Live camera view and monitoring */}
+10247:                   {/* Camera view screen */}
+10249:                     {kioskState?.guestStep === 'capture' && cameraSnapshotUrl ? (
+10251:                         src={cameraSnapshotUrl}
+10258:                         <p className="text-xs text-slate-500 font-bold">Camera Live-view tắt</p>
+10269:                   {/* Timers & Capture Stats */}
+10275:                           {kioskState?.captureCountdown ? (
+10277:                               {kioskState.captureCountdown}
+10290:                             {kioskState?.isLockedCaptureRunning ? `${kioskState.captureSessionSecondsLeft}s` : '--'}
+10296:                             {kioskState ? `${kioskState.capturedPhotosCount} / ${kioskState.maxGuestPhotos}` : '--'}
+10345:                     disabled={!kioskConnected || kioskState?.guestStep !== 'capture'}
+10349:                     <Camera className="size-3.5" />
+10353:                     onClick={() => sendCommand('FINISH_CAPTURE_EARLY')}
+10354:                     disabled={!kioskConnected || kioskState?.guestStep !== 'capture' || kioskState.capturedPhotosCount < kioskState.minGuestPhotosToContinue}
+10367:                       onClick={() => sendCommand('TRIGGER_PRINT')}
+10375:                       onClick={() => sendCommand('TRIGGER_BROWSER_PRINT')}
+10415:                     <span className="text-[10px] text-slate-500 font-bold block">Preset đang kích hoạt trên camera:</span>
+10527:                       {/* Small captures preview */}
+10528:                       {Array.isArray(session.files?.captures) && session.files.captures.length > 0 && (
+10530:                           {session.files.captures.map((capture, index) => (
+10533:                               src={`/api/admin/session-image?path=${encodeURIComponent(capture.path)}`}
+10534:                               alt={`Capture ${index + 1}`}
+10536:                               onClick={() => setSelectedSessionImage(`/api/admin/session-image?path=${encodeURIComponent(capture.path)}`)}

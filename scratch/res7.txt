@@ -1,0 +1,2 @@
+1042: const keepsFrameMargins = combinedMinX > frameWidth * 0.025 && combinedMaxX < frameWidth * 0.975;
+5853: video.style.opacity = '0.02';

@@ -1,0 +1,107 @@
+diff --git a/src/App.jsx b/src/App.jsx
+index 1234567..89abcde 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -2470,12 +2470,0 @@
+-    // Smooth entrance for active step content card
+-    const activeStepId = stepsList[stepIndex];
+-    const activeSection = document.getElementById(`guest-${activeStepId}`);
+-    if (activeSection) {
+-      const card = activeSection.querySelector('.pink-card, .pink-hero-shell');
+-      if (card) {
+-        gsap.fromTo(card, 
+-          { opacity: 0 }, 
+-          { opacity: 1, duration: 0.5, delay: 0.1, ease: 'power2.out', overwrite: 'auto' }
+-        );
+-      }
+-    }
+
+diff --git a/src/useGuestAnimations.js b/src/useGuestAnimations.js
+index abcdef1..2345678 100644
+--- a/src/useGuestAnimations.js
++++ b/src/useGuestAnimations.js
+@@ -8,38 +8,44 @@ export default function useGuestAnimations({ guestStep }) {
+   useGSAP(() => {
+-    if (!guestStep) return;
++    if (!guestStep || !containerRef.current) return;
+     
+     // Page transition animation
+-    const tl = gsap.timeline();
++    const tl = gsap.timeline({
++      onStart: () => {
++        containerRef.current.classList.add('gsap-animating');
++      },
++      onComplete: () => {
++        containerRef.current.classList.remove('gsap-animating');
++        const targets = containerRef.current.querySelectorAll(
++          '.pink-card, .pink-hero-stage, .pink-btn, .pink-outline-btn'
++        );
++        if (targets.length > 0) {
++          gsap.set(targets, { clearProps: 'transform,opacity' });
++        }
++      }
++    });
+     
+     // Animate elements entering the new step
+-    tl.fromTo(`.guest-step-${guestStep} .pink-card, .guest-step-${guestStep} .pink-hero-stage`, 
+-      { y: 30, opacity: 0, scale: 0.98 },
+-      { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: "power3.out", stagger: 0.1 }
+-    );
++    tl.fromTo('.pink-card, .pink-hero-stage', 
++      { y: 30, opacity: 0, scale: 0.98 },
++      { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: "power3.out", stagger: 0.1 }
++    );
+ 
+     // Stagger buttons
+-    tl.fromTo(`.guest-step-${guestStep} .pink-btn, .guest-step-${guestStep} .pink-outline-btn`,
+-      { y: 15, opacity: 0 },
+-      { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.5)", stagger: 0.05 },
+-      "-=0.3"
+-    );
++    tl.fromTo('.pink-btn, .pink-outline-btn',
++      { y: 15, opacity: 0 },
++      { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.5)", stagger: 0.05 },
++      "-=0.3"
++    );
+ 
+     // Specific step animations
+     if (guestStep === 'capture') {
+       gsap.fromTo('.pink-camera-feed-container', 
+         { scale: 0.9, opacity: 0 }, 
+-        { scale: 1, opacity: 1, duration: 0.8, ease: "elastic.out(1, 0.5)" }
++        { scale: 1, opacity: 1, duration: 0.8, ease: "elastic.out(1, 0.5)", clearProps: 'transform,opacity' }
+       );
+     } else if (guestStep === 'frame') {
+       gsap.fromTo('.pink-frame-slot-item', 
+         { y: 50, opacity: 0, rotationX: -15 }, 
+-        { y: 0, opacity: 1, rotationX: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }
++        { y: 0, opacity: 1, rotationX: 0, duration: 0.5, stagger: 0.08, ease: "power2.out", clearProps: 'transform,opacity' }
+       );
+     } else if (guestStep === 'result') {
+       gsap.fromTo('.mascot-container', 
+         { scale: 0, rotation: -180 }, 
+-        { scale: 1.15, rotation: 0, duration: 1, ease: "elastic.out(1, 0.4)" }
++        { scale: 1.15, rotation: 0, duration: 1, ease: "elastic.out(1, 0.4)", clearProps: 'transform,rotation,scale' }
+       );
+     }
+ 
+-  }, { dependencies: [guestStep], revertOnUpdate: true });
++  }, { scope: containerRef, dependencies: [guestStep], revertOnUpdate: true });
+
+diff --git a/src/styles.css b/src/styles.css
+index 789abcd..ef12345 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -28,2 +28,12 @@
+ @import "./theme-gsap.css";
++
++/* Disable CSS transitions while GSAP is actively animating to prevent conflicts */
++.gsap-animating .pink-card,
++.gsap-animating .pink-btn,
++.gsap-animating .pink-outline-btn,
++.gsap-animating .pink-hero-stage,
++.gsap-animating .pink-frame-slot-item,
++.gsap-animating .pink-camera-feed-container,
++.gsap-animating .mascot-container {
++  transition: none !important;
++}

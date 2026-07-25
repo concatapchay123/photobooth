@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules
+dist
+.kiosk-edge-profile
+*.log
+tmp-video-frames
+backup
+data
+.tools
+*.zip

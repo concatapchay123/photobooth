@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Conan thám tử lừng danh",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 63,
+          "y": 71
+        },
+        {
+          "x": 817,
+          "y": 71
+        },
+        {
+          "x": 817,
+          "y": 619
+        },
+        {
+          "x": 63,
+          "y": 619
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha-merged",
+      "points": [
+        {
+          "x": 63,
+          "y": 689
+        },
+        {
+          "x": 817,
+          "y": 689
+        },
+        {
+          "x": 817,
+          "y": 1238
+        },
+        {
+          "x": 63,
+          "y": 1238
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 63,
+          "y": 1307
+        },
+        {
+          "x": 817,
+          "y": 1307
+        },
+        {
+          "x": 817,
+          "y": 1856
+        },
+        {
+          "x": 63,
+          "y": 1856
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 63,
+          "y": 1931
+        },
+        {
+          "x": 817,
+          "y": 1931
+        },
+        {
+          "x": 817,
+          "y": 2479
+        },
+        {
+          "x": 63,
+          "y": 2479
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-20T16:31:09.449Z",
+  "savedAt": "2026-06-20T16:31:09.452Z"
+}

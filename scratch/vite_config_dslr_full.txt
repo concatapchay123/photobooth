@@ -1,0 +1,151 @@
+1500:         const fullPath = path.resolve(process.cwd(), imagePath);
+1501:         try {
+1502:           const buffer = await readFile(fullPath);
+1503:           const ext = path.extname(fullPath).toLowerCase();
+1504:           let mimeType = 'image/png';
+1505:           if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
+1506:           res.statusCode = 200;
+1507:           res.setHeader('Content-Type', mimeType);
+1508:           res.end(buffer);
+1509:         } catch {
+1510:           sendJson(res, 404, { error: 'Image not found' });
+1511:         }
+1512:         return;
+1513:       }
+1514: 
+1515:       if (req.method === 'POST' && url.pathname === '/api/admin/print-session') {
+1516:         const payload = JSON.parse(await readBody(req));
+1517:         const imagePath = payload?.path;
+1518:         if (!imagePath || !imagePath.startsWith('data/saved-sessions/')) {
+1519:           sendJson(res, 400, { error: 'Invalid path' });
+1520:           return;
+1521:         }
+1522:         const fullPath = path.resolve(process.cwd(), imagePath);
+1523:         try {
+1524:           const printerName = env.VITE_PRINTER_NAME || env.PRINTER_NAME || '';
+1525:           await printImage(fullPath, printerName);
+1526:           sendJson(res, 200, { ok: true, message: 'Printed successfully' });
+1527:         } catch (error) {
+1528:           sendJson(res, 500, { error: error.message || 'Printing failed' });
+1529:         }
+1530:         return;
+1531:       }
+1532: 
+1533:       if (req.method === 'POST' && url.pathname === '/api/print') {
+1534:         const payload = JSON.parse(await readBody(req));
+1535:         if (!payload?.dataUrl) {
+1536:           sendJson(res, 400, { error: 'Invalid print payload' });
+1537:           return;
+1538:         }
+1539: 
+1540:         const match = /^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i.exec(payload.dataUrl);
+1541:         if (!match) {
+1542:           sendJson(res, 400, { error: 'Invalid data URL' });
+1543:           return;
+1544:         }
+1545: 
+1546:         const tempDir = path.resolve(process.cwd(), 'data/temp');
+1547:         if (!existsSync(tempDir)) mkdirSync(tempDir, { recursive: true });
+1548: 
+1549:         const mimeType = match[1];
+1550:         const ext = mimeType === 'image/jpeg' ? 'jpg' : 'png';
+1551:         const tempPath = path.join(tempDir, `print-${Date.now()}.${ext}`);
+1552:         await writeFile(tempPath, Buffer.from(match[2], 'base64'));
+1553: 
+1554:         try {
+1555:           const printerName = env.VITE_PRINTER_NAME || env.PRINTER_NAME || '';
+1556:           await printImage(tempPath, printerName);
+1557:           sendJson(res, 200, { ok: true, message: 'Printed successfully' });
+1558:         } catch (error) {
+1559:           sendJson(res, 500, { error: error.message || 'Printing failed' });
+1560:         } finally {
+1561:           try {
+1562:             if (existsSync(tempPath)) await unlink(tempPath);
+1563:           } catch (e) {
+1564:             console.error('Failed to delete temp print file:', e);
+1565:           }
+1566:         }
+1567:         return;
+1568:       }
+1569: 
+1570:       // ---- DSLR digiCamControl Integration endpoints ----
+1571: 
+1572:       if (req.method === 'GET' && url.pathname === '/api/dslr/capture') {
+1573:         rawGet('http://127.0.0.1:5513/?CMD=Capture')
+1574:           .then((result) => {
+1575:             sendJson(res, 200, { ok: true, response: result.body.toString('utf8').trim() });
+1576:           })
+1577:           .catch((err) => {
+1578:             sendJson(res, 500, { ok: false, error: err.message || err.toString() });
+1579:           });
+1580:         return;
+1581:       }
+1582: 
+1583:       if (req.method === 'GET' && url.pathname === '/api/dslr/last-captured') {
+1584:         rawGet('http://127.0.0.1:5513/?slc=get&param1=lastcaptured')
+1585:           .then((result) => {
+1586:             sendJson(res, 200, { ok: true, filename: result.body.toString('utf8').trim() });
+1587:           })
+1588:           .catch((err) => {
+1589:             sendJson(res, 500, { ok: false, error: err.message || err.toString() });
+1590:           });
+1591:         return;
+1592:       }
+1593: 
+1594:       if (req.method === 'GET' && url.pathname === '/api/dslr/image') {
+1595:         const file = url.searchParams.get('file');
+1596:         if (!file) {
+1597:           sendJson(res, 400, { error: 'Missing file parameter' });
+1598:           return;
+1599:         }
+1600:         rawGet(`http://127.0.0.1:5513/image/${file}`)
+1601:           .then((result) => {
+1602:             if (result.statusCode !== 200) {
+1603:               sendJson(res, result.statusCode, { error: 'Failed to fetch image from digiCamControl' });
+1604:               return;
+1605:             }
+1606:             res.statusCode = 200;
+1607:             res.setHeader('Content-Type', 'image/jpeg');
+1608:             res.end(result.body);
+1609:           })
+1610:           .catch((err) => {
+1611:             sendJson(res, 500, { error: err.message || err.toString() });
+1612:           });
+1613:         return;
+1614:       }
+1615: 
+1616:       if (req.method === 'GET' && url.pathname.startsWith('/guest/')) {
+1617:         const id = sanitizeOutputId(url.pathname.split('/').pop());
+1618:         const payload = await readGuestOutput(id);
+1619:         if (!payload) {
+1620:           sendJson(res, 404, { error: 'Guest output not found' });
+1621:           return;
+1622:         }
+1623:         if (isGuestOutputExpired(payload)) {
+1624:           sendExpiredGuestOutputPage(res);
+1625:           return;
+1626:         }
+1627:         sendGuestOutputPage(req, res, id, payload);
+1628:         return;
+1629:       }
+1630: 
+1631:       if (req.method === 'POST' && url.pathname === '/api/guest-output/save') {
+1632:         const payload = JSON.parse(await readBody(req));
+1633:         if (payload?.schema !== GUEST_OUTPUT_SCHEMA) {
+1634:           sendJson(res, 400, { error: 'Invalid guest output' });
+1635:           return;
+1636:         }
+1637: 
+1638:         const isUpdate = Boolean(payload.id);
+1639:         let id = payload.id;
+1640:         let existingPayload = null;
+1641: 
+1642:         if (isUpdate) {
+1643:           id = sanitizeOutputId(id);
+1644:           existingPayload = await readGuestOutput(id);
+1645:           if (!existingPayload) {
+1646:             sendJson(res, 404, { error: 'Guest output not found' });
+1647:             return;
+1648:           }
+1649:         } else {
+1650:           id = createGuestOutputId();

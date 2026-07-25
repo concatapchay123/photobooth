@@ -1,0 +1,191 @@
+--- d:/my-photobooth/backup/my-photobooth/my-photobooth/src/styles.css
++++ d:/my-photobooth/src/styles.css
+@@ -1194,7 +1194,12 @@
+ }
+ 
+ .beauty-filter-video-source {
+-  display: none;
++  position: absolute;
++  width: 1px;
++  height: 1px;
++  opacity: 0;
++  pointer-events: none;
++  overflow: hidden;
+ }
+ 
+ .beauty-filter-canvas.hidden {
+@@ -5566,4 +5571,173 @@
+   gap: 12px;
+ }
+ 
+-
++/* --- PHÓNG TO GIAO DIỆN PHOTOBOOTH --- */
++.pink-pop-app {
++  font-size: 1.08rem !important; /* Phóng to nhẹ font chữ toàn bộ giao diện */
++}
++
++.pink-timeline {
++  width: min(100%, 1380px) !important; /* Tăng chiều ngang vùng nội dung chính */
++  max-width: 1380px !important;
++}
++
++/* Phóng to khung lưới chọn mẫu khung ảnh */
++.pink-frame-grid {
++  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
++  gap: 1.2rem !important;
++}
++
++/* Phóng to khung lưới chọn ảnh chụp */
++.pink-selection-grid {
++  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
++  max-height: 580px !important;
++  gap: 0.8rem !important;
++}
++
++/* Đổi tỷ lệ camera preview sang 4:3 để sửa lỗi lệch khung */
++.pink-camera-large {
++  aspect-ratio: 4 / 3 !important;
++  min-height: clamp(320px, 52vw, 680px) !important;
++}
++
++/* Phóng to camera xem trước khi đang chụp lên gần như full màn hình */
++.pink-pop-app.guest-step-capture .pink-timeline {
++  max-width: 100vw !important;
++  width: 100% !important;
++  padding: 1rem !important;
++  display: flex !important;
++  flex-direction: column !important;
++  align-items: center !important;
++  justify-content: center !important;
++}
++
++/* Ẩn các thành phần timeline không cần thiết khi đang chụp */
++.pink-pop-app.guest-step-capture .pink-timeline-line,
++.pink-pop-app.guest-step-capture .pink-timeline-pointer {
++  display: none !important;
++}
++
++.pink-pop-app.guest-step-capture .pink-step {
++  width: 100% !important;
++  max-width: 1200px !important;
++  margin-bottom: 0 !important;
++  transform: none !important;
++  opacity: 1 !important;
++}
++
++.pink-pop-app.guest-step-capture .pink-capture-card {
++  width: 100% !important;
++  padding: 1.5rem !important;
++}
++
++.pink-pop-app.guest-step-capture .pink-camera-large {
++  max-width: 1080px !important; /* Preview chụp cực rộng */
++  margin: 0 auto !important;
++}
++
++.pink-pop-app.guest-step-capture .pink-camera-id {
++  max-width: 580px !important; /* Preview ảnh thẻ to rõ */
++  margin: 0 auto !important;
++}
++
++/* Tái cấu trúc đồng hồ đếm ngược (đặt ở top-center và phóng to) */
++.pink-countdown {
++  position: absolute !important;
++  top: 30px !important;
++  left: 50% !important;
++  margin-left: -55px !important;
++  right: auto !important;
++  bottom: auto !important;
++  width: 110px !important;
++  height: 110px !important;
++  display: flex !important;
++  align-items: center !important;
++  justify-content: center !important;
++  text-align: center !important;
++  line-height: 1 !important;
++  padding: 0 0 10px 0 !important; /* Nhích số lên trên 10px để căn dọc chuẩn hơn do tính chất font */
++  border-radius: 50% !important;
++  background: radial-gradient(circle, #ffffff 60%, #fff0f6 100%) !important;
++  border: 5px solid var(--pink-primary) !important;
++  box-shadow: 0 10px 25px rgba(255, 47, 147, 0.45), inset 0 0 10px rgba(255, 47, 147, 0.1) !important;
++  color: var(--pink-primary) !important;
++  font-family: "Cherry Bomb One", cursive !important;
++  font-size: 4rem !important;
++  z-index: 100 !important;
++  pointer-events: none !important;
++  animation: countdown-pop 0.85s ease-in-out forwards !important;
++}
++
++/* Keyframes chuyên biệt để tạo hiệu ứng đập phồng đếm ngược không xung đột với vị trí */
++@keyframes countdown-pop {
++  0% { opacity: 0; transform: scale(0.3); }
++  30% { opacity: 1; transform: scale(1.15); }
++  75% { opacity: 1; transform: scale(1); }
++  100% { opacity: 0; transform: scale(1.3); }
++}
++
++/* Giao diện thời gian đếm ngược tổng thể của phiên (Aggregate Timer) nổi ở góc trên trái màn hình */
++.pink-total-timer-row {
++  position: fixed !important;
++  top: 24px !important;
++  left: 24px !important;
++  right: auto !important;
++  bottom: auto !important;
++  width: auto !important;
++  height: auto !important;
++  margin: 0 !important;
++  z-index: 1000 !important;
++  pointer-events: none !important;
++}
++
++.pink-total-timer-row .pink-timer-badge {
++  transform: none !important; /* Loại bỏ dịch chuyển cũ */
++  pointer-events: auto !important;
++  background: rgba(255, 255, 255, 0.96) !important;
++  border: 2px solid var(--pink-primary) !important;
++  box-shadow: 0 8px 24px rgba(255, 47, 147, 0.22) !important;
++  border-radius: 999px !important;
++  padding: 0.5rem 1rem !important;
++  display: inline-flex !important;
++  align-items: center !important;
++  gap: 0.5rem !important;
++}
++
++.pink-total-timer-row .pink-timer-spark {
++  width: 2.2rem !important;
++  height: 2.2rem !important;
++  font-size: 1.1rem !important;
++}
++
++.pink-total-timer-row .pink-timer-badge strong {
++  font-size: 1.3rem !important;
++}
++
++/* Nút dừng chụp gọn gàng nằm nổi bên trong camera */
++.pink-shutter-stop-btn {
++  display: inline-flex;
++  align-items: center;
++  gap: 0.35rem;
++  height: 40px;
++  padding: 0 1rem;
++  border-radius: 999px;
++  border: 1px solid rgba(255, 47, 147, 0.4);
++  background: rgba(255, 255, 255, 0.95);
++  color: var(--pink-primary);
++  font-size: 0.78rem;
++  font-weight: 900;
++  box-shadow: 0 6px 16px rgba(255, 47, 147, 0.15);
++  transition: transform 0.2s ease, background-color 0.2s ease;
++}
++
++.pink-shutter-stop-btn:hover {
++  background: var(--pink-primary);
++  color: #fff;
++  transform: scale(1.05);
++}
++
++.pink-shutter-stop-btn:active {
++  transform: scale(0.95);
++}
++
++

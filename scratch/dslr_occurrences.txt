@@ -1,0 +1,86 @@
+=== d:/my-photobooth/src/App.jsx ===
+2262: const [showDslrGuide, setShowDslrGuide] = useState(false);
+2263: const [useDslrCapture, setUseDslrCapture] = useState(() => localStorage.getItem('useDslrCapture') === 'true');
+2266: localStorage.setItem('useDslrCapture', useDslrCapture);
+2267: }, [useDslrCapture]);
+3770: const captureDslrPhotoHelper = async () => {
+3771: const initRes = await fetch('/api/dslr/last-captured');
+3776: const captureRes = await fetch('/api/dslr/capture');
+3787: const pollRes = await fetch('/api/dslr/last-captured');
+3796: return `/api/dslr/image?file=${encodeURIComponent(currentFile)}`;
+3801: throw new Error('Timeout waiting for DSLR capture to complete');
+4205: const DSLR_CAPTURE_REGEX = /eos|canon|nikon|sony|fuji|virtual|obs|sparko|capture|hdmi|cam\s?link|elgato|usb\s?video/i;
+4212: const isPreferredCameraLabel = (label) => DSLR_CAPTURE_REGEX.test(String(label || ''));
+4422: const dslr = videoDevices.find((d) => DSLR_CAPTURE_REGEX.test(d.label));
+4423: if (dslr) {
+4424: targetDeviceId = dslr.deviceId;
+4425: setSelectedCameraId(dslr.deviceId);
+4426: localStorage.setItem('selectedCameraId', dslr.deviceId);
+4429: console.warn('Error finding initial DSLR:', e);
+4444: const isDslr = track && DSLR_CAPTURE_REGEX.test(track.label);
+4449: if (isDslr) {
+4477: const webcam = videoDevices.find((d) => !DSLR_CAPTURE_REGEX.test(d.label)) || videoDevices[0];
+4684: const dslrDevice = getPreferredCameraDevice(videoDevices);
+4686: if (dslrDevice) {
+4688: const isCurrentlyUsingDslr = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4690: if (!isCurrentlyUsingDslr) {
+4691: console.log('DSLR or Capture Card detected! Auto-switching to:', dslrDevice.label);
+4692: rememberSelectedCamera(dslrDevice.deviceId, { preferred: true });
+4694: await initCameraStream(dslrDevice.deviceId);
+4935: let dslrDataUrl = null;
+4936: if (useDslrCapture) {
+4939: dslrDataUrl = await captureDslrPhotoHelper();
+4941: console.warn('DSLR capture failed, falling back to webcam/liveview stream:', error);
+4942: setGuestNotice('⚠️ Không chụp được bằng DSLR (digiCamControl), đang tự động dùng ảnh liveview.');
+4949: if (!rawCanvas && !dslrDataUrl) {
+4950: if (!useDslrCapture) {
+4957: if (!useDslrCapture) {
+4966: let dataUrl = dslrDataUrl;
+4998: // Restart stream if ended or DSLR capture was used, to restore liveview smoothly
+5002: if (useDslrCapture || isTrackEnded) {
+8580: checked={useDslrCapture}
+8581: onChange={(e) => setUseDslrCapture(e.target.checked)}
+8585: <span>DSLR (digiCamControl)</span>
+8590: onClick={() => setShowDslrGuide(!showDslrGuide)}
+8592: title="Hướng dẫn kết nối Canon M50 / DSLR"
+8620: {/* DSLR Guide Popover */}
+8621: {showDslrGuide && (
+8626: 📸 Hướng Dẫn Kết Nối Canon M50 & DSLR
+8630: onClick={() => setShowDslrGuide(false)}
+8655: <p className="font-bold text-pink-800 text-[11px] mb-1">Chụp ảnh chất lượng cao (HD) bằng DSLR qua digiCamControl:</p>
+8657: <li>Bật nút **DSLR (digiCamControl)** ngay cạnh nút Chọn Camera phía trên.</li>
+8677: onClick={() => setShowDslrGuide(false)}
+
+
+========================================
+
+
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx ===
+2250: const [showDslrGuide, setShowDslrGuide] = useState(false);
+4142: const DSLR_CAPTURE_REGEX = /eos|canon|nikon|sony|fuji|virtual|obs|sparko|capture|hdmi|cam\s?link|elgato|usb\s?video/i;
+4149: const isPreferredCameraLabel = (label) => DSLR_CAPTURE_REGEX.test(String(label || ''));
+4355: const dslr = videoDevices.find((d) => DSLR_CAPTURE_REGEX.test(d.label));
+4356: if (dslr) {
+4357: targetDeviceId = dslr.deviceId;
+4358: setSelectedCameraId(dslr.deviceId);
+4359: localStorage.setItem('selectedCameraId', dslr.deviceId);
+4362: console.warn('Error finding initial DSLR:', e);
+4377: const isDslr = track && DSLR_CAPTURE_REGEX.test(track.label);
+4382: if (isDslr) {
+4410: const webcam = videoDevices.find((d) => !DSLR_CAPTURE_REGEX.test(d.label)) || videoDevices[0];
+4617: const dslrDevice = getPreferredCameraDevice(videoDevices);
+4619: if (dslrDevice) {
+4621: const isCurrentlyUsingDslr = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4623: if (!isCurrentlyUsingDslr) {
+4624: console.log('DSLR or Capture Card detected! Auto-switching to:', dslrDevice.label);
+4625: rememberSelectedCamera(dslrDevice.deviceId, { preferred: true });
+4627: await initCameraStream(dslrDevice.deviceId);
+8308: onClick={() => setShowDslrGuide(!showDslrGuide)}
+8310: title="Hướng dẫn kết nối Canon M50 / DSLR"
+8338: {/* DSLR Guide Popover */}
+8339: {showDslrGuide && (
+8344: 📸 Hướng Dẫn Kết Nối Canon M50 & DSLR
+8348: onClick={() => setShowDslrGuide(false)}
+8387: onClick={() => setShowDslrGuide(false)}
+8463: onClick={() => setShowDslrGuide(!showDslrGuide)}
+8465: title="Hướng dẫn kết nối Canon M50 / DSLR"

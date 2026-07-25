@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>GlowCam Studio PRO v3 - Mobile Ultimate</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            pink: '#FF4B91',
+                            gold: '#FFD700',
+                            dark: '#0A0A0C',
+                            surface: '#16161A',
+                            border: '#2A2A32'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* CSS Safe Area support for Modern Mobile Devices */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 16px);
+        }
+        /* Hide scrollbars */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+            background-color: #0A0A0C;
+        }
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(22, 22, 26, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Custom slider appearance */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 999px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #FF4B91;
+            border: 2px solid #FFFFFF;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255, 75, 145, 0.5);
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body class="h-full text-white font-sans flex flex-col justify-between overflow-hidden">
+
+    <!-- TOP HEADER BAR -->
+    <header class="pt-safe px-4 py-3 flex items-center justify-between glass-panel z-30 shrink-0">
+        <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-pink to-brand-gold flex items-center justify-center shadow-lg shadow-brand-pink/20">
+                <i data-lucide="sparkles" class="w-5 h-5 text-white animate-pulse"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-base tracking-wide bg-gradient-to-r from-white via-neutral-200 to-brand-pink bg-clip-text text-transparent">GlowCam PRO</span>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 bg-brand-pink/20 text-brand-pink rounded-full border border-brand-pink/30 uppercase tracking-widest">v3</span>
+                </div>
+                <p class="text-[10px] text-neutral-400 font-medium">Bản mượt Mobile • Độc quyền WebGL GPU</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Upload from gallery button -->
+            <button id="upload-btn" class="w-10 h-10 rounded-full flex items-center justify-center glass-panel border border-white/10 active:scale-90 transition-transform" title="Tải ảnh lên">
+                <i data-lucide="image-plus" class="w-5 h-5 text-neutral-300"></i>
+            </button>
+            <input type="file" id="file-input" accept="image/*" class="hidden">
+
+            <!-- Camera switcher button -->
+            <button id="flip-btn" class="w-10 h-10 rounded-full flex items-center justify-center glass-panel border border-white/10 active:scale-90 transition-transform">
+                <i data-lucide="camera-off" id="flip-icon" class="w-5 h-5 text-neutral-300"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- NOTIFICATION POPUP -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 glass-panel px-4 py-2.5 rounded-full text-xs text-brand-pink font-semibold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 shadow-xl shadow-black/40">
+        <i data-lucide="info" class="w-4 h-4"></i>
+        <span id="toast-text">Đang tải cấu hình...</span>
+    </div>
+
+    <!-- MAIN VIEWPORT CONTAINER -->
+    <main class="relative flex-1 w-full flex items-center justify-center overflow-hidden bg-black p-2">
+        
+        <!-- Video aspect ratio helper wrapper -->
+        <div id="viewport-container" class="relative w-full h-full max-h-[70vh] rounded-2xl overflow-hidden shadow-2xl border border-white/5 transition-all duration-300 flex items-center justify-center">
+            
+            <!-- WebGL Canvas doing real-time rendering -->
+            <canvas id="gl-canvas" class="w-full h-full object-cover transition-transform duration-300"></canvas>
+            
+            <!-- Interactive Focus Ring Indicator -->
+            <div id="focus-ring" class="absolute w-14 h-14 border border-brand-gold rounded-full scale-150 opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center">
+                <div class="w-2 h-2 bg-brand-gold rounded-full"></div>
+            </div>
+
+            <!-- COMPOSING SHUTTER FLASH -->
+            <div id="flash-effect" class="absolute inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-75 z-20"></div>
+
+            <!-- ON-SCREEN WATERMARK / TIPS -->
+            <div class="absolute top-3 left-3 px-3 py-1.5 rounded-lg glass-panel text-[11px] font-medium flex items-center gap-1.5 select-none pointer-events-none text-neutral-300">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span id="cam-status">Đang tải camera...</span>
+            </div>
+
+            <!-- FLOATING ACTION BUTTONS ON PREVIEW -->
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-10">
+                <!-- Aspect Ratio Toggle -->
+                <button id="ratio-btn" class="w-12 h-12 rounded-full glass-panel flex flex-col items-center justify-center active:scale-95 transition-all text-white border border-white/10 shadow-lg">
+                    <i data-lucide="crop" class="w-5 h-5 text-neutral-200"></i>
+                    <span id="ratio-text" class="text-[8px] font-bold text-brand-pink mt-0.5 uppercase">FREE</span>
+                </button>
+
+                <!-- Grid Guide Toggle -->
+                <button id="grid-btn" class="w-12 h-12 rounded-full glass-panel flex items-center justify-center active:scale-95 transition-all text-white border border-white/10 shadow-lg">
+                    <i data-lucide="grid-3x3" class="w-5 h-5 text-neutral-300"></i>
+                </button>
+
+                <!-- Comparison Eye Button (Hold to preview original) -->
+                <button id="compare-btn" class="w-12 h-12 rounded-full bg-brand-pink flex items-center justify-center active:scale-95 transition-all text-white border border-white/20 shadow-lg shadow-brand-pink/30" title="Giữ để so sánh ảnh gốc">
+                    <i data-lucide="eye" class="w-5 h-5 text-white"></i>
+                </button>
+            </div>
+
+            <!-- GRID OVERLAY (HIDDEN BY DEFAULT) -->
+            <div id="grid-overlay" class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-0 transition-opacity duration-200">
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-b border-white/20"></div>
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-r border-b border-white/20"></div>
+                <div class="border-b border-white/20"></div>
+                <div class="border-r border-white/20"></div>
+                <div class="border-r border-white/20"></div>
+                <div></div>
+            </div>
+        </div>
+
+        <!-- Hidden Video for Capture input -->
+        <video id="video-source" autoplay playsinline muted class="hidden"></video>
+    </main>
+
+    <!-- BOTTOM SHEET CONTROLS SECTION -->
+    <section class="glass-panel rounded-t-3xl border-t border-white/10 px-4 pt-4 pb-safe z-30 shrink-0 flex flex-col gap-4">
+        
+        <!-- PRESETS SLIDE SELECTOR -->
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between px-1">
+                <span class="text-[11px] font-bold tracking-wider text-neutral-400 uppercase">Bộ lọc chuyên gia (Presets)</span>
+                <span id="preset-active-name" class="text-xs font-bold text-brand-pink">Tự Nhiên (Natural)</span>
+            </div>
+            <!-- Horizontal Scroll of presets -->
+            <div class="flex gap-2.5 overflow-x-auto py-1 scroll-smooth no-scrollbar select-none" id="presets-list">
+                <!-- Presets injected dynamically -->
+            </div>
+        </div>
+
+        <!-- ADJUSTMENT EXPANDER (Collapsible Sliders for Space Saving on Mobile) -->
+        <div class="border-t border-white/5 pt-3">
+            <div class="flex items-center justify-between mb-3">
+                <button id="toggle-sliders-btn" class="flex items-center gap-1.5 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4 text-brand-pink"></i>
+                    <span>Tinh Chỉnh Da Chuyên Sâu</span>
+                    <i data-lucide="chevron-up" id="slider-chevron" class="w-4 h-4 transition-transform duration-200"></i>
+                </button>
+                <button id="reset-sliders" class="text-[10px] font-semibold text-brand-pink/80 hover:text-brand-pink active:scale-95 transition-all">Đặt lại bộ lọc</button>
+            </div>
+
+            <!-- Dynamic sliders drawer container -->
+            <div id="sliders-drawer" class="hidden flex-col gap-3.5 transition-all duration-300">
+                <!-- Smoothness Slider -->
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-xs font-semibold px-0.5">
+                        <span class="text-neutral-300 flex items-center gap-1"><i data-lucide="smile" class="w-3.5 h-3.5 text-neutral-400"></i> Độ Mịn & Tách Tần Số (Skin Smooth)</span>
+                        <span id="val-smooth" class="text-brand-pink">75%</span>
+                    </div>
+                    <input type="range" id="slider-smooth" min="0" max="100" value="75">
+                </div>
+
+                <!-- Brightness Slider -->
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-xs font-semibold px-0.5">
+                        <span class="text-neutral-300 flex items-center gap-1"><i data-lucide="sun" class="w-3.5 h-3.5 text-neutral-400"></i> Sáng Da Sinh Học (Bio Brighten)</span>
+                        <span id="val-bright" class="text-brand-pink">25%</span>
+                    </div>
+                    <input type="range" id="slider-bright" min="0" max="100" value="25">
+                </div>
+
+                <!-- Rosiness Slider -->
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-xs font-semibold px-0.5">
+                        <span class="text-neutral-300 flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-neutral-400"></i> Sắc Hồng Tự Nhiên (Rosy Blush)</span>
+                        <span id="val-rosy" class="text-brand-pink">30%</span>
+                    </div>
+                    <input type="range" id="slider-rosy" min="0" max="100" value="30">
+                </div>
+
+                <!-- Dewy Glow Slider -->
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-xs font-semibold px-0.5">
+                        <span class="text-neutral-300 flex items-center gap-1"><i data-lucide="droplet" class="w-3.5 h-3.5 text-neutral-400"></i> Căng Bóng Ngậm Nước (Dewy Glow)</span>
+                        <span id="val-glow" class="text-brand-pink">20%</span>
+                    </div>
+                    <input type="range" id="slider-glow" min="0" max="100" value="20">
+                </div>
+            </div>
+        </div>
+
+        <!-- CAMERA ACTION SHUTTER BUTTONS -->
+        <div class="flex items-center justify-between mt-1 px-4">
+            <!-- Thumbnail Gallery Preview (Left) -->
+            <button id="gallery-trigger" class="relative w-12 h-12 rounded-xl bg-neutral-900 border border-white/15 overflow-hidden active:scale-95 transition-all flex items-center justify-center">
+                <i data-lucide="image" class="w-5 h-5 text-neutral-500 absolute"></i>
+                <img id="gallery-thumb" class="w-full h-full object-cover hidden" alt="Thumb">
+                <div id="gallery-count" class="absolute -top-1 -right-1 bg-brand-pink text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full scale-90 border border-black hidden">0</div>
+            </button>
+
+            <!-- Massive Custom Tactile Shutter Button (Center) -->
+            <div class="relative flex items-center justify-center">
+                <div class="absolute w-24 h-24 rounded-full bg-brand-pink/15 animate-ping opacity-40 pointer-events-none duration-1000"></div>
+                <button id="shutter-btn" class="relative w-20 h-20 rounded-full bg-gradient-to-tr from-brand-pink to-[#FF80B5] p-1.5 flex items-center justify-center shadow-xl shadow-brand-pink/30 border border-white/20 active:scale-90 transition-transform">
+                    <div class="w-full h-full rounded-full border-4 border-white/20 bg-transparent flex items-center justify-center">
+                        <div class="w-10 h-10 rounded-full bg-white shadow-inner"></div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Advanced Flash Control (Right) -->
+            <button id="flash-btn" class="w-12 h-12 rounded-full glass-panel flex flex-col items-center justify-center border border-white/10 active:scale-95 transition-all">
+                <i data-lucide="zap-off" id="flash-icon" class="w-5 h-5 text-neutral-400"></i>
+                <span id="flash-text" class="text-[8px] font-bold text-neutral-400 uppercase mt-0.5">Tắt</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- FULLSCREEN IMAGE GALLERY MODAL (PORTRAIT BOTTOM SHEET) -->
+    <div id="gallery-modal" class="fixed inset-0 bg-black/95 z-50 flex flex-col justify-between hidden opacity-0 transition-opacity duration-300">
+        <!-- Gallery Header -->
+        <div class="pt-safe px-4 py-3 flex items-center justify-between glass-panel border-b border-white/5 shrink-0">
+            <h3 class="text-sm font-bold tracking-wide flex items-center gap-1.5">
+                <i data-lucide="library" class="w-4 h-4 text-brand-pink"></i> Thư viện GlowCam (<span id="gallery-total">0</span>)
+            </h3>
+            <button id="close-gallery" class="w-8 h-8 rounded-full glass-panel flex items-center justify-center active:scale-90 transition-transform">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Image Main Viewer Area -->
+        <div class="flex-1 w-full flex flex-col items-center justify-center p-4 overflow-hidden relative">
+            <div class="relative max-w-full max-h-[60vh] rounded-2xl overflow-hidden shadow-2xl border border-white/10" id="main-view-wrapper">
+                <img id="gallery-big-image" src="" class="max-w-full max-h-[60vh] object-contain" alt="Captured full image">
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/60 rounded-full text-[10px] tracking-wider text-neutral-300" id="gallery-image-index">
+                    1 / 1
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="gallery-empty-state" class="hidden flex-col items-center gap-3">
+                <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-neutral-500">
+                    <i data-lucide="image-off" class="w-8 h-8"></i>
+                </div>
+                <p class="text-sm text-neutral-400 font-medium">Chưa có bức ảnh nào được chụp</p>
+            </div>
+        </div>
+
+        <!-- Action Bar for selected Photo & Thumbnail Carousell -->
+        <div class="glass-panel border-t border-white/10 p-4 pb-safe flex flex-col gap-4 shrink-0">
+            <!-- Active Image thumbnails strip -->
+            <div id="gallery-thumbnails" class="flex gap-2 overflow-x-auto py-1 scroll-smooth">
+                <!-- Tiny thumbs injected here -->
+            </div>
+
+            <!-- Action buttons -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Download image -->
+                <button id="download-btn" class="h-12 rounded-xl bg-gradient-to-tr from-brand-pink to-brand-gold font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-lg shadow-brand-pink/20">
+                    <i data-lucide="download" class="w-4 h-4"></i> Tải Xuống
+                </button>
+                <!-- Delete image -->
+                <button id="delete-btn" class="h-12 rounded-xl bg-neutral-900 border border-red-500/20 hover:border-red-500/40 text-red-400 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Xóa Ảnh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEBGL SHADERS -->
+    <!-- Vertex Shader -->
+    <script id="vs" type="x-shader/x-vertex">
+        attribute vec2 position;
+        varying vec2 vTexCoord;
+        void main() {
+            vTexCoord = vec2(position.x * 0.5 + 0.5, 0.5 - position.y * 0.5);
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    </script>
+
+    <!-- Fragment Shader: Ultimate Skin Separation & Bloom Engine -->
+    <script id="fs" type="x-shader/x-fragment">
+        precision highp float;
+        varying vec2 vTexCoord;
+        uniform sampler2D uTexture;
+        uniform vec2 uResolution;
+        
+        // Beauty parameters
+        uniform float uSmoothness;    // 0.0 - 1.0
+        uniform float uBrightness;    // 0.0 - 1.0
+        uniform float uRosiness;      // 0.0 - 1.0
+        uniform float uGlow;          // 0.0 - 1.0
+        uniform bool uCompareMode;
+        uniform bool uMirror;
+
+        // Accurate Skin Tone Detector in Normalized RG space
+        bool detectSkin(vec3 rgb) {
+            float r = rgb.r;
+            float g = rgb.g;
+            float b = rgb.b;
+            float sum = r + g + b;
+            if (sum == 0.0) return false;
+            
+            float nr = r / sum;
+            float ng = g / sum;
+            
+            // Refined biometric boundaries for Asian and general skin tones
+            bool rgbRule = (r > 0.38 && g > 0.22 && b > 0.15 && r > g && r > b && (r - g) > 0.04);
+            bool normRule = (nr > 0.35 && nr < 0.52 && ng > 0.26 && ng < 0.39);
+            
+            return rgbRule || normRule;
+        }
+
+        void main() {
+            // Apply horizontal flipping mirroring if needed
+            vec2 coords = vTexCoord;
+            if (uMirror) {
+                coords.x = 1.0 - coords.x;
+            }
+
+            vec4 rawColor = texture2D(uTexture, coords);
+            
+            if (uCompareMode) {
+                gl_FragColor = rawColor;
+                return;
+            }
+
+            // 1. ADVANCED SMOOTHING: Fibonacci Golden-Angle Spiral Sampling (12 detailed taps)
+            // Provides amazing, organic-feeling blur with zero rectangular pixel artifacts
+            vec3 blurSum = vec3(0.0);
+            float totalWeight = 0.0;
+            
+            // Scale radius based on filter value
+            float scaleRadius = uSmoothness * 12.0;
+            vec2 step = 1.4 / uResolution;
+
+            for (int i = 0; i < 12; i++) {
+                // Golden Angle spiral distribution
+                float angle = float(i) * 2.39996;
+                float dist = sqrt(float(i) + 0.5) * (scaleRadius / 3.464);
+                vec2 offset = vec2(cos(angle), sin(angle)) * dist * step;
+                
+                vec4 samp = texture2D(uTexture, coords + offset);
+                
+                // Color distance to preserve crisp contrast borders (eyes, hair, clothing)
+                float colorDiff = distance(samp.rgb, rawColor.rgb);
+                float weightSpatial = exp(-dist * dist / (2.0 * scaleRadius * scaleRadius));
+                float weightRange = exp(-colorDiff * colorDiff / (0.12 + 0.06 * (1.0 - uSmoothness)));
+                
+                float w = weightSpatial * weightRange;
+                blurSum += samp.rgb * w;
+                totalWeight += w;
+            }
+
+            vec3 smoothedColor = (totalWeight > 0.0) ? (blurSum / totalWeight) : rawColor.rgb;
+
+            // Apply smoothing selectively to prevent background artifacts
+            bool isSkin = detectSkin(rawColor.rgb);
+            vec3 skinSmoothed = rawColor.rgb;
+            if (isSkin) {
+                // 28% of base high-frequency details (pores, subtle skin texture) are kept to prevent the "plastic look"
+                skinSmoothed = mix(rawColor.rgb, smoothedColor, uSmoothness * 0.72);
+            } else {
+                // Gentle blur falloff at the borders of the face
+                skinSmoothed = mix(rawColor.rgb, smoothedColor, uSmoothness * 0.15);
+            }
+
+            // 2. HEALTHY BRIGHTENING & CONTRAST
+            // Biometric gamma brighten that prevents blowout highlights
+            vec3 brightened = skinSmoothed + vec3(uBrightness * 0.16);
+            
+            // Add slight contrast boost for premium look
+            vec3 finalColor = (brightened - 0.5) * (1.0 + uBrightness * 0.06) + 0.5;
+            finalColor = clamp(finalColor, 0.0, 1.0);
+
+            // 3. ROSY TONE / FLUSH WARMTH BLUSH
+            if (isSkin) {
+                // Warm up and blush skin tones dynamically
+                finalColor.r *= (1.0 + uRosiness * 0.08);
+                finalColor.g *= (1.0 - uRosiness * 0.02);
+                finalColor.b *= (1.0 + uRosiness * 0.03);
+            }
+
+            // 4. KOREAN DEWY GLASS SKIN GLOW
+            // Detect highest luminance spots on the face skin (for high-end highlight glowing)
+            float luminance = dot(finalColor, vec3(0.299, 0.587, 0.114));
+            if (luminance > 0.5 && isSkin) {
+                float intensity = (luminance - 0.5) * uGlow * 0.45;
+                finalColor += vec3(intensity * 1.1, intensity * 0.95, intensity * 1.35); // Dewy blush specular highlight
+            }
+
+            gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), rawColor.a);
+        }
+    </script>
+
+    <!-- CORE JAVASCRIPT LOGIC -->
+    <script>
+        // DOM Elements
+        const canvas = document.getElementById('gl-canvas');
+        const video = document.getElementById('video-source');
+        const flipBtn = document.getElementById('flip-btn');
+        const flipIcon = document.getElementById('flip-icon');
+        const shutterBtn = document.getElementById('shutter-btn');
+        const flashBtn = document.getElementById('flash-btn');
+        const flashIcon = document.getElementById('flash-icon');
+        const flashText = document.getElementById('flash-text');
+        const ratioBtn = document.getElementById('ratio-btn');
+        const ratioText = document.getElementById('ratio-text');
+        const gridBtn = document.getElementById('grid-btn');
+        const gridOverlay = document.getElementById('grid-overlay');
+        const compareBtn = document.getElementById('compare-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
+        
+        const toggleSlidersBtn = document.getElementById('toggle-sliders-btn');
+        const slidersDrawer = document.getElementById('sliders-drawer');
+        const sliderChevron = document.getElementById('slider-chevron');
+        const resetSlidersBtn = document.getElementById('reset-sliders');
+        
+        const sliderSmooth = document.getElementById('slider-smooth');
+        const sliderBright = document.getElementById('slider-bright');
+        const sliderRosy = document.getElementById('slider-rosy');
+        const sliderGlow = document.getElementById('slider-glow');
+        
+        const valSmooth = document.getElementById('val-smooth');
+        const valBright = document.getElementById('val-bright');
+        const valRosy = document.getElementById('val-rosy');
+        const valGlow = document.getElementById('val-glow');
+        
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toast-text');
+        const camStatus = document.getElementById('cam-status');
+        
+        const galleryTrigger = document.getElementById('gallery-trigger');
+        const galleryThumb = document.getElementById('gallery-thumb');
+        const galleryCount = document.getElementById('gallery-count');
+        const galleryModal = document.getElementById('gallery-modal');
+        const closeGallery = document.getElementById('close-gallery');
+        const galleryBigImage = document.getElementById('gallery-big-image');
+        const galleryImageIndex = document.getElementById('gallery-image-index');
+        const galleryThumbnails = document.getElementById('gallery-thumbnails');
+        const downloadBtn = document.getElementById('download-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const galleryTotal = document.getElementById('gallery-total');
+        const galleryEmptyState = document.getElementById('gallery-empty-state');
+        const mainViewWrapper = document.getElementById('main-view-wrapper');
+
+        // App States
+        let webgl = {
+            gl: null,
+            program: null,
+            texture: null,
+            uSmoothness: null,
+            uBrightness: null,
+            uRosiness: null,
+            uGlow: null,
+            uCompareMode: null,
+            uResolution: null,
+            uMirror: null
+        };
+
+        let cameraState = {
+            stream: null,
+            facingMode: 'user', // 'user' (front) or 'environment' (back)
+            aspectRatio: 'free', // 'free' (fill parent), '1:1', '4:3', '16:9'
+            isFlashOn: false,
+            compareMode: false,
+            usingMockImage: false,
+            mockImageObj: null
+        };
+
+        let captures = []; // Array of Base64 strings
+        let selectedGalleryIndex = 0;
+
+        // EXPERT PRESETS CONFIG
+        const presets = [
+            { id: 'natural', name: 'Tự Nhiên', smooth: 75, bright: 25, rosy: 30, glow: 20 },
+            { id: 'baby', name: 'Hồng Baby', smooth: 90, bright: 35, rosy: 60, glow: 15 },
+            { id: 'glass', name: 'Dewy Glass', smooth: 80, bright: 45, rosy: 20, glow: 65 },
+            { id: 'glam', name: 'Soft Glam', smooth: 60, bright: 15, rosy: 40, glow: 35 },
+            { id: 'original', name: 'Không Lọc', smooth: 0, bright: 0, rosy: 0, glow: 0 }
+        ];
+        let currentPresetId = 'natural';
+
+        // 1. INITIALIZE & BUILD WEBGL ENGINE
+        function initWebGL() {
+            const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true, antialias: false });
+            if (!gl) {
+                showToast("Trình duyệt không hỗ trợ WebGL", true);
+                return;
+            }
+            webgl.gl = gl;
+
+            // Shaders Compilation
+            const vsSource = document.getElementById('vs').text;
+            const fsSource = document.getElementById('fs').text;
+
+            const vs = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vs, vsSource);
+            gl.compileShader(vs);
+            if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+                console.error("VS error", gl.getShaderInfoLog(vs));
+            }
+
+            const fs = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fs, fsSource);
+            gl.compileShader(fs);
+            if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+                console.error("FS error", gl.getShaderInfoLog(fs));
+            }
+
+            const program = gl.createProgram();
+            gl.attachShader(program, vs);
+            gl.attachShader(program, fs);
+            gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error("Link error", gl.getProgramInfoLog(program));
+            }
+            webgl.program = program;
+
+            // Geometry setup (quad covering full viewport)
+            const vertices = new Float32Array([
+                -1, -1,
+                 1, -1,
+                -1,  1,
+                -1,  1,
+                 1, -1,
+                 1,  1,
+            ]);
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+            const positionLoc = gl.getAttribLocation(program, 'position');
+            gl.enableVertexAttribArray(positionLoc);
+            gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+            // Textures setup
+            const texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            webgl.texture = texture;
+
+            // Store uniform locations
+            webgl.uSmoothness = gl.getUniformLocation(program, 'uSmoothness');
+            webgl.uBrightness = gl.getUniformLocation(program, 'uBrightness');
+            webgl.uRosiness = gl.getUniformLocation(program, 'uRosiness');
+            webgl.uGlow = gl.getUniformLocation(program, 'uGlow');
+            webgl.uCompareMode = gl.getUniformLocation(program, 'uCompareMode');
+            webgl.uResolution = gl.getUniformLocation(program, 'uResolution');
+            webgl.uMirror = gl.getUniformLocation(program, 'uMirror');
+        }
+
+        // 2. CAMERA PERMISSIONS & STREAMS (WITH iOS ROBUSTNESS)
+        async function startCamera() {
+            if (cameraState.stream) {
+                cameraState.stream.getTracks().forEach(track => track.stop());
+            }
+
+            cameraState.usingMockImage = false;
+            camStatus.innerHTML = "Đang kết nối camera...";
+            flipIcon.className = "w-5 h-5 text-brand-pink";
+
+            const constraints = {
+                video: {
+                    facingMode: cameraState.facingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            };
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                cameraState.stream = stream;
+                video.srcObject = stream;
+                // Important iOS attributes
+                video.setAttribute('playsinline', 'true');
+                video.setAttribute('autoplay', 'true');
+                
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play().then(resolve);
+                    };
+                });
+
+                camStatus.innerHTML = cameraState.facingMode === 'user' ? 'Live Selfie PRO' : 'Live Camera Sau';
+                showToast("Đã kích hoạt camera mượt mà!");
+                resizeCanvas();
+            } catch (err) {
+                console.warn("Camera error:", err);
+                camStatus.innerHTML = "Lỗi Camera: Đang dùng ảnh mẫu";
+                showToast("Không truy cập được Camera. Đã tự động nạp ảnh chân dung mẫu.");
+                loadMockImage();
+            }
+        }
+
+        // Fallback portrait mock face
+        function loadMockImage() {
+            cameraState.usingMockImage = true;
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            // Studio quality beauty portrait placeholder for testing
+            img.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800";
+            img.onload = () => {
+                cameraState.mockImageObj = img;
+                resizeCanvas();
+            };
+        }
+
+        // Handle aspect ratio toggle & canvas resizing elegantly
+        function resizeCanvas() {
+            const container = document.getElementById('viewport-container');
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+
+            let targetWidth = cw;
+            let targetHeight = ch;
+
+            // Apply strict aspect ratio masks on viewport
+            if (cameraState.aspectRatio === '1:1') {
+                const size = Math.min(cw, ch);
+                targetWidth = size;
+                targetHeight = size;
+                container.style.aspectRatio = "1/1";
+                container.style.width = size + "px";
+                container.style.height = size + "px";
+            } else if (cameraState.aspectRatio === '4:3') {
+                targetHeight = Math.min(ch, cw * 0.75);
+                targetWidth = targetHeight * (4/3);
+                container.style.aspectRatio = "4/3";
+                container.style.width = targetWidth + "px";
+                container.style.height = targetHeight + "px";
+            } else if (cameraState.aspectRatio === '16:9') {
+                targetHeight = Math.min(ch, cw * (9/16));
+                targetWidth = targetHeight * (16/9);
+                container.style.aspectRatio = "16/9";
+                container.style.width = targetWidth + "px";
+                container.style.height = targetHeight + "px";
+            } else { // Free responsive scaling
+                container.style.aspectRatio = "";
+                container.style.width = "100%";
+                container.style.height = "100%";
+                targetWidth = container.clientWidth;
+                targetHeight = container.clientHeight;
+            }
+
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            
+            if (webgl.gl) {
+                webgl.gl.viewport(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // 3. CONTINUOUS RENDERING LOOP (WebGL + Shaders on GPU)
+        function renderLoop() {
+            const gl = webgl.gl;
+            if (!gl) {
+                requestAnimationFrame(renderLoop);
+                return;
+            }
+
+            let sourceWidth = 1;
+            let sourceHeight = 1;
+            let hasNewFrame = false;
+
+            if (cameraState.usingMockImage && cameraState.mockImageObj) {
+                sourceWidth = cameraState.mockImageObj.width;
+                sourceHeight = cameraState.mockImageObj.height;
+                gl.bindTexture(gl.TEXTURE_2D, webgl.texture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cameraState.mockImageObj);
+                hasNewFrame = true;
+            } else if (video.readyState >= video.HAVE_CURRENT_DATA) {
+                sourceWidth = video.videoWidth;
+                sourceHeight = video.videoHeight;
+                gl.bindTexture(gl.TEXTURE_2D, webgl.texture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+                hasNewFrame = true;
+            }
+
+            if (hasNewFrame) {
+                gl.useProgram(webgl.program);
+
+                // Set Filter strength values from range inputs
+                const smVal = parseFloat(sliderSmooth.value) / 100.0;
+                const brVal = parseFloat(sliderBright.value) / 100.0;
+                const rsVal = parseFloat(sliderRosy.value) / 100.0;
+                const gwVal = parseFloat(sliderGlow.value) / 100.0;
+
+                gl.uniform1f(webgl.uSmoothness, smVal);
+                gl.uniform1f(webgl.uBrightness, brVal);
+                gl.uniform1f(webgl.uRosiness, rsVal);
+                gl.uniform1f(webgl.uGlow, gwVal);
+                gl.uniform1i(webgl.uCompareMode, cameraState.compareMode ? 1 : 0);
+                // Mirror effect only for front camera
+                gl.uniform1i(webgl.uMirror, (cameraState.facingMode === 'user' && !cameraState.usingMockImage) ? 1 : 0);
+                gl.uniform2f(webgl.uResolution, canvas.width, canvas.height);
+
+                // Draw viewport
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        // 4. INTERACTIVE & UI COMPONENT REGISTRATIONS
+        function initUIEvents() {
+            // Flip camera trigger
+            flipBtn.addEventListener('click', () => {
+                if (cameraState.usingMockImage) {
+                    showToast("Đang kích hoạt camera trực tiếp...");
+                    startCamera();
+                } else {
+                    cameraState.facingMode = cameraState.facingMode === 'user' ? 'environment' : 'user';
+                    startCamera();
+                }
+            });
+
+            // Local File Upload
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const img = new Image();
+                        img.onload = function() {
+                            cameraState.usingMockImage = true;
+                            cameraState.mockImageObj = img;
+                            camStatus.innerHTML = "Ảnh Thư Viện";
+                            showToast("Đã tải ảnh lên để chỉnh sửa!");
+                            resizeCanvas();
+                        }
+                        img.src = evt.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Toggle Bottom sheet adjustment drawers
+            toggleSlidersBtn.addEventListener('click', () => {
+                const isHidden = slidersDrawer.classList.contains('hidden');
+                if (isHidden) {
+                    slidersDrawer.classList.remove('hidden');
+                    slidersDrawer.classList.add('flex');
+                    sliderChevron.classList.add('rotate-180');
+                } else {
+                    slidersDrawer.classList.add('hidden');
+                    slidersDrawer.classList.remove('flex');
+                    sliderChevron.classList.remove('rotate-180');
+                }
+            });
+
+            // Reset Filter values
+            resetSlidersBtn.addEventListener('click', () => {
+                applyPresetValues(presets.find(p => p.id === 'natural'));
+                showToast("Đã đặt lại bộ lọc Tự Nhiên");
+            });
+
+            // Handle range inputs sliders events dynamically
+            const setupSliderValUpdate = (slider, display, suffix = '%') => {
+                slider.addEventListener('input', () => {
+                    display.innerText = slider.value + suffix;
+                    // Switch active preset to manual/custom if sliders are customized
+                    setActivePresetUI(null);
+                });
+            };
+            setupSliderValUpdate(sliderSmooth, valSmooth);
+            setupSliderValUpdate(sliderBright, valBright);
+            setupSliderValUpdate(sliderRosy, valRosy);
+            setupSliderValUpdate(sliderGlow, valGlow);
+
+            // Shutter Button Capture Flow (with flash and acoustic feedback)
+            shutterBtn.addEventListener('click', () => {
+                capturePhoto();
+            });
+
+            // Flash mode toggle
+            flashBtn.addEventListener('click', () => {
+                cameraState.isFlashOn = !cameraState.isFlashOn;
+                if (cameraState.isFlashOn) {
+                    flashIcon.setAttribute('data-lucide', 'zap');
+                    flashText.innerText = "Bật";
+                    flashText.classList.add('text-brand-pink');
+                    flashIcon.classList.add('text-brand-pink');
+                    showToast("Đèn flash đã kích hoạt khi chụp!");
+                } else {
+                    flashIcon.setAttribute('data-lucide', 'zap-off');
+                    flashText.innerText = "Tắt";
+                    flashText.classList.remove('text-brand-pink');
+                    flashIcon.classList.remove('text-brand-pink');
+                    showToast("Đèn flash tắt");
+                }
+                lucide.createIcons();
+            });
+
+            // Aspect ratio toggle trigger
+            ratioBtn.addEventListener('click', () => {
+                const ratios = ['free', '1:1', '4:3', '16:9'];
+                let currIdx = ratios.indexOf(cameraState.aspectRatio);
+                let nextIdx = (currIdx + 1) % ratios.length;
+                cameraState.aspectRatio = ratios[nextIdx];
+                ratioText.innerText = ratios[nextIdx].toUpperCase();
+                resizeCanvas();
+                showToast(`Đã chuyển sang khung hình ${ratios[nextIdx].toUpperCase()}`);
+            });
+
+            // Grid overlay toggle
+            gridBtn.addEventListener('click', () => {
+                const isGridActive = gridOverlay.classList.contains('opacity-100');
+                if (isGridActive) {
+                    gridOverlay.classList.remove('opacity-100');
+                    gridOverlay.classList.add('opacity-0');
+                    gridBtn.classList.remove('text-brand-pink');
+                } else {
+                    gridOverlay.classList.add('opacity-100');
+                    gridOverlay.classList.remove('opacity-0');
+                    gridBtn.classList.add('text-brand-pink');
+                }
+            });
+
+            // Touch-to-focus simulator on viewport tapping
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const focusRing = document.getElementById('focus-ring');
+                focusRing.style.left = `${x - 28}px`;
+                focusRing.style.top = `${y - 28}px`;
+                focusRing.style.transform = "scale(1)";
+                focusRing.style.opacity = "1";
+
+                setTimeout(() => {
+                    focusRing.style.transform = "scale(1.5)";
+                    focusRing.style.opacity = "0";
+                }, 800);
+            });
+
+            // Compare Button Hold events (Highly requested tactile feel)
+            compareBtn.addEventListener('mousedown', startCompare);
+            compareBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startCompare();
+            });
+
+            compareBtn.addEventListener('mouseup', endCompare);
+            compareBtn.addEventListener('touchend', endCompare);
+            compareBtn.addEventListener('mouseleave', endCompare);
+        }
+
+        function startCompare() {
+            cameraState.compareMode = true;
+        }
+
+        function endCompare() {
+            cameraState.compareMode = false;
+        }
+
+        // Load & Inject presets dynamically
+        function setupPresets() {
+            const listContainer = document.getElementById('presets-list');
+            listContainer.innerHTML = '';
+
+            presets.forEach(preset => {
+                const activeBorder = currentPresetId === preset.id ? 'border-brand-pink bg-brand-pink/15 text-white' : 'border-white/10 text-neutral-400 bg-neutral-900/60';
+                
+                const card = document.createElement('button');
+                card.id = `preset-card-${preset.id}`;
+                card.className = `flex-shrink-0 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 ${activeBorder}`;
+                card.innerHTML = `
+                    <i data-lucide="sparkle" class="w-3.5 h-3.5"></i>
+                    <span>${preset.name}</span>
+                `;
+
+                card.addEventListener('click', () => {
+                    applyPresetValues(preset);
+                    setActivePresetUI(preset.id);
+                });
+
+                listContainer.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function applyPresetValues(preset) {
+            currentPresetId = preset.id;
+            
+            sliderSmooth.value = preset.smooth;
+            valSmooth.innerText = preset.smooth + "%";
+
+            sliderBright.value = preset.bright;
+            valBright.innerText = preset.bright + "%";
+
+            sliderRosy.value = preset.rosy;
+            valRosy.innerText = preset.rosy + "%";
+
+            sliderGlow.value = preset.glow;
+            valGlow.innerText = preset.glow + "%";
+
+            document.getElementById('preset-active-name').innerText = preset.name;
+        }
+
+        function setActivePresetUI(activeId) {
+            presets.forEach(p => {
+                const card = document.getElementById(`preset-card-${p.id}`);
+                if (!card) return;
+                if (p.id === activeId) {
+                    card.className = "flex-shrink-0 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 border-brand-pink bg-brand-pink/15 text-white";
+                } else {
+                    card.className = "flex-shrink-0 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 border-white/10 text-neutral-400 bg-neutral-900/60";
+                }
+            });
+            if (!activeId) {
+                document.getElementById('preset-active-name').innerText = "Tùy Chỉnh (Custom)";
+            }
+        }
+
+        // Toast Messages Helper (No browser alert)
+        function showToast(message, isErr = false) {
+            toastText.innerText = message;
+            if (isErr) {
+                toast.classList.add('text-red-400');
+                toast.classList.remove('text-brand-pink');
+            } else {
+                toast.classList.add('text-brand-pink');
+                toast.classList.remove('text-red-400');
+            }
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+
+        // 5. PICTURE TAKING & LOCAL REPOSITORY
+        function capturePhoto() {
+            // Screen Flash effect
+            const flash = document.getElementById('flash-effect');
+            
+            // Trigger Flash on mobile if enabled
+            if (cameraState.isFlashOn) {
+                flash.classList.remove('duration-75');
+                flash.style.opacity = "1";
+                setTimeout(() => {
+                    flash.classList.add('duration-75');
+                    flash.style.opacity = "0";
+                }, 300);
+            } else {
+                flash.style.opacity = "0.8";
+                setTimeout(() => {
+                    flash.style.opacity = "0";
+                }, 100);
+            }
+
+            // Play Synthesized retro camera shutter sound
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Noise buffer for shutter
+                const bufferSize = audioCtx.sampleRate * 0.15;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                
+                const noiseNode = audioCtx.createBufferSource();
+                noiseNode.buffer = buffer;
+                
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                filter.Q.setValueAtTime(1, audioCtx.currentTime);
+                
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                
+                noiseNode.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                noiseNode.start();
+            } catch (e) {
+                console.log("Audio not allowed yet", e);
+            }
+
+            // Grab WebGL pixels immediately
+            setTimeout(() => {
+                const imgDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                captures.unshift(imgDataUrl); // Store in memory
+                
+                // Update Shutter animation feedback
+                shutterBtn.classList.add('scale-90');
+                setTimeout(() => shutterBtn.classList.remove('scale-90'), 150);
+
+                showToast("Đã lưu ảnh chụp thành công!");
+                updateGalleryThumbnail();
+            }, 150);
+        }
+
+        function updateGalleryThumbnail() {
+            if (captures.length > 0) {
+                galleryThumb.src = captures[0];
+                galleryThumb.classList.remove('hidden');
+                galleryCount.innerText = captures.length;
+                galleryCount.classList.remove('hidden');
+            } else {
+                galleryThumb.classList.add('hidden');
+                galleryCount.classList.add('hidden');
+            }
+        }
+
+        // 6. DETAILED GALLERY SLIDESHOW SYSTEM
+        function initGallerySystem() {
+            galleryTrigger.addEventListener('click', () => {
+                if (captures.length === 0) {
+                    showToast("Hãy chụp một vài bức ảnh trước!", false);
+                    return;
+                }
+                selectedGalleryIndex = 0;
+                openGalleryModal();
+            });
+
+            closeGallery.addEventListener('click', () => {
+                closeGalleryModal();
+            });
+
+            downloadBtn.addEventListener('click', () => {
+                if (captures.length === 0) return;
+                const activeImg = captures[selectedGalleryIndex];
+                
+                const link = document.createElement('a');
+                link.download = `glowcam_selfie_${Date.now()}.jpg`;
+                link.href = activeImg;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast("Đã lưu thành công vào Thiết bị!");
+            });
+
+            deleteBtn.addEventListener('click', () => {
+                if (captures.length === 0) return;
+                captures.splice(selectedGalleryIndex, 1);
+                
+                showToast("Đã xóa ảnh!");
+                updateGalleryThumbnail();
+
+                if (captures.length === 0) {
+                    closeGalleryModal();
+                } else {
+                    selectedGalleryIndex = Math.max(0, selectedGalleryIndex - 1);
+                    renderGalleryModal();
+                }
+            });
+        }
+
+        function openGalleryModal() {
+            galleryModal.classList.remove('hidden');
+            setTimeout(() => {
+                galleryModal.classList.remove('opacity-0');
+            }, 10);
+            renderGalleryModal();
+        }
+
+        function closeGalleryModal() {
+            galleryModal.classList.add('opacity-0');
+            setTimeout(() => {
+                galleryModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function renderGalleryModal() {
+            galleryTotal.innerText = captures.length;
+            galleryImageIndex.innerText = `${selectedGalleryIndex + 1} / ${captures.length}`;
+            galleryBigImage.src = captures[selectedGalleryIndex];
+
+            // Render Tiny Strip Thumbnails
+            galleryThumbnails.innerHTML = '';
+            captures.forEach((imgUrl, idx) => {
+                const border = idx === selectedGalleryIndex ? 'border-brand-pink ring-2 ring-brand-pink/20 scale-105' : 'border-white/10 opacity-60';
+                const thumb = document.createElement('button');
+                thumb.className = `w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 border transition-all ${border}`;
+                thumb.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover" alt="thumb">`;
+                thumb.addEventListener('click', () => {
+                    selectedGalleryIndex = idx;
+                    renderGalleryModal();
+                });
+                galleryThumbnails.appendChild(thumb);
+            });
+        }
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+
+        // Initialize App on Page load
+        window.onload = () => {
+            lucide.createIcons();
+            initWebGL();
+            setupPresets();
+            initUIEvents();
+            initGallerySystem();
+            startCamera();
+            renderLoop();
+        };
+    </script>
+</body>
+</html>

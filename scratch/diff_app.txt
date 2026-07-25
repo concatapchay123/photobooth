@@ -1,0 +1,1562 @@
+--- d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx
++++ d:/my-photobooth/src/App.jsx
+@@ -415,4 +415,22 @@
+ const PREFERRED_CAMERA_STORAGE_KEY = 'preferredCameraId';
+ 
++const urlToDataUrl = async (url) => {
++  if (!url || url.startsWith('data:')) return url;
++  try {
++    const res = await fetch(url);
++    if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
++    const blob = await res.blob();
++    return new Promise((resolve, reject) => {
++      const reader = new FileReader();
++      reader.onloadend = () => resolve(reader.result);
++      reader.onerror = () => reject(new Error('FileReader error'));
++      reader.readAsDataURL(blob);
++    });
++  } catch (e) {
++    console.error(`Failed to convert url to dataUrl: ${url}`, e);
++    return url;
++  }
++};
++
+ const createLowResPreview = (dataUrl, maxDimension = 640) => {
+   return new Promise((resolve) => {
+@@ -480,4 +498,5 @@
+   width: { ideal: 1920 },
+   height: { ideal: 1440 },
++  frameRate: { ideal: 60, min: 30 }
+ };
+ 
+@@ -918,5 +937,5 @@
+   const maxScale = Math.max(minScale, next.baseScale * 6);
+   const requestedScale = Number.isFinite(next.scale) ? next.scale : next.baseScale;
+-  const scale = clampValue(requestedScale, minScale, maxScale);
++  const scale = clampValue(requestedScale, minScale * 0.05, maxScale);
+   const drawW = next.naturalWidth * scale;
+   const drawH = next.naturalHeight * scale;
+@@ -1258,4 +1277,6 @@
+   canvas.height = dimensions.height;
+   const ctx = canvas.getContext('2d', { willReadFrequently: true });
++  ctx.imageSmoothingEnabled = true;
++  ctx.imageSmoothingQuality = 'high';
+   ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
+   return canvas;
+@@ -1355,52 +1376,41 @@
+   canvas.height = PRINT_SHEET.height;
+   const ctx = canvas.getContext('2d');
++  
++  // Điền nền trắng
+   ctx.fillStyle = '#ffffff';
+   ctx.fillRect(0, 0, canvas.width, canvas.height);
+ 
+-  const gap = PRINT_CUT_GAP;
+-  const itemsSource = [...frameCanvases];
+-  if (itemsSource.length === 1) {
+-    itemsSource.push(itemsSource[0]);
++  if (!frameCanvases || !frameCanvases.length) return canvas;
++
++  const firstCanvas = frameCanvases[0];
++  if (!firstCanvas) return canvas;
++
++  const aspect = firstCanvas.width / firstCanvas.height;
++  const isStrip = aspect < 0.5;
++
++  // Hàm vẽ phủ kín (Cover Fit) bảo toàn tỉ lệ hình ảnh gốc, không bị co giãn méo hình
++  const drawImageCover = (source, dx, dy, dWidth, dHeight) => {
++    const scale = Math.max(dWidth / source.width, dHeight / source.height);
++    const w = Math.round(source.width * scale);
++    const h = Math.round(source.height * scale);
++    const x = Math.round(dx + (dWidth - w) / 2);
++    const y = Math.round(dy + (dHeight - h) / 2);
++    ctx.drawImage(source, 0, 0, source.width, source.height, x, y, w, h);
++  };
++
++  if (isStrip) {
++    // Khung dạng dải ảnh (2x6 strip): nhân đôi và xếp cạnh nhau chiếm đúng 50% chiều ngang mỗi bên
++    const halfWidth = canvas.width / 2;
++    
++    // Vẽ dải bên trái
++    drawImageCover(firstCanvas, 0, 0, halfWidth, canvas.height);
++    
++    // Vẽ dải bên phải (sử dụng dải thứ 2 nếu có, hoặc nhân bản dải thứ nhất)
++    const secondCanvas = frameCanvases[1] || firstCanvas;
++    drawImageCover(secondCanvas, halfWidth, 0, halfWidth, canvas.height);
++  } else {
++    // Khung dạng thẻ đơn (4x6 card hoặc tấm ảnh thẻ): in một bản duy nhất phủ kín toàn bộ tờ 10x15cm
++    drawImageCover(firstCanvas, 0, 0, canvas.width, canvas.height);
+   }
+-  const items = itemsSource
+-    .slice(0, 2)
+-    .flatMap((frameCanvas) => (frameCanvas ? [{
+-      frameCanvas,
+-      bounds: getCanvasContentBounds(frameCanvas),
+-    }] : []));
+-
+-  if (!items.length) return canvas;
+-
+-  const availableWidth = canvas.width - PRINT_EDGE_PADDING * 2 - gap * Math.max(0, items.length - 1);
+-  const availableHeight = canvas.height - PRINT_EDGE_PADDING * 2;
+-  const sourceWidth = items.reduce((total, item) => total + item.bounds.width, 0);
+-  const sourceHeight = Math.max(...items.map((item) => item.bounds.height));
+-  const scale = Math.min(
+-    availableWidth / Math.max(1, sourceWidth),
+-    availableHeight / Math.max(1, sourceHeight),
+-  );
+-  const drawItems = items.map((item) => ({
+-    ...item,
+-    width: Math.max(1, Math.round(item.bounds.width * scale)),
+-    height: Math.max(1, Math.round(item.bounds.height * scale)),
+-  }));
+-  const totalWidth = drawItems.reduce((total, item) => total + item.width, 0) + gap * Math.max(0, drawItems.length - 1);
+-  let x = Math.round((canvas.width - totalWidth) / 2);
+-
+-  drawItems.forEach((item, index) => {
+-    const y = Math.round((canvas.height - item.height) / 2);
+-    ctx.drawImage(
+-      item.frameCanvas,
+-      item.bounds.x,
+-      item.bounds.y,
+-      item.bounds.width,
+-      item.bounds.height,
+-      x,
+-      y,
+-      item.width,
+-      item.height,
+-    );
+-    x += item.width + (index < drawItems.length - 1 ? gap : 0);
+-  });
+ 
+   return canvas;
+@@ -1852,5 +1862,5 @@
+ };
+ 
+-const createGuestOutputPayload = ({ printDataUrl, printPngDataUrl = '', frameCanvases, draftsForPrint, capturedPhotosForSave = [], outputMeta, frameVideos = [] }) => {
++const createGuestOutputPayload = ({ printDataUrl, printPngDataUrl = '', frameCanvases, draftsForPrint, capturedPhotosForSave = [], outputMeta, frameVideos = [], hasPendingVideos = false }) => {
+   const frameNames = Array.isArray(outputMeta?.frameNames) && outputMeta.frameNames.length > 0
+     ? outputMeta.frameNames
+@@ -1861,4 +1871,5 @@
+     title: 'Ảnh photobooth của bạn',
+     createdAt: outputMeta?.createdAt || new Date().toISOString(),
++    hasPendingVideos,
+     print: {
+       dataUrl: printDataUrl,
+@@ -1870,7 +1881,8 @@
+     },
+     frames: frameCanvases.map((canvas, index) => {
++      const jpegUrl = canvas.toDataURL('image/jpeg', 0.97);
+       const frameData = {
+-        dataUrl: canvas.toDataURL('image/jpeg', 0.95),
+-        pngDataUrl: canvas.toDataURL('image/png'),
++        dataUrl: jpegUrl,
++        pngDataUrl: jpegUrl, // Optimized to JPEG to reduce upload payload and encoding time
+         label: `Khung ${index + 1}`,
+         frameName: draftsForPrint[index]?.frame?.name || '',
+@@ -2249,6 +2261,14 @@
+   const [cameraError, setCameraError] = useState('');
+   const [showDslrGuide, setShowDslrGuide] = useState(false);
++  const [useDslrCapture, setUseDslrCapture] = useState(() => localStorage.getItem('useDslrCapture') === 'true');
++
++  useEffect(() => {
++    localStorage.setItem('useDslrCapture', useDslrCapture);
++  }, [useDslrCapture]);
+ 
+   const reconnectAttemptsRef = useRef(0);
++  const lastStateSendTimeRef = useRef(0);
++  const sendStateUpdateRef = useRef(null);
++  const handleMessageRef = useRef(null);
+   const reconnectTimeoutRef = useRef(null);
+   const reconnectIntervalIdRef = useRef(null);
+@@ -2260,4 +2280,6 @@
+   const [nextCaptureSecondsLeft, setNextCaptureSecondsLeft] = useState(GUEST_CAPTURE_INTERVAL_SECONDS);
+   const [isLockedCaptureRunning, setIsLockedCaptureRunning] = useState(false);
++  const [captureCycleIndex, setCaptureCycleIndex] = useState(0);
++  const captureCancelTriggerRef = useRef(null);
+   const [flashActive, setFlashActive] = useState(false);
+   const [guestNotice, setGuestNotice] = useState('');
+@@ -2309,4 +2331,10 @@
+   const [adjustDrag, setAdjustDrag] = useState(null);
+   const [isGeneratingGuestResult, setIsGeneratingGuestResult] = useState(false);
++  const [guestResultProgress, setGuestResultProgress] = useState({
++    step: 'idle', // 'idle' | 'rendering_image' | 'printing' | 'rendering_video' | 'generating_qr' | 'completed'
++    videoIndex: 0,
++    videoTotal: 0,
++    printStatus: 'waiting', // 'waiting' | 'sending' | 'success' | 'error'
++  });
+   const [frameProfiles, setFrameProfiles] = useState({});
+   const [guestPhotoProfiles, setGuestPhotoProfiles] = useState([]);
+@@ -2751,5 +2779,6 @@
+ 
+   useEffect(() => {
+-    if (guestStep !== 'capture' && guestStep !== 'hero' && cameraStream) {
++    // Only stop the camera stream when returning to the welcome screen (hero)
++    if (guestStep === 'hero' && cameraStream) {
+       cameraStream.getTracks().forEach((track) => track.stop());
+       setCameraStream(null);
+@@ -3739,4 +3768,38 @@
+   };
+ 
++  const captureDslrPhotoHelper = async () => {
++    const initRes = await fetch('/api/dslr/last-captured');
++    if (!initRes.ok) throw new Error('digiCamControl web server is not running or unreachable');
++    const initData = await initRes.json();
++    const initialFile = initData.filename;
++
++    const captureRes = await fetch('/api/dslr/capture');
++    if (!captureRes.ok) throw new Error('Failed to send capture command to digiCamControl');
++
++    const maxWaitMs = 15000;
++    const pollIntervalMs = 1000;
++    const startTime = Date.now();
++
++    // Initial wait before polling to let the camera trigger and write file
++    await wait(1000);
++
++    while (Date.now() - startTime < maxWaitMs) {
++      const pollRes = await fetch('/api/dslr/last-captured');
++      if (!pollRes.ok) {
++        await wait(pollIntervalMs);
++        continue;
++      }
++      const pollData = await pollRes.json();
++      const currentFile = pollData.filename;
++
++      if (currentFile && currentFile !== '-' && currentFile !== initialFile) {
++        return `/api/dslr/image?file=${encodeURIComponent(currentFile)}`;
++      }
++      await wait(pollIntervalMs);
++    }
++
++    throw new Error('Timeout waiting for DSLR capture to complete');
++  };
++
+   const renderFrameOverlayCanvas = (zonesForRender) => {
+     if (!originalImgRef.current || frameDimensions.width === 0 || frameDimensions.height === 0) return null;
+@@ -4227,5 +4290,9 @@
+ 
+   const handleCameraDisconnect = ({ allowFallback = true } = {}) => {
+-    if (capturePausedRef.current) return;
++    // Ignore disconnects during active guest capture session or capture action to avoid laggy webcam fallback switching
++    if (capturePausedRef.current || isLockedCaptureRunning || captureBusyRef.current) {
++      console.log('Camera disconnect ignored: capture session or command in progress.');
++      return;
++    }
+ 
+     setIsCameraReconnecting(true);
+@@ -4718,5 +4785,5 @@
+     try {
+       const prompt = `Analyze each guest photo and return one JSON object only. Schema: {"photos":[{"dominantColors":[{"hex":"#ffffff","tag":"white","weight":50}],"paletteTags":["bright"],"lighting":{"brightness":0,"contrast":0,"saturation":0,"warmth":0,"coolness":0},"vibes":["cute"],"concepts":["portrait"],"events":[],"scores":{"cute":0,"romantic":0,"vintage":0,"fantasy":0,"elegant":0,"minimal":0,"pastel":0,"energetic":0,"luxury":0,"fresh":0,"warm":0,"cool":0},"qualityWeight":0.8}]}. Use English tags only. Scores are integers 0-100. No markdown.`;
+-      const aiResult = await callVisionProfileAi({ images: photosForAi.map((photo) => photo.url), prompt });
++      const aiResult = await callVisionProfileAi({ images: photosForAi.map((photo) => photo.previewUrl || photo.url), prompt });
+       const aiProfiles = Array.isArray(aiResult?.photos)
+         ? aiResult.photos.flatMap((item) => {
+@@ -4759,5 +4826,5 @@
+   const startClipRecording = () => {
+     try {
+-      const canvas = beautyCameraRef.current?.getCanvas();
++      const canvas = beautyCameraRef.current?.getRecordingCanvas() || beautyCameraRef.current?.getCanvas();
+       if (!canvas) {
+         console.warn('Cannot start video recording: canvas not found');
+@@ -4778,18 +4845,18 @@
+       // Always reuse the same captureStream within the same session. DO NOT stop tracks between photos!
+       if (!clipStreamRef.current) {
+-        clipStreamRef.current = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
++        clipStreamRef.current = canvas.captureStream ? canvas.captureStream(45) : canvas.mozCaptureStream(45);
+       }
+       const stream = clipStreamRef.current;
+       
+-      // Prioritize stable VP8 codec at 6 Mbps for software-encoding safety and low resource usage
+-      let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 6000000 };
++      // Prioritize stable VP8 codec at 2.5 Mbps for software-encoding safety and low resource usage
++      let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 2500000 };
+       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+-        options = { mimeType: 'video/webm', videoBitsPerSecond: 6000000 };
++        options = { mimeType: 'video/webm', videoBitsPerSecond: 2500000 };
+       }
+       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+-        options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 6000000 };
++        options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 };
+       }
+       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+-        options = { mimeType: 'video/mp4', videoBitsPerSecond: 6000000 };
++        options = { mimeType: 'video/mp4', videoBitsPerSecond: 2500000 };
+       }
+       
+@@ -4813,4 +4880,7 @@
+   
+   const stopClipRecording = () => {
++    try {
++      beautyCameraRef.current?.stopRecording();
++    } catch (e) {}
+     return new Promise((resolve) => {
+       const active = clipRecorderRef.current;
+@@ -4842,26 +4912,8 @@
+     setGuestNotice('');
+ 
+-    try {
+-      setCaptureCountdown('📸');
+-      playShutterSound();
+-      setFlashActive(true);
+-      await wait(120);
+-
+-      const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+-      const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+-
+-      if (!rawCanvas) {
+-        if (boothMode === 'photobooth') {
+-          try {
+-            await stopClipRecording();
+-          } catch (e) {}
+-        }
+-        setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
+-        return false;
+-      }
+-
+-      // Stop video recording right after we capture the rawCanvas frame so the video matches the snapshot moment exactly
+-      let videoBlob = null;
+-      if (boothMode === 'photobooth') {
++    let videoBlob = null;
++    const shouldStopVideoImmediately = boothMode === 'photobooth';
++    const stopVideo = async () => {
++      if (shouldStopVideoImmediately) {
+         try {
+           videoBlob = await stopClipRecording();
+@@ -4870,12 +4922,52 @@
+         }
+       }
+-
+-      const rawDataUrl = rawCanvas.toDataURL('image/jpeg', 0.95);
+-      const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady()
++    };
++
++    const flashTimeout = setTimeout(() => {
++      setFlashActive(false);
++    }, 250);
++
++    try {
++      setCaptureCountdown('📸');
++      playShutterSound();
++      setFlashActive(true);
++
++      let dslrDataUrl = null;
++      if (useDslrCapture) {
++        await stopVideo();
++        try {
++          dslrDataUrl = await captureDslrPhotoHelper();
++        } catch (error) {
++          console.warn('DSLR capture failed, falling back to webcam/liveview stream:', error);
++          setGuestNotice('⚠️ Không chụp được bằng DSLR (digiCamControl), đang tự động dùng ảnh liveview.');
++        }
++      }
++
++      const fallbackVideo = beautyCameraRef.current?.getVideoElement();
++      const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
++
++      if (!rawCanvas && !dslrDataUrl) {
++        if (!useDslrCapture) {
++          await stopVideo();
++        }
++        setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
++        return false;
++      }
++
++      if (!useDslrCapture) {
++        await stopVideo();
++      }
++
++      const rawDataUrl = rawCanvas ? rawCanvas.toDataURL('image/jpeg', 0.95) : null;
++      const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady() && rawCanvas
+         ? await beautyCameraRef.current.captureDataUrl('image/jpeg', 0.95)
+         : null;
+-      let dataUrl = typeof filteredDataUrl === 'string' && filteredDataUrl.startsWith('data:')
+-        ? filteredDataUrl
+-        : rawDataUrl;
++
++      let dataUrl = dslrDataUrl;
++      if (!dataUrl) {
++        dataUrl = typeof filteredDataUrl === 'string' && filteredDataUrl.startsWith('data:')
++          ? filteredDataUrl
++          : rawDataUrl;
++      }
+ 
+       if (boothMode === 'id_photo') {
+@@ -4903,6 +4995,21 @@
+       });
+       setGuestPreviewUrl('');
++
++      // Restart stream if ended or DSLR capture was used, to restore liveview smoothly
++      try {
++        const activeTrack = cameraStreamRef.current?.getVideoTracks?.()[0];
++        const isTrackEnded = !activeTrack || activeTrack.readyState === 'ended';
++        if (useDslrCapture || isTrackEnded) {
++          console.log('Re-initializing camera stream after capture...');
++          const targetId = getStoredPreferredCameraId() || getStoredSelectedCameraId() || '';
++          await initCameraStream(targetId);
++        }
++      } catch (e) {
++        console.warn('Failed to re-initialize camera stream after capture:', e);
++      }
++
+       return true;
+     } finally {
++      clearTimeout(flashTimeout);
+       setFlashActive(false);
+       setIsCapturingGuestPhoto(false);
+@@ -4971,4 +5078,7 @@
+ 
+     let cancelled = false;
++    captureCancelTriggerRef.current = () => {
++      cancelled = true;
++    };
+ 
+     const totalSeconds = Math.max(
+@@ -5078,4 +5188,5 @@
+     return () => {
+       cancelled = true;
++      captureCancelTriggerRef.current = null;
+       if (boothMode === 'photobooth') {
+         try {
+@@ -5086,5 +5197,5 @@
+       setCaptureCountdown(null);
+     };
+-  }, [isLockedCaptureRunning]);
++  }, [isLockedCaptureRunning, captureCycleIndex]);
+ 
+   useEffect(() => {
+@@ -5122,5 +5233,5 @@
+     if (
+       isPartnerMode ||
+-      !['capture', 'frame'].includes(guestStep) ||
++      guestStep !== 'frame' || // Only run preview generation when in the frame selection step to prevent camera preview lag
+       guestAutoCaptureIndices.length < GUEST_FRAME_PREVIEW_PHOTO_TARGET ||
+       !guestAutoCapturePhotoKey ||
+@@ -5514,5 +5625,5 @@
+         return;
+       }
+-      openGuestTransitionPrompt('select', { captureIndices: captureIndicesForResult });
++      createIdPhotoResult(captureIndicesForResult);
+       return;
+     }
+@@ -5830,6 +5941,6 @@
+         const overlayCanvas = createFrameOverlayCanvasFromImage(draft.originalImage, draft.frameDimensions);
+ 
+-        // Tăng độ phân giải video composite (chiều rộng tối thiểu 960px thay vì 480px để sắc nét)
+-        const scaleFactor = Math.min(1.0, 960 / draft.frameDimensions.width);
++        // Độ phân giải video composite tối ưu (chiều rộng 640px) để đảm bảo hiệu suất encode mượt mà không bị giật lag
++        const scaleFactor = Math.min(1.0, 640 / draft.frameDimensions.width);
+         const canvas = document.createElement('canvas');
+         canvas.width = Math.round(draft.frameDimensions.width * scaleFactor);
+@@ -5859,8 +5970,6 @@
+           container.style.gap = '8px';
+           container.style.padding = '8px';
+-          container.style.background = 'rgba(0, 0, 0, 0.85)';
+-          container.style.border = '2px solid #ec4899';
+-          container.style.borderRadius = '16px';
+-          container.style.zIndex = '999999';
++          container.style.opacity = '0.02'; // Visible but transparent to bypass Chromium culling
++          container.style.zIndex = '999999'; // Keep on top to bypass occlusion culling
+           container.style.pointerEvents = 'none';
+           document.body.appendChild(container);
+@@ -5963,16 +6072,16 @@
+ 
+         // Start canvas capture
+-        const stream = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
++        const stream = canvas.captureStream ? canvas.captureStream(45) : canvas.mozCaptureStream(45);
+         
+-        // Prioritize stable VP8 codec at 6 Mbps for software-encoding safety and low resource usage
+-        let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 6000000 };
++        // Prioritize stable VP8 codec at 3 Mbps for software-encoding safety and low resource usage
++        let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 3000000 };
+         if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+-          options = { mimeType: 'video/webm', videoBitsPerSecond: 6000000 };
++          options = { mimeType: 'video/webm', videoBitsPerSecond: 3000000 };
+         }
+         if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+-          options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 6000000 };
++          options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 3000000 };
+         }
+         if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+-          options = { mimeType: 'video/mp4', videoBitsPerSecond: 6000000 };
++          options = { mimeType: 'video/mp4', videoBitsPerSecond: 3000000 };
+         }
+ 
+@@ -6058,4 +6167,87 @@
+       }
+     });
++  };
++
++  const startBrowserSideVideoComposition = async (draftsForPrint, guestOutputId) => {
++    for (let index = 0; index < draftsForPrint.length; index++) {
++      const draft = draftsForPrint[index];
++      setGuestResultProgress(prev => ({
++        ...prev,
++        step: 'rendering_video',
++        videoIndex: index + 1,
++        videoTotal: draftsForPrint.length
++      }));
++      try {
++        console.log(`[Browser Video Sync] Checking if server already finished video composition for frame ${index + 1}...`);
++        
++        // 1. Check if the server already has this video
++        try {
++          const checkResponse = await fetch(`/api/guest-output/${guestOutputId}`);
++          if (checkResponse.ok) {
++            const checkData = await checkResponse.json();
++            if (checkData.frames?.[index]?.video?.fileName) {
++              console.log(`[Browser Video Sync] Server already has video for frame ${index + 1}. Skipping browser rendering.`);
++              continue;
++            }
++          }
++        } catch (checkErr) {
++          console.warn('[Browser Video Sync] Failed to check server video status:', checkErr);
++        }
++
++        console.log(`[Browser Video Sync] Starting browser rendering for frame ${index + 1}/${draftsForPrint.length}...`);
++        const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
++        if (videoBlob) {
++          // 2. Check again if the server has finished in the meantime
++          try {
++            const checkResponse2 = await fetch(`/api/guest-output/${guestOutputId}`);
++            if (checkResponse2.ok) {
++              const checkData2 = await checkResponse2.json();
++              if (checkData2.frames?.[index]?.video?.fileName) {
++                console.log(`[Browser Video Sync] Server already has video for frame ${index + 1} (finished during render). Skipping upload.`);
++                continue;
++              }
++            }
++          } catch (checkErr) {
++            console.warn('[Browser Video Sync] Failed to check server video status before upload:', checkErr);
++          }
++
++          const dataUrl = await blobToDataUrl(videoBlob);
++          const mimeType = videoBlob.type || 'video/webm';
++          const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
++          
++          console.log(`[Browser Video Sync] Uploading browser-rendered video for frame ${index + 1}...`);
++          
++          const updatePayload = {
++            schema: GUEST_OUTPUT_SCHEMA,
++            id: guestOutputId,
++            frames: []
++          };
++          for (let i = 0; i <= index; i++) {
++            updatePayload.frames.push(i === index ? {
++              video: {
++                dataUrl,
++                mimeType,
++                ext,
++                fileName: `video-frame-${index + 1}.${ext}`,
++                label: `Khung ${index + 1} kèm video`
++              }
++            } : null);
++          }
++
++          if (index === draftsForPrint.length - 1) {
++            updatePayload.hasPendingVideos = false;
++          }
++
++          const res = await saveGuestOutputToServer(updatePayload);
++          if (res) {
++            console.log(`[Browser Video Sync] Successfully saved browser-rendered video for frame ${index + 1}`);
++          } else {
++            console.warn(`[Browser Video Sync] Failed to save browser-rendered video for frame ${index + 1}`);
++          }
++        }
++      } catch (e) {
++        console.error(`[Browser Video Sync] Error rendering/uploading video for index ${index}:`, e);
++      }
++    }
+   };
+ 
+@@ -6206,5 +6398,5 @@
+       return;
+     }
+-    openGuestTransitionPrompt('adjust');
++    finishGuestAdjustment();
+   };
+ 
+@@ -6252,7 +6444,19 @@
+     const sessionId = guestSessionIdRef.current;
+     setIsGeneratingGuestResult(true);
++    setGuestResultProgress({
++      step: 'rendering_image',
++      videoIndex: 0,
++      videoTotal: 0,
++      printStatus: 'waiting',
++    });
+     setGuestShareStatus('');
+     setGuestPrintStatus('');
+     setGuestPrintFallbackAvailable(false);
++    setGuestPreviewUrl('');
++    setGuestQrUrl('');
++    setGuestShare(null);
++    setGuestNotice('');
++    goToGuestStep('result');
++
+     try {
+       const activeSlotEdits = slotEditsOverride || [];
+@@ -6277,24 +6481,11 @@
+       const sharePrintJpegUrl = outputCanvas.toDataURL('image/jpeg', 0.95);
+ 
+-      // Render the video composition sequentially for each draft frame to prevent hardware decoder congestion
+-      const frameVideos = [];
+-      for (let index = 0; index < draftsForPrint.length; index++) {
+-        const draft = draftsForPrint[index];
+-        try {
+-          setGuestShareStatus(`Đang tạo video chuyển động cho khung ${index + 1}/${draftsForPrint.length}...`);
+-          const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
+-          if (videoBlob) {
+-            const dataUrl = await blobToDataUrl(videoBlob);
+-            const mimeType = videoBlob.type || 'video/webm';
+-            const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+-            frameVideos.push({ dataUrl, mimeType, ext });
+-          } else {
+-            frameVideos.push(null);
+-          }
+-        } catch (e) {
+-          console.error(`Error rendering video composition for draft index ${index}:`, e);
+-          frameVideos.push(null);
+-        }
+-      }
++      const hasVideos = draftsForPrint.some(draft => {
++        return (draft.slotEdits || []).some(edit => {
++          if (edit.videoBlob) return true;
++          const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
++          return photo && photo.videoBlob;
++        });
++      });
+ 
+       const outputMeta = {
+@@ -6323,16 +6514,24 @@
+       setGuestPreviewUrl(outputUrl);
+       setGuestOutputMeta(outputMeta);
+-      setGuestShare(null);
+-      setGuestQrUrl('');
+-      setGuestNotice('');
+-      commitGuestStep('adjust');
+-      goToGuestStep('result');
+       setGuestTransitionPrompt(null);
+-      setIsGeneratingGuestResult(false);
+-
++
++      // Trigger print job immediately in parallel
++      setGuestResultProgress(prev => ({ ...prev, printStatus: 'sending' }));
++      const printJobPromise = sendGuestPrintJob(outputUrl, { sessionId }).then((success) => {
++        setGuestResultProgress(prev => ({ ...prev, printStatus: success ? 'success' : 'error' }));
++        return success;
++      }).catch(() => {
++        setGuestResultProgress(prev => ({ ...prev, printStatus: 'error' }));
++        return false;
++      });
++
++      // Update step to Generating QR
++      setGuestResultProgress(prev => ({ ...prev, step: 'generating_qr' }));
+       setGuestShareStatus('Đang tạo mã QR tải ảnh…');
+-      
+-      // Chuyển đổi video của ảnh chụp thành Data URL song song
++
++      // Convert captured photos to dataUrls and video blobs to dataUrl
+       const capturedPhotosForSave = await Promise.all(capturedPhotos.map(async (photo) => {
++        const base64Url = await urlToDataUrl(photo.url);
++        const updatedPhoto = { ...photo, url: base64Url };
+         if (photo.videoBlob) {
+           try {
+@@ -6340,11 +6539,8 @@
+             const mimeType = photo.videoBlob.type || 'video/webm';
+             const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+-            return {
+-              ...photo,
+-              video: {
+-                dataUrl: videoDataUrl,
+-                mimeType,
+-                ext,
+-              }
++            updatedPhoto.video = {
++              dataUrl: videoDataUrl,
++              mimeType,
++              ext,
+             };
+           } catch (e) {
+@@ -6352,18 +6548,35 @@
+           }
+         }
+-        return photo;
++        return updatedPhoto;
+       }));
+ 
+-      const sharePayload = createGuestOutputPayload({
++      if (sessionId !== guestSessionIdRef.current) return;
++
++      // Create initial payload using the optimized JPEG URL to save network usage
++      const initialSharePayload = createGuestOutputPayload({
+         printDataUrl: sharePrintJpegUrl,
+-        printPngDataUrl: outputUrl,
++        printPngDataUrl: sharePrintJpegUrl, // Optimized from outputUrl to JPEG
+         frameCanvases,
+         draftsForPrint,
+-        capturedPhotosForSave,
++        capturedPhotosForSave, // Send captures with their video data URLs immediately!
+         outputMeta,
+-        frameVideos,
++        frameVideos: [], // Do not send frame videos (server will generate them in background)
++        hasPendingVideos: hasVideos, // Tell guest page if videos are pending
+       });
+-      const shareData = await saveGuestOutputToServer(sharePayload);
++
++      const shareData = await saveGuestOutputToServer(initialSharePayload);
+       if (sessionId !== guestSessionIdRef.current) return;
++
++      // Start browser-side rendering and await its completion if has videos
++      if (hasVideos && shareData?.id) {
++        setGuestResultProgress(prev => ({
++          ...prev,
++          step: 'rendering_video',
++          videoIndex: 0,
++          videoTotal: draftsForPrint.length
++        }));
++        await startBrowserSideVideoComposition(draftsForPrint, shareData.id);
++      }
++
+       const shareUrl = resolveGuestShareUrl(shareData);
+       if (shareUrl) {
+@@ -6398,5 +6611,7 @@
+       }
+ 
+-      await sendGuestPrintJob(outputUrl, { sessionId });
++      // Wait for print job to complete
++      await printJobPromise;
++      setGuestResultProgress(prev => ({ ...prev, step: 'completed' }));
+     } catch (error) {
+       console.error('Không thể hoàn tất chỉnh sửa:', error);
+@@ -6419,4 +6634,10 @@
+     const sessionId = guestSessionIdRef.current;
+     setIsGeneratingGuestResult(true);
++    setGuestResultProgress({
++      step: 'rendering_image',
++      videoIndex: 0,
++      videoTotal: 0,
++      printStatus: 'waiting',
++    });
+     setGuestShareStatus('');
+     setGuestPrintStatus('');
+@@ -6427,4 +6648,5 @@
+     setGuestQrUrl('');
+     setGuestNotice('');
++    goToGuestStep('result');
+ 
+     try {
+@@ -6536,14 +6758,25 @@
+       setGuestPreviewUrl(sheetPngUrl);
+       setGuestOutputMeta(outputMeta);
+-      setGuestShare(null);
+-      setGuestQrUrl('');
+-      setGuestNotice('');
+       commitGuestStep('select');
+-      goToGuestStep('result');
+       setGuestTransitionPrompt(null);
+-      setIsGeneratingGuestResult(false);
++
++      // Trigger print job immediately in parallel if print service is active
++      let printJobPromise = Promise.resolve(true);
++      if (idPhotoService === 'print') {
++        setGuestResultProgress(prev => ({ ...prev, printStatus: 'sending' }));
++        printJobPromise = sendGuestPrintJob(sheetPngUrl, { sessionId }).then((success) => {
++          setGuestResultProgress(prev => ({ ...prev, printStatus: success ? 'success' : 'error' }));
++          return success;
++        }).catch(() => {
++          setGuestResultProgress(prev => ({ ...prev, printStatus: 'error' }));
++          return false;
++        });
++      }
++
++      // Update progress to Generating QR
++      setGuestResultProgress(prev => ({ ...prev, step: 'generating_qr' }));
++      setGuestShareStatus('Đang tạo mã QR tải ảnh…');
+ 
+       // Upload payload
+-      setGuestShareStatus('Đang tạo mã QR tải ảnh…');
+       const sharePayload = {
+         schema: GUEST_OUTPUT_SCHEMA,
+@@ -6565,10 +6798,13 @@
+           }
+         ],
+-        captures: capturedPhotos.map((photo, index) => ({
+-          dataUrl: photo.url,
+-          label: `Ảnh chụp ${index + 1}`,
+-          fileName: `anh-the-anh-chup-${index + 1}.png`,
+-          capturedAt: photo.capturedAt || '',
+-          sourceId: photo.id || '',
++        captures: await Promise.all(capturedPhotos.map(async (photo, index) => {
++          const base64Url = await urlToDataUrl(photo.url);
++          return {
++            dataUrl: base64Url,
++            label: `Ảnh chụp ${index + 1}`,
++            fileName: `anh-the-anh-chup-${index + 1}.png`,
++            capturedAt: photo.capturedAt || '',
++            sourceId: photo.id || '',
++          };
+         })),
+         meta: outputMeta,
+@@ -6610,12 +6846,12 @@
+       }
+ 
+-      // ONLY print if idPhotoService is 'print'
++      // Wait for print job to complete and clean up
+       if (idPhotoService === 'print') {
+-        await sendGuestPrintJob(sheetPngUrl, { sessionId });
++        await printJobPromise;
+       } else {
+         setGuestPrintStatus(`Chỉ lấy file - Không in. Phiên mới sẽ bắt đầu sau ${GUEST_AUTO_NEW_SESSION_SECONDS} giây.`);
+         startGuestNewSessionCountdown();
+       }
+-
++      setGuestResultProgress(prev => ({ ...prev, step: 'completed' }));
+     } catch (error) {
+       console.error('Không thể tạo ảnh thẻ:', error);
+@@ -6867,42 +7103,60 @@
+   latestGuestTimedStepSecondsLeftRef.current = guestTimedStepSecondsLeft;
+ 
+-  // Broadcast Kiosk state changes & receive dashboard remote control commands
+-  useEffect(() => {
+-    if (isPartnerMode || isDashboardMode) return undefined;
+-
+-    const channel = new BroadcastChannel('photobooth-channel');
+-
+-    const sendStateUpdate = () => {
+-      const statePayload = {
+-        guestStep,
+-        visibleGuestStep,
+-        boothMode,
+-        isModeSelected,
+-        idPhotoService,
+-        capturedPhotosCount: capturedPhotos.length,
+-        capturedPhotos: capturedPhotos.map((p) => ({ id: p.id, name: p.name, url: p.url })),
+-        maxGuestPhotos,
+-        minGuestPhotosToContinue,
+-        captureCountdown,
+-        captureSessionSecondsLeft,
+-        nextCaptureSecondsLeft,
+-        isLockedCaptureRunning,
+-        flashActive,
+-        guestNotice,
+-        isGuestPrinting,
+-        guestPrintStatus,
+-        guestPrintFallbackAvailable,
+-        guestQrUrl,
+-        guestPreviewUrl,
+-        isKioskFullscreenActive,
+-        selectedFrame: selectedFrame ? { name: selectedFrame.name, width: selectedFrame.width, height: selectedFrame.height } : null,
+-        activeBeautyPresetId,
+-        beautyFilterSettings,
+-      };
+-
+-      // BroadcastChannel (same-profile communication)
++  const triggerManualCapture = async () => {
++    if (captureBusyRef.current || capturedPhotosCountRef.current >= maxGuestPhotos) return;
++    if (captureCancelTriggerRef.current) {
++      captureCancelTriggerRef.current();
++    }
++    const didCapture = await captureGuestPhotoFrame();
++    if (didCapture && capturedPhotosCountRef.current < maxGuestPhotos) {
++      setCaptureCycleIndex((prev) => prev + 1);
++    }
++  };
++
++  // Helper to send state updates over BroadcastChannel and (throttled) HTTP relay
++  const sendStateUpdate = useCallback(() => {
++    if (isPartnerMode || isDashboardMode) return;
++
++    const statePayload = {
++      guestStep,
++      visibleGuestStep,
++      boothMode,
++      isModeSelected,
++      idPhotoService,
++      capturedPhotosCount: capturedPhotos.length,
++      capturedPhotos: capturedPhotos.map((p) => ({ id: p.id, name: p.name, url: p.url })),
++      maxGuestPhotos,
++      minGuestPhotosToContinue,
++      captureCountdown,
++      captureSessionSecondsLeft,
++      nextCaptureSecondsLeft,
++      isLockedCaptureRunning,
++      flashActive,
++      guestNotice,
++      isGuestPrinting,
++      guestPrintStatus,
++      guestPrintFallbackAvailable,
++      guestQrUrl,
++      guestPreviewUrl,
++      isKioskFullscreenActive,
++      selectedFrame: selectedFrame ? { name: selectedFrame.name, width: selectedFrame.width, height: selectedFrame.height } : null,
++      activeBeautyPresetId,
++      beautyFilterSettings,
++    };
++
++    // BroadcastChannel is in-memory and super fast
++    try {
++      const channel = new BroadcastChannel('photobooth-channel');
+       channel.postMessage({ type: 'STATE_UPDATE', state: statePayload });
+-
+-      // HTTP relay (cross-profile communication)
++      channel.close();
++    } catch (e) {}
++
++    // Throttle HTTP relay to at most once per 1.5 seconds during capture countdown, otherwise 200ms
++    const now = Date.now();
++    const isCaptureCountdownActive = guestStep === 'capture' && isLockedCaptureRunning;
++    const throttleLimit = isCaptureCountdownActive ? 1500 : 200;
++
++    if (now - lastStateSendTimeRef.current >= throttleLimit) {
++      lastStateSendTimeRef.current = now;
+       fetch('/api/admin/kiosk-state', {
+         method: 'POST',
+@@ -6914,10 +7168,50 @@
+             data.commands.forEach(cmd => {
+               // Replay server-queued commands as BroadcastChannel messages
+-              handleMessage({ data: { type: 'COMMAND', action: cmd.action, ...cmd.payload } });
++              handleMessageRef.current?.({ data: { type: 'COMMAND', action: cmd.action, ...cmd.payload } });
+             });
+           }
+         })
+         .catch(() => {});
+-    };
++    }
++  }, [
++    isPartnerMode,
++    isDashboardMode,
++    guestStep,
++    visibleGuestStep,
++    boothMode,
++    isModeSelected,
++    idPhotoService,
++    capturedPhotos,
++    maxGuestPhotos,
++    minGuestPhotosToContinue,
++    captureCountdown,
++    captureSessionSecondsLeft,
++    nextCaptureSecondsLeft,
++    isLockedCaptureRunning,
++    flashActive,
++    guestNotice,
++    isGuestPrinting,
++    guestPrintStatus,
++    guestPrintFallbackAvailable,
++    guestQrUrl,
++    guestPreviewUrl,
++    isKioskFullscreenActive,
++    selectedFrame,
++    activeBeautyPresetId,
++    beautyFilterSettings,
++  ]);
++
++  sendStateUpdateRef.current = sendStateUpdate;
++
++  // Trigger state broadcast when relevant state changes
++  useEffect(() => {
++    sendStateUpdate();
++  }, [sendStateUpdate]);
++
++  // Set up a single BroadcastChannel listener once on mount
++  useEffect(() => {
++    if (isPartnerMode || isDashboardMode) return undefined;
++
++    const channel = new BroadcastChannel('photobooth-channel');
+ 
+     const handleMessage = async (event) => {
+@@ -6926,5 +7220,5 @@
+ 
+       if (data.type === 'REQUEST_STATE') {
+-        sendStateUpdate();
++        sendStateUpdateRef.current?.();
+       } else if (data.type === 'COMMAND') {
+         switch (data.action) {
+@@ -6936,5 +7230,5 @@
+             break;
+           case 'TAKE_PHOTO':
+-            captureGuestPhotoFrame();
++            triggerManualCapture();
+             break;
+           case 'FINISH_CAPTURE_EARLY':
+@@ -6976,8 +7270,9 @@
+     };
+ 
++    handleMessageRef.current = handleMessage;
+     channel.addEventListener('message', handleMessage);
+ 
+     // Initial broadcast
+-    sendStateUpdate();
++    sendStateUpdateRef.current?.();
+ 
+     return () => {
+@@ -6985,31 +7280,5 @@
+       channel.close();
+     };
+-  }, [
+-    isPartnerMode,
+-    isDashboardMode,
+-    guestStep,
+-    visibleGuestStep,
+-    boothMode,
+-    isModeSelected,
+-    idPhotoService,
+-    capturedPhotos,
+-    maxGuestPhotos,
+-    minGuestPhotosToContinue,
+-    captureCountdown,
+-    captureSessionSecondsLeft,
+-    nextCaptureSecondsLeft,
+-    isLockedCaptureRunning,
+-    flashActive,
+-    guestNotice,
+-    isGuestPrinting,
+-    guestPrintStatus,
+-    guestPrintFallbackAvailable,
+-    guestQrUrl,
+-    guestPreviewUrl,
+-    isKioskFullscreenActive,
+-    selectedFrame,
+-    activeBeautyPresetId,
+-    beautyFilterSettings,
+-  ]);
++  }, [isPartnerMode, isDashboardMode]);
+ 
+   // 1 FPS webcam live-view stream to dashboard during capture
+@@ -7356,5 +7625,5 @@
+   if (!isPartnerMode) {
+     return (
+-      <div className="pink-pop-app min-h-screen overflow-x-clip" data-kiosk-locked={isKioskGuardEnabled ? 'true' : undefined}>
++      <div className={`pink-pop-app min-h-screen overflow-x-clip guest-step-${guestStep}`} data-kiosk-locked={isKioskGuardEnabled ? 'true' : undefined}>
+         <canvas ref={frameCanvasRef} width={frameDimensions.width} height={frameDimensions.height} className="hidden" />
+         {isKioskGuardEnabled && (
+@@ -8066,8 +8335,10 @@
+                   <Heart className="absolute right-10 top-14 size-8 text-pink-300" />
+                   <Heart className="absolute bottom-8 right-12 size-6 text-pink-300" />
+-                  <div className="absolute size-72 rounded-full border-[18px] border-white/60" />
+-                  <div className="absolute size-52 rounded-full border-[22px] border-pink-400/90 shadow-[0_0_35px_rgba(236,72,153,.35)]" />
+-                  <div className="z-10 flex size-32 items-center justify-center rounded-full bg-white/90 shadow-[0_20px_50px_rgba(236,72,153,.25)]">
+-                    <Camera className="size-16 text-pink-500" />
++                  <div className="relative size-72 flex items-center justify-center mx-auto">
++                    <div className="absolute inset-0 rounded-full border-[18px] border-white/60" />
++                    <div className="absolute size-52 rounded-full border-[22px] border-pink-400/90 shadow-[0_0_35px_rgba(236,72,153,.35)]" />
++                    <div className="absolute size-32 flex items-center justify-center rounded-full bg-white/90 shadow-[0_20px_50px_rgba(236,72,153,.25)] z-10">
++                      <Camera className="size-16 text-pink-500 shrink-0" />
++                    </div>
+                   </div>
+                   <p className="absolute bottom-10 z-10 rounded-full bg-white/35 px-4 py-2 text-sm font-bold text-pink-400">
+@@ -8284,5 +8555,5 @@
+                   </div>
+                   
+-                  {cameraDevices.length > 0 && boothMode !== 'id_photo' && (
++                  {cameraDevices.length > 0 && (
+                     <div className="flex items-center gap-2 pointer-events-auto">
+                       <div className="pink-camera-select-wrapper">
+@@ -8304,4 +8575,15 @@
+                       </div>
+                       
++                      <label className="flex items-center gap-1.5 bg-white/95 hover:bg-white text-[11px] text-pink-700 font-extrabold px-2.5 py-1.5 rounded-full border border-pink-200 shadow-sm cursor-pointer hover:border-pink-400 hover:text-pink-800 transition-all select-none shrink-0">
++                        <input
++                          type="checkbox"
++                          checked={useDslrCapture}
++                          onChange={(e) => setUseDslrCapture(e.target.checked)}
++                          className="accent-pink-600 rounded cursor-pointer size-3.5"
++                          disabled={isLockedCaptureRunning || isCapturingGuestPhoto}
++                        />
++                        <span>DSLR (digiCamControl)</span>
++                      </label>
++                      
+                       <button
+                         type="button"
+@@ -8355,18 +8637,26 @@
+                       <div className="space-y-3 text-xs text-left leading-relaxed">
+                         <div>
+-                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 1: Kết nối bằng dây Capture Card (Khuyên dùng - Ổn định nhất)</p>
++                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 1: Kết nối bằng dây Capture Card (Cung cấp Liveview)</p>
+                           <ul className="list-disc list-inside space-y-0.5 pl-1 text-pink-700">
+                             <li>Cắm cáp **Micro-HDMI** từ Canon M50 vào cổng HDMI của **Capture Card**.</li>
+-                            <li>Cắm đầu USB của Capture Card vào máy tính.</li>
+-                            <li>Ở danh sách camera phía trên, chọn thiết bị tên là **USB Video** hoặc **HDMI Video**.</li>
++                            <li>Cắm đầu USB của Capture Card vào máy tính và chọn camera tên là **USB Video** hoặc **HDMI Video**.</li>
+                           </ul>
+                         </div>
+                         
+                         <div>
+-                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 2: Cắm dây USB trực tiếp (Sử dụng EOS Webcam Utility)</p>
++                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 2: Cắm dây USB trực tiếp (Cung cấp Liveview qua EOS Webcam Utility)</p>
+                           <ul className="list-disc list-inside space-y-0.5 pl-1 text-pink-700">
+                             <li>Cắm cáp USB trực tiếp từ máy ảnh Canon M50 vào cổng USB máy tính.</li>
+-                            <li>Tải và cài đặt driver miễn phí **Canon EOS Webcam Utility** từ trang chủ Canon.</li>
+-                            <li>Chọn thiết bị camera là **EOS Webcam Utility** trong danh sách phía trên.</li>
++                            <li>Tải & cài đặt driver **Canon EOS Webcam Utility** và chọn camera là **EOS Webcam Utility** ở phía trên.</li>
++                          </ul>
++                        </div>
++
++                        <div>
++                          <p className="font-bold text-pink-800 text-[11px] mb-1">Chụp ảnh chất lượng cao (HD) bằng DSLR qua digiCamControl:</p>
++                          <ul className="list-disc list-inside space-y-0.5 pl-1 text-pink-700">
++                            <li>Bật nút **DSLR (digiCamControl)** ngay cạnh nút Chọn Camera phía trên.</li>
++                            <li>Kết nối máy ảnh với máy tính bằng cáp USB.</li>
++                            <li>Mở phần mềm **digiCamControl** lên. Vào **Settings** &rarr; **Webserver** &rarr; Chọn **Use web server** (cổng mặc định 5513) và khởi động lại phần mềm.</li>
++                            <li>Hệ thống sẽ tự động bắt lệnh chụp từ máy ảnh gốc, trả về file ảnh HD cực nét thay vì chụp màn hình liveview mờ!</li>
+                           </ul>
+                         </div>
+@@ -8407,6 +8697,16 @@
+                   </div>
+                 )}
+-                {boothMode !== 'id_photo' && (
+-                  <div className="pink-shutter-overlay">
++                <div className="pink-shutter-overlay pointer-events-none">
++                  <div className="flex items-center gap-3 justify-center pointer-events-auto">
++                    {canFinishCaptureEarly && (
++                      <button
++                        type="button"
++                        onClick={requestFinishCaptureEarly}
++                        className="pink-shutter-stop-btn shrink-0 cursor-pointer"
++                        title="Dừng chụp sớm và chuyển qua bước tiếp theo"
++                      >
++                        <ArrowRight className="size-3.5" /> Dừng chụp
++                      </button>
++                    )}
+                     <button
+                       type="button"
+@@ -8419,105 +8719,21 @@
+                       <span />
+                     </button>
+-                    <p className="pink-shutter-hint">
+-                      {!cameraStream
+-                        ? 'Camera đang kết nối, đợi màn hình hiện rõ rồi bấm chụp nha.'
+-                        : capturedPhotos.length >= maxGuestPhotos
+-                          ? `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn khung nha.`
+-                          : capturedPhotos.length >= minGuestPhotosToContinue
+-                            ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng tại đây hoặc chụp thêm.`
+-                            : isLockedCaptureRunning
+-                              ? `Máy tự chụp sau ${nextCaptureSecondsLeft}s. Bạn cứ tạo dáng thật thoải mái.`
+-                              : 'Bấm nút chụp để bắt đầu đếm giờ.'}
+-                    </p>
++                    {canFinishCaptureEarly && (
++                      <div className="w-[102px] hidden sm:block pointer-events-none" aria-hidden="true" />
++                    )}
+                   </div>
+-                )}
+-              </div>
+-
+-              {/* Chế độ chụp ảnh thẻ: Đặt nút chụp và các điều khiển ở bên dưới camera để tránh đè giao diện */}
+-              {boothMode === 'id_photo' && (
+-                <div className="bg-gradient-to-r from-pink-50/80 to-fuchsia-50/80 border border-pink-100/90 rounded-2xl p-3 my-3 flex flex-col items-center gap-2.5 shadow-sm select-none animate-fade-in">
+-                  
+-                  {cameraDevices.length > 0 && (
+-                    <div className="flex items-center justify-center gap-2 text-xs w-full">
+-                      <div className="pink-camera-select-wrapper" style={{ padding: '0.15rem 0.45rem', minHeight: 'auto', borderRadius: '10px', border: '1px solid #ffd2e8', boxShadow: 'none' }}>
+-                        <Camera className="size-3 text-pink-600 shrink-0" />
+-                        <select
+-                          value={selectedCameraId}
+-                          onChange={(e) => handleCameraChange(e.target.value)}
+-                          className="pink-camera-select text-[11px] font-bold text-[#74194a]"
+-                          style={{ maxWidth: '150px', height: '20px' }}
+-                          aria-label="Select camera"
+-                          title="Chọn Camera / Máy ảnh"
+-                          disabled={isLockedCaptureRunning || isCapturingGuestPhoto}
+-                        >
+-                          {cameraDevices.map((device) => (
+-                            <option key={device.deviceId} value={device.deviceId}>
+-                              {device.label || `Camera ${device.deviceId.slice(0, 5)}`}
+-                            </option>
+-                          ))}
+-                        </select>
+-                      </div>
+-                      
+-                      <button
+-                        type="button"
+-                        onClick={() => setShowDslrGuide(!showDslrGuide)}
+-                        className="flex items-center justify-center size-6 rounded-full bg-white text-pink-600 border border-pink-200 shadow-sm hover:border-pink-500 hover:text-pink-700 transition-all font-bold text-[10px] shrink-0 cursor-pointer"
+-                        title="Hướng dẫn kết nối Canon M50 / DSLR"
+-                      >
+-                        ?
+-                      </button>
+-                    </div>
+-                  )}
+-
+-                  <div className="flex items-center justify-center gap-3 w-full">
+-                    {canFinishCaptureEarly && (
+-                      <button
+-                        type="button"
+-                        onClick={requestFinishCaptureEarly}
+-                        className="pink-btn h-10 px-4 text-xs font-bold flex items-center gap-1.5 shadow-md hover:scale-105 active:scale-95 transition-transform shrink-0 cursor-pointer"
+-                        title="Dừng chụp sớm và chuyển qua bước tiếp theo"
+-                      >
+-                        <ArrowRight className="size-3.5" /> Dừng chụp
+-                      </button>
+-                    )}
+-
+-                    <button
+-                      type="button"
+-                      onClick={startGuestCaptureSession}
+-                      disabled={!cameraStream || isLockedCaptureRunning || isCapturingGuestPhoto || capturedPhotos.length >= maxGuestPhotos}
+-                      className={`pink-shutter ${isLockedCaptureRunning ? 'locked' : ''} hover:scale-105 active:scale-95 transition-transform shrink-0 cursor-pointer`}
+-                      aria-label="Start automatic capture"
+-                      title="Bắt đầu chụp tự động"
+-                      style={{ position: 'static', transform: 'none', width: '56px', height: '56px', borderWidth: '3px', padding: '4px', cursor: (!cameraStream || isLockedCaptureRunning || isCapturingGuestPhoto || capturedPhotos.length >= maxGuestPhotos) ? 'not-allowed' : 'pointer' }}
+-                    >
+-                      <span />
+-                    </button>
+-
+-                    {/* Giữ cân bằng khoảng cách nếu nút Dừng chụp hiển thị */}
+-                    {canFinishCaptureEarly && <div className="w-[95px] hidden sm:block" />}
+-                  </div>
+-
+-                  <p className="text-[11px] text-[#74194a]/80 font-bold text-center leading-tight max-w-sm">
++                  <p className="pink-shutter-hint">
+                     {!cameraStream
+                       ? 'Camera đang kết nối, đợi màn hình hiện rõ rồi bấm chụp nha.'
+                       : capturedPhotos.length >= maxGuestPhotos
+-                        ? `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn ảnh nha.`
++                        ? (boothMode === 'id_photo' ? `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn ảnh nha.` : `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn khung nha.`)
+                         : capturedPhotos.length >= minGuestPhotosToContinue
+-                          ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng chụp tại đây hoặc chụp tiếp.`
++                          ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng tại đây hoặc chụp thêm.`
+                           : isLockedCaptureRunning
+                             ? `Máy tự chụp sau ${nextCaptureSecondsLeft}s. Bạn cứ tạo dáng thật thoải mái.`
+-                            : `Bấm nút chụp để bắt đầu đếm ngược tự động chụp ${maxGuestPhotos} tấm.`}
++                            : (boothMode === 'id_photo' ? `Bấm nút chụp để bắt đầu đếm ngược tự động chụp ${maxGuestPhotos} tấm.` : 'Bấm nút chụp để bắt đầu đếm giờ.')}
+                   </p>
+                 </div>
+-              )}
+-
+-              {canFinishCaptureEarly && boothMode !== 'id_photo' && (
+-                <div className="pink-capture-actions mb-4">
+-                  <button type="button" onClick={requestFinishCaptureEarly} className="pink-btn">
+-                    <ArrowRight className="size-5" /> Dừng chụp tại đây
+-                  </button>
+-                  <p>Đã có {capturedPhotos.length} tấm rồi, muốn qua chọn khung luôn cũng được nha.</p>
+-                </div>
+-              )}
++              </div>
+ 
+               {guestNotice && guestStep === 'capture' && (
+@@ -8924,5 +9140,5 @@
+                         <label className="pink-adjust-control">
+                           <span><b>Phóng to</b><em>{zoomValue}%</em></span>
+-                          <input disabled={!canEditGuestAdjustment} type="range" min="20" max="600" step="1" value={zoomValue} aria-label="Adjust slot zoom" onChange={(event) => updateSlotEdit(edit.slotIndex, { scale: extractZoomScale(edit, event.target.value) })} />
++                          <input disabled={!canEditGuestAdjustment} type="range" min="5" max="600" step="1" value={zoomValue} aria-label="Adjust slot zoom" onChange={(event) => updateSlotEdit(edit.slotIndex, { scale: extractZoomScale(edit, event.target.value) })} />
+                         </label>
+                         <label className="pink-adjust-control">
+@@ -9014,17 +9230,17 @@
+                 <div className="flex flex-col items-center gap-5">
+                   <div className="pink-result-box pink-result-paper-mockup p-6 rounded-[28px] bg-gradient-to-br from-[#fff7fb] to-[#fff]/40 border border-pink-100/60 shadow-inner flex items-center justify-center w-full">
+-                    {isGeneratingGuestResult && (
+-                      <div className="flex flex-col items-center gap-3 text-sm font-black text-[#f73591] py-12">
+-                        <Loader2 className="size-10 animate-spin" />
+-                        <span>Đang rửa ảnh, bạn đợi xíu nha…</span>
+-                      </div>
+-                    )}
+-                    {!isGeneratingGuestResult && guestPreviewUrl && (
++                    {isGeneratingGuestResult ? (
++                      <CuteProcessingLoader 
++                        progress={guestResultProgress}
++                        boothMode={boothMode}
++                        hasVideos={boothMode === 'photobooth' && capturedPhotos.some(p => p.videoBlob)}
++                        idPhotoService={idPhotoService}
++                      />
++                    ) : guestPreviewUrl ? (
+                       <div className="relative group p-2 bg-white rounded-xl shadow-lg border border-slate-100/80 transform hover:scale-[1.01] transition-all duration-300">
+                         <img src={guestPreviewUrl} alt={boothMode === 'photobooth' ? "Tờ in photobooth 10x15 hoàn thành" : "Tờ in ảnh thẻ 10x15 hoàn thành"} className="pink-result-image max-w-full rounded-lg border border-slate-50 shadow-sm" />
+                         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-lg" />
+                       </div>
+-                    )}
+-                    {!isGeneratingGuestResult && !guestPreviewUrl && (
++                    ) : (
+                       <div className="text-sm font-black text-pink-400 py-12">Chờ bạn ở bước rửa ảnh nha…</div>
+                     )}
+@@ -10647,2 +10863,291 @@
+   );
+ }
++
++function CuteProcessingLoader({ progress, boothMode, hasVideos, idPhotoService }) {
++  const { step, videoIndex, videoTotal, printStatus } = progress;
++
++  // Determine what tasks are needed
++  const tasks = [];
++
++  if (boothMode === 'id_photo') {
++    tasks.push({
++      id: 'image',
++      label: 'Xử lý ảnh thẻ 3x4 chuyên nghiệp',
++      status: step === 'rendering_image' ? 'active' : 'completed',
++    });
++    if (idPhotoService === 'print') {
++      tasks.push({
++        id: 'print',
++        label: 'Gửi lệnh in tự động đến máy in',
++        status:
++          step === 'rendering_image'
++            ? 'pending'
++            : printStatus === 'sending'
++            ? 'active'
++            : printStatus === 'success'
++            ? 'completed'
++            : printStatus === 'error'
++            ? 'failed'
++            : 'pending',
++      });
++    }
++    tasks.push({
++      id: 'qr',
++      label: 'Tạo mã QR tải ảnh về điện thoại',
++      status:
++        step === 'rendering_image' || (idPhotoService === 'print' && printStatus === 'sending')
++          ? 'pending'
++          : step === 'generating_qr'
++          ? 'active'
++          : step === 'completed'
++          ? 'completed'
++          : 'pending',
++    });
++  } else {
++    // Photobooth mode
++    tasks.push({
++      id: 'image',
++      label: 'Thiết kế & ghép khung ảnh xinh xắn',
++      status: step === 'rendering_image' ? 'active' : 'completed',
++    });
++
++    tasks.push({
++      id: 'print',
++      label: 'Gửi lệnh in tự động đến máy in',
++      status:
++        step === 'rendering_image'
++          ? 'pending'
++          : printStatus === 'sending'
++          ? 'active'
++          : printStatus === 'success'
++          ? 'completed'
++          : printStatus === 'error'
++          ? 'failed'
++          : 'pending',
++    });
++
++    if (hasVideos) {
++      tasks.push({
++        id: 'video',
++        label: `Dựng video kỷ niệm live photo ${videoIndex > 0 ? `(${videoIndex}/${videoTotal})` : ''}`,
++        status:
++          step === 'rendering_image' || printStatus === 'sending'
++            ? 'pending'
++            : step === 'rendering_video'
++            ? 'active'
++            : step === 'generating_qr' || step === 'completed'
++            ? 'completed'
++            : 'pending',
++      });
++    }
++
++    tasks.push({
++      id: 'qr',
++      label: 'Tạo mã QR tải ảnh & video live',
++      status:
++        step === 'rendering_image' || printStatus === 'sending' || (hasVideos && step === 'rendering_video')
++          ? 'pending'
++          : step === 'generating_qr'
++          ? 'active'
++          : step === 'completed'
++          ? 'completed'
++          : 'pending',
++    });
++  }
++
++  // Calculate percentage progress for the overall cute bar
++  const completedCount = tasks.filter(t => t.status === 'completed').length;
++  const percent = Math.round((completedCount / tasks.length) * 100);
++
++  return (
++    <div 
++      className="relative overflow-visible w-full max-w-md mx-auto my-6 p-8 flex flex-col items-center justify-center bg-white border-4 border-[#5c1123] rounded-[36px] shadow-[10px_10px_0px_rgba(247,53,145,0.12)] text-center space-y-6 animate-fade-in"
++      style={{
++        backgroundImage: 'linear-gradient(rgba(247, 53, 145, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(247, 53, 145, 0.04) 1px, transparent 1px)',
++        backgroundSize: '20px 20px'
++      }}
++    >
++      {/* Decorative Stickers */}
++      <div className="korean-vibe-sticker text-2xl absolute -top-3 -left-3 drop-shadow-md select-none animate-[bounce_2s_infinite] z-20" title="Cherries!🍒">🍒</div>
++      <div className="korean-vibe-sticker text-xl absolute top-8 -right-3 drop-shadow-md select-none animate-[pulse_1.5s_infinite] z-20" title="Star!⭐">⭐</div>
++      <div className="korean-vibe-sticker text-2xl absolute -bottom-3 -left-3 drop-shadow-md select-none animate-[pulse_2s_infinite] z-20" title="Heart!💖">💖</div>
++      <div className="korean-vibe-sticker text-xl absolute -bottom-3 -right-3 drop-shadow-md select-none animate-[bounce_1.5s_infinite_alternate] z-20" title="Sparkle!✨">✨</div>
++
++      {/* Sea Bubbles Floating */}
++      <div className="sea-bubble sea-bubble--1" />
++      <div className="sea-bubble sea-bubble--2" />
++      <div className="sea-bubble sea-bubble--3" />
++
++      {/* Main Mascot Animation: Custom SVG Octopus */}
++      <div className="relative w-40 h-36 mx-auto flex items-center justify-center shrink-0">
++        <svg 
++          viewBox="0 0 160 160" 
++          className="w-full h-full animate-[octopus-swim-camera_1.8s_ease-in-out_infinite]"
++          style={{ shapeRendering: 'crispEdges' }}
++        >
++          {/* Octopus shadow */}
++          <ellipse cx="80" cy="142" rx="34" ry="5" fill="#fbcfe8" opacity="0.4" />
++          
++          {/* Tentacles */}
++          {/* Tentacle 1 - Left Outer */}
++          <g style={{ transformOrigin: '50px 105px', animation: 'tentacle-move-1 1.2s ease-in-out infinite' }}>
++            <path d="M 50 105 C 30 115, 20 95, 10 110 C 5 117, 12 125, 22 120 C 35 112, 42 120, 54 112" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
++            <circle cx="22" cy="111" r="2.5" fill="#fff" />
++            <circle cx="34" cy="115" r="2" fill="#fff" />
++          </g>
++          {/* Tentacle 2 - Left Inner */}
++          <g style={{ transformOrigin: '65px 110px', animation: 'tentacle-move-2 1.2s ease-in-out infinite' }}>
++            <path d="M 65 110 C 50 125, 40 120, 35 132 C 32 138, 42 142, 48 135 C 56 125, 62 130, 70 120" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
++            <circle cx="45" cy="128" r="2.5" fill="#fff" />
++            <circle cx="58" cy="126" r="2" fill="#fff" />
++          </g>
++          {/* Tentacle 3 - Right Inner */}
++          <g style={{ transformOrigin: '95px 110px', animation: 'tentacle-move-3 1.2s ease-in-out infinite' }}>
++            <path d="M 95 110 C 110 125, 120 120, 125 132 C 128 138, 118 142, 112 135 C 104 125, 98 130, 90 120" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
++            <circle cx="115" cy="128" r="2.5" fill="#fff" />
++            <circle cx="102" cy="126" r="2" fill="#fff" />
++          </g>
++          {/* Tentacle 4 - Right Outer */}
++          <g style={{ transformOrigin: '110px 105px', animation: 'tentacle-move-4 1.2s ease-in-out infinite' }}>
++            <path d="M 110 105 C 130 115, 140 95, 150 110 C 155 117, 148 125, 138 120 C 125 112, 118 120, 106 112" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
++            <circle cx="138" cy="111" r="2.5" fill="#fff" />
++            <circle cx="126" cy="115" r="2" fill="#fff" />
++          </g>
++
++          {/* Main Head */}
++          <rect x="44" y="44" width="72" height="68" rx="34" fill="#f19cb2" stroke="#5c1123" strokeWidth="3.5" />
++          
++          {/* Head Highlight */}
++          <path d="M 58 54 A 20 20 0 0 1 76 48" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" fill="none" />
++          
++          {/* Blush cheeks */}
++          <circle cx="58" cy="85" r="6" fill="#f77595" opacity="0.8" />
++          <circle cx="102" cy="85" r="6" fill="#f77595" opacity="0.8" />
++
++          {/* Face expressions based on step */}
++          {step === 'completed' ? (
++            <>
++              {/* Happy eyes (^^) */}
++              <path d="M 58 76 Q 64 70 70 76" stroke="#5c1123" strokeWidth="3.5" fill="none" strokeLinecap="round" />
++              <path d="M 90 76 Q 96 70 102 76" stroke="#5c1123" strokeWidth="3.5" fill="none" strokeLinecap="round" />
++              {/* Joyful open mouth */}
++              <path d="M 74 85 Q 80 96 86 85 Z" fill="#ff527b" stroke="#5c1123" strokeWidth="2.5" />
++            </>
++          ) : (
++            <>
++              {/* Cute round eyes */}
++              <g>
++                <circle cx="66" cy="78" r="7.5" fill="#5c1123" />
++                <circle cx="64" cy="76" r="3" fill="#fff" />
++                <circle cx="68" cy="80" r="1" fill="#fff" />
++              </g>
++              <g>
++                <circle cx="94" cy="78" r="7.5" fill="#5c1123" />
++                <circle cx="92" cy="76" r="3" fill="#fff" />
++                <circle cx="96" cy="80" r="1" fill="#fff" />
++              </g>
++              
++              {/* Interactive mouth */}
++              {step === 'rendering_image' ? (
++                <circle cx="80" cy="86" r="4" fill="#5c1123" />
++              ) : step === 'rendering_video' ? (
++                <path d="M 76 86 C 76 82, 84 82, 84 86 C 84 90, 76 90, 76 86 Z" fill="#5c1123" />
++              ) : (
++                <path d="M 76 85 Q 80 89 84 85" stroke="#5c1123" strokeWidth="3" fill="none" strokeLinecap="round" />
++              )}
++            </>
++          )}
++
++          {/* Floating task accessory */}
++          {step !== 'completed' && (
++            <g style={{ transform: 'translate(66px, 6px)', animation: 'ribbon-float 1.2s infinite alternate' }}>
++              {step === 'rendering_image' ? (
++                <path d="M 12 6 L 16 14 H 32 L 36 6 L 30 10 L 24 4 L 18 10 Z" fill="#ffd166" stroke="#5c1123" strokeWidth="2" />
++              ) : printStatus === 'sending' ? (
++                <path d="M 10 10 H 30 V 26 H 10 Z M 14 14 H 26 V 22 H 14 Z" fill="#ff77b6" stroke="#5c1123" strokeWidth="2" />
++              ) : step === 'rendering_video' ? (
++                <path d="M 20 22 C 20 22, 10 16, 10 10 C 10 5, 15 2, 20 6 C 25 2, 30 5, 30 10 C 30 16, 20 22, 20 22 Z" fill="#ff4b72" stroke="#5c1123" strokeWidth="2" />
++              ) : (
++                <path d="M 10 6 H 30 V 26 H 10 Z M 14 10 H 18 V 14 H 14 Z M 22 10 H 26 V 14 H 22 Z M 14 18 H 18 V 22 H 14 Z M 22 18 H 26 V 22 H 22 Z" fill="#3b82f6" stroke="#5c1123" strokeWidth="2" />
++              )}
++            </g>
++          )}
++        </svg>
++      </div>
++
++      {/* Cute Headers */}
++      <div className="space-y-1.5 relative z-10">
++        <h3 
++          className="text-2xl font-black text-[#5c1123] flex items-center justify-center gap-1.5"
++          style={{ 
++            fontFamily: '"Cherry Bomb One", cursive',
++            textShadow: '2px 2px 0px #ffffff, 3px 3px 0px #ffccd5'
++          }}
++        >
++          <span>Đang hoàn thiện ảnh xinh...</span>
++          <span className="animate-bounce">🌸</span>
++        </h3>
++        <p className="text-[13px] text-[#8c515e] font-extrabold font-sans">
++          {step === 'rendering_image' && 'Đang sắp xếp những khoảnh khắc đáng yêu...'}
++          {printStatus === 'sending' && 'Đang chuyển giao phép thuật đến máy in...'}
++          {step === 'rendering_video' && `Đang tạo live photo sống động (${videoIndex}/${videoTotal})...`}
++          {step === 'generating_qr' && 'Đang đóng gói mã QR bí mật cho riêng bạn...'}
++          {step === 'completed' && 'Ảnh xinh đã sẵn sàng để toả sáng! ✨'}
++        </p>
++      </div>
++
++      {/* Overall Progress Bar */}
++      <div className="w-full space-y-2 relative z-10">
++        <div className="flex justify-between items-center text-xs font-black text-[#be123c] px-1 font-sans">
++          <span>Tiến trình hoàn tất</span>
++          <span className="bg-[#ffe4e6] border border-[#fecdd3] px-2.5 py-0.5 rounded-full text-[11px] shadow-sm">{percent}%</span>
++        </div>
++        <div className="w-full h-5 bg-[#ffe4e6] rounded-full p-1 border-2 border-[#5c1123] shadow-inner overflow-hidden">
++          <div 
++            className="h-full bg-gradient-to-r from-pink-400 to-[#f73591] rounded-full transition-all duration-500 ease-out relative border-r border-[#5c1123]"
++            style={{ width: `${percent}%` }}
++          >
++            <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:14px_14px] animate-[progress-bar-stripes_1s_linear_infinite] rounded-full" />
++          </div>
++        </div>
++      </div>
++
++      {/* Checklist */}
++      <div className="w-full text-left bg-white/95 p-4 rounded-2xl border-2 border-[#5c1123] space-y-3 shadow-inner relative z-10">
++        {tasks.map((t, i) => (
++          <div key={t.id} className="flex items-center gap-3 text-xs font-black">
++            {t.status === 'completed' ? (
++              <div className="size-6 rounded-full bg-[#ecfdf5] border-2 border-[#10b981] flex items-center justify-center text-[#10b981] shrink-0 shadow-sm">
++                <Check className="size-4 stroke-[3]" />
++              </div>
++            ) : t.status === 'active' ? (
++              <div className="size-6 rounded-full bg-[#ffe4e6] border-2 border-[#f73591] flex items-center justify-center text-[#f73591] shrink-0 animate-pulse shadow-sm">
++                <Loader2 className="size-4 animate-spin" />
++              </div>
++            ) : t.status === 'failed' ? (
++              <div className="size-6 rounded-full bg-[#fef2f2] border-2 border-[#ef4444] flex items-center justify-center text-[#ef4444] shrink-0 font-bold text-center text-xs shadow-sm">
++                ✕
++              </div>
++            ) : (
++              <div className="size-6 rounded-full bg-slate-50 border-2 border-[#e2e8f0] flex items-center justify-center text-slate-300 shrink-0" />
++            )}
++            <span className={t.status === 'completed' ? 'text-slate-400 line-through font-extrabold font-sans' : t.status === 'active' ? 'text-[#f73591] font-black font-sans' : 'text-slate-400 font-extrabold font-sans'}>
++              {t.label}
++            </span>
++          </div>
++        ))}
++      </div>
++      <style dangerouslySetInnerHTML={{__html: `
++        @keyframes progress-bar-stripes {
++          from { background-position: 14px 0; }
++          to { background-position: 0 0; }
++        }
++        .animate-progress-stripes {
++          background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
++          background-size: 14px 14px;
++          animation: progress-bar-stripes 1s linear infinite;
++        }
++      `}} />
++    </div>
++  );
++}

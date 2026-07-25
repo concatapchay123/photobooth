@@ -1,0 +1,296 @@
+diff --git a/src/styles.css b/src/styles.css
+index e56a8cf..294b912 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -2770,7 +2770,9 @@
+ .pink-adjust-stage {
++  position: relative; /* Ensure child tabs are positioned relative to the stage */
+   border-radius: 28px;
+   border: 2px solid #ffd5e9;
+   background: rgba(255, 255, 255, 0.68);
+   padding: 0.9rem;
+   box-shadow: 0 18px 32px rgba(255, 47, 147, 0.1);
+-  min-height: 100%;
++  min-height: 0; /* Allow the stage to shrink */
++  flex: 1 1 0%; /* Allow shrinking/growing in height */
+   display: flex;
+   flex-direction: column;
+ }
+@@ -2824,14 +2826,16 @@
+ .pink-adjust-frame-preview {
+   position: relative;
+-  width: min(100%, 520px, calc(60vh * var(--frame-ratio, 1))) !important;
++  width: 100% !important;
+   max-width: 100%;
++  max-width: 520px !important;
++  max-height: calc(100% - 3.5rem) !important; /* Cap height to stage bounds */
++  aspect-ratio: var(--frame-ratio, 1) !important;
+   margin-inline: auto;
+   border-radius: 18px;
+   overflow: hidden;
+   background: #fff;
+   border: 2px solid #ffd5e9;
+   box-shadow: inset 0 0 0 1px rgba(255, 47, 147, 0.08), 0 18px 35px rgba(255, 47, 147, 0.12);
+   touch-action: none;
+   user-select: none;
+-  flex: 0 0 auto;
++  flex: 1 1 auto;
++  min-height: 0; /* Enable shrinking */
+ }
+@@ -2942,7 +2946,8 @@
+ .pink-adjust-zoom-preview {
+   position: relative;
+-  width: min(100%, 280px, calc(30vh * var(--slot-ratio, 1)));
++  width: min(100%, 280px, calc(20vh * var(--slot-ratio, 1))) !important;
++  aspect-ratio: var(--slot-ratio, 1) !important; /* Bind to custom slot ratio variable */
+   max-width: 100%;
+   margin: 0 auto 1rem;
+   border-radius: 20px;
+   overflow: hidden;
+   background: #fff;
+   border: 2px dashed #ff8fc5;
+   cursor: grab;
+   touch-action: none;
+ }
+@@ -2067,7 +2067,7 @@
+ .pink-result-box {
+-  min-height: 420px;
++  min-height: 0; /* Remove fixed minimum height constraints */
+   border-radius: 24px;
+   background: rgba(255, 255, 255, 0.54);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 1rem;
+ }
+@@ -4416,11 +4416,13 @@
+ .pink-result-paper-mockup {
+   background: rgba(255, 255, 255, 0.45) !important;
+   backdrop-filter: blur(10px) !important;
+   -webkit-backdrop-filter: blur(10px) !important;
+   border: 1px solid rgba(255, 255, 255, 0.8) !important;
+   border-radius: 32px !important;
+   box-shadow: 
+     inset 0 2px 10px rgba(134, 24, 82, 0.02),
+     0 15px 35px rgba(134, 24, 82, 0.03) !important;
+-  padding: 2.2rem !important;
+-  min-height: 480px !important;
++  padding: 1.5rem !important; /* Reduce padding for smaller viewports */
++  min-height: 0 !important; /* Allow shrinking in height */
++  height: 100% !important;
++  max-height: 100% !important;
+   transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+ }
+@@ -4438,7 +4440,8 @@
+ .pink-result-paper-mockup .pink-result-image {
+   max-width: min(100%, 460px) !important;
+-  max-height: 70vh !important;
++  max-height: 100% !important; /* Limit maximum height to fit parent mockup */
++  object-fit: contain !important; /* Prevent scaling distortion */
+   border-radius: 16px !important;
+   border: 1px solid rgba(0, 0, 0, 0.06) !important;
+   box-shadow: 
+     0 20px 45px rgba(0, 0, 0, 0.12),
+     0 5px 15px rgba(0, 0, 0, 0.06),
+     inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
+   transform: rotate(0deg) !important;
+   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+   will-change: transform;
+ }
+@@ -6022,4 +6025,4 @@
+   .pink-result-image {
+-    max-height: 72vh !important;
++    max-height: 100% !important;
+   }
+ }
+diff --git a/src/components/GuestAdjustScreen.jsx b/src/components/GuestAdjustScreen.jsx
+index f86c2cd..294b912 100644
+--- a/src/components/GuestAdjustScreen.jsx
++++ b/src/components/GuestAdjustScreen.jsx
+@@ -35,2 +35,3 @@ export default function GuestAdjustScreen({
+ }) {
++  const [activeTab, setActiveTab] = React.useState('basic'); // 'basic' | 'quick'
+   return (
+@@ -141,18 +142,10 @@ export default function GuestAdjustScreen({
+                       <div
+                         className="pink-adjust-zoom-preview mx-auto"
+                         style={{
+-                          height: '120px',
+-                          width: `${120 * (zone.width / Math.max(1, zone.height))}px`,
++                          '--slot-ratio': zone.width / Math.max(1, zone.height),
++                          aspectRatio: 'var(--slot-ratio)',
+                           maxWidth: '100%',
+                           position: 'relative',
+                           overflow: 'hidden',
+                           borderRadius: '16px',
+                           border: '2px solid #ffd5e9',
+                           background: '#000',
+                           marginBottom: '1.25rem',
+                           cursor: 'grab'
+                         }}
+                         onPointerDown={(event) => startAdjustDrag(event, edit.slotIndex, 'zoom')}
+                       >
+@@ -160,65 +153,74 @@ export default function GuestAdjustScreen({
+                       </div>
+ 
+-                      {/* Sliders group */}
+-                      <div className="bg-[#fff7fb] border border-[#ffebf4] rounded-2xl p-4 mb-4 flex flex-col gap-3">
+-                        <label className="pink-adjust-control m-0">
+-                          <span className="flex justify-between text-xs font-bold text-[#74194a] mb-1">
+-                            <b>Phóng to</b>
+-                            <em>{zoomValue}%</em>
+-                          </span>
+-                          <input disabled={!canEditGuestAdjustment} type="range" min="20" max="600" step="1" value={zoomValue} aria-label="Adjust slot zoom" onChange={(event) => updateSlotEdit(edit.slotIndex, { scale: extractZoomScale(edit, event.target.value) })} className="w-full accent-[#ff2f93]" />
+-                        </label>
+-                        <label className="pink-adjust-control m-0">
+-                          <span className="flex justify-between text-xs font-bold text-[#74194a] mb-1">
+-                            <b>Xoay tự do</b>
+-                            <em>{extractRotationValue(edit)}°</em>
+-                          </span>
+-                          <input disabled={!canEditGuestAdjustment} type="range" min="-180" max="180" step="1" value={extractRotationValue(edit)} aria-label="Adjust slot rotation" onChange={(event) => updateSlotEdit(edit.slotIndex, { rotation: Number(event.target.value) })} className="w-full accent-[#ff2f93]" />
+-                        </label>
+-                      </div>
+-
+-                      {/* Quick actions group */}
+-                      <div className="bg-white border border-pink-100 rounded-2xl p-4 mb-4 flex flex-col gap-3">
+-                        <span className="text-xs font-black text-[#74194a]">Công cụ căn chỉnh nhanh:</span>
+-                        
+-                        <div className="grid grid-cols-3 gap-2">
+-                          <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => autoFitSlotEdit(edit.slotIndex)} title="Tự động căn chỉnh">
+-                            <Wand2 className="size-4 mb-1 text-[#ff2f93]" /><span>Tự căn</span>
+-                          </button>
+-                          <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => resetSlotEdit(edit.slotIndex)} title="Đặt lại như cũ">
+-                            <RefreshCcw className="size-4 mb-1 text-[#ff2f93]" /><span>Đặt lại</span>
+-                          </button>
+-                          <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { rotation: (edit.rotation || 0) - 90 })} title="Xoay trái 90 độ">
+-                            <RotateCcw className="size-4 mb-1 text-[#ff2f93]" /><span>Xoay Trái</span>
+-                          </button>
+-                          <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { rotation: (edit.rotation || 0) + 90 })} title="Xoay phải 90 độ">
+-                            <RotateCw className="size-4 mb-1 text-[#ff2f93]" /><span>Xoay Phải</span>
+-                          </button>
+-                          <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { flipX: !edit.flipX })} title="Lật ngang">
+-                            <FlipHorizontal className="size-4 mb-1 text-[#ff2f93]" /><span>Lật Ngang</span>
+-                          </button>
+-                          <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { flipY: !edit.flipY })} title="Lật dọc">
+-                            <FlipVertical className="size-4 mb-1 text-[#ff2f93]" /><span>Lật Dọc</span>
+-                          </button>
+-                        </div>
+-                      </div>
+-
+-                      {/* Swap pane */}
+-                      {slotEdits.length > 1 && (
+-                        <div className="pink-swap-panel bg-[#fff7fb] border border-[#ffebf4] rounded-2xl p-4">
+-                          <p className="text-xs font-black text-[#74194a] flex items-center gap-1.5 mb-2"><ArrowLeftRight className="size-4 text-[#ff2f93]" /> Đổi ảnh sang ô khác</p>
+-                          <div className="pink-swap-grid flex flex-wrap gap-2">
+-                            {slotEdits.flatMap((item) => (item.slotIndex === edit.slotIndex ? [] : [
+-                              (
+-                                <button
+-                                  key={`swap-${edit.slotIndex}-${item.slotIndex}`}
+-                                  type="button"
+-                                  disabled={!canEditGuestAdjustment}
+-                                  onClick={() => swapSlotEdits(edit.slotIndex, item.slotIndex)}
+-                                  className="px-3 py-1.5 bg-white border border-[#ffc6e2] hover:border-[#ff2f93] rounded-full text-xs font-bold text-[#74194a] cursor-pointer"
+-                                >
+-                                  Ô số {item.slotIndex + 1}
+-                                </button>
+-                              ),
+-                            ]))}
+-                          </div>
+-                        </div>
+-                      )}
++                      {/* Compact accordion/tabs structure */}
++                      <div className="flex border-b border-pink-100/80 mb-4 bg-pink-50/40 rounded-lg p-0.5 shrink-0" role="tablist">
++                        <button
++                          type="button"
++                          role="tab"
++                          aria-selected={activeTab === 'basic'}
++                          onClick={() => setActiveTab('basic')}
++                          className={`flex-1 py-2 text-xs font-black rounded-md transition-all text-center cursor-pointer ${
++                            activeTab === 'basic' 
++                              ? 'bg-white text-[#ff2f93] shadow-sm border border-[#ffebf4]' 
++                              : 'text-[#74194a] opacity-70 hover:opacity-100'
++                          }`}
++                        >
++                          Cân Chỉnh Tay
++                        </button>
++                        <button
++                          type="button"
++                          role="tab"
++                          aria-selected={activeTab === 'quick'}
++                          onClick={() => setActiveTab('quick')}
++                          className={`flex-1 py-2 text-xs font-black rounded-md transition-all text-center cursor-pointer ${
++                            activeTab === 'quick' 
++                              ? 'bg-white text-[#ff2f93] shadow-sm border border-[#ffebf4]' 
++                              : 'text-[#74194a] opacity-70 hover:opacity-100'
++                          }`}
++                        >
++                          Công Cụ Nhanh
++                        </button>
++                      </div>
++
++                      {activeTab === 'basic' && (
++                        <div className="bg-[#fff7fb] border border-[#ffebf4] rounded-2xl p-4 flex flex-col gap-3">
++                          <label className="pink-adjust-control m-0">
++                            <span className="flex justify-between text-xs font-bold text-[#74194a] mb-1">
++                              <b>Phóng to</b>
++                              <em>{zoomValue}%</em>
++                            </span>
++                            <input disabled={!canEditGuestAdjustment} type="range" min="20" max="600" step="1" value={zoomValue} aria-label="Adjust slot zoom" onChange={(event) => updateSlotEdit(edit.slotIndex, { scale: extractZoomScale(edit, event.target.value) })} className="w-full accent-[#ff2f93]" />
++                          </label>
++                          <label className="pink-adjust-control m-0">
++                            <span className="flex justify-between text-xs font-bold text-[#74194a] mb-1">
++                              <b>Xoay tự do</b>
++                              <em>{extractRotationValue(edit)}°</em>
++                            </span>
++                            <input disabled={!canEditGuestAdjustment} type="range" min="-180" max="180" step="1" value={extractRotationValue(edit)} aria-label="Adjust slot rotation" onChange={(event) => updateSlotEdit(edit.slotIndex, { rotation: Number(event.target.value) })} className="w-full accent-[#ff2f93]" />
++                          </label>
++                        </div>
++                      )}
++
++                      {activeTab === 'quick' && (
++                        <div className="flex flex-col gap-3">
++                          <div className="bg-white border border-pink-100 rounded-2xl p-4 flex flex-col gap-2">
++                            <span className="text-[10px] font-black text-[#74194a] uppercase tracking-wider mb-1">Công cụ căn chỉnh nhanh:</span>
++                            <div className="grid grid-cols-3 gap-2">
++                              <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => autoFitSlotEdit(edit.slotIndex)} title="Tự động căn chỉnh">
++                                <Wand2 className="size-4 mb-1 text-[#ff2f93]" /><span>Tự căn</span>
++                              </button>
++                              <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => resetSlotEdit(edit.slotIndex)} title="Đặt lại như cũ">
++                                <RefreshCcw className="size-4 mb-1 text-[#ff2f93]" /><span>Đặt lại</span>
++                              </button>
++                              <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { rotation: (edit.rotation || 0) - 90 })} title="Xoay trái 90 độ">
++                                <RotateCcw className="size-4 mb-1 text-[#ff2f93]" /><span>Xoay Trái</span>
++                              </button>
++                              <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { rotation: (edit.rotation || 0) + 90 })} title="Xoay phải 90 độ">
++                                <RotateCw className="size-4 mb-1 text-[#ff2f93]" /><span>Xoay Phải</span>
++                              </button>
++                              <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { flipX: !edit.flipX })} title="Lật ngang">
++                                <FlipHorizontal className="size-4 mb-1 text-[#ff2f93]" /><span>Lật Ngang</span>
++                              </button>
++                              <button type="button" className="flex flex-col items-center justify-center py-2 px-1 border border-pink-100/60 rounded-xl hover:bg-[#fff7fb] hover:border-[#ff2f93] text-[10px] font-bold text-[#74194a] cursor-pointer transition-all active:scale-95" disabled={!canEditGuestAdjustment} onClick={() => updateSlotEdit(edit.slotIndex, { flipY: !edit.flipY })} title="Lật dọc">
++                                <FlipVertical className="size-4 mb-1 text-[#ff2f93]" /><span>Lật Dọc</span>
++                              </button>
++                            </div>
++                          </div>
++                          {slotEdits.length > 1 && (
++                            <div className="pink-swap-panel bg-[#fff7fb] border border-[#ffebf4] rounded-2xl p-4">
++                              <p className="text-xs font-black text-[#74194a] flex items-center gap-1.5 mb-2"><ArrowLeftRight className="size-4 text-[#ff2f93]" /> Đổi ảnh sang ô khác</p>
++                              <div className="pink-swap-grid flex flex-wrap gap-2">
++                                {slotEdits.flatMap((item) => (item.slotIndex === edit.slotIndex ? [] : [
++                                  (
++                                    <button
++                                      key={`swap-${edit.slotIndex}-${item.slotIndex}`}
++                                      type="button"
++                                      disabled={!canEditGuestAdjustment}
++                                      onClick={() => swapSlotEdits(edit.slotIndex, item.slotIndex)}
++                                      className="px-3 py-1.5 bg-white border border-[#ffc6e2] hover:border-[#ff2f93] rounded-full text-xs font-bold text-[#74194a] cursor-pointer"
++                                    >
++                                      Ô số {item.slotIndex + 1}
++                                    </button>
++                                  ),
++                                ]))}
++                              </div>
++                            </div>
++                          )}
++                        </div>
++                      )}

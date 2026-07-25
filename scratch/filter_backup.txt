@@ -1,0 +1,261 @@
+=== d:/my-photobooth/scratch/funcs_backup.txt ===
+115: const ADMIN_PIN_STORAGE_KEY = 'photobooth-admin-pin:v1';
+116: const DEFAULT_ADMIN_PIN = String(import.meta.env.VITE_PHOTOBOOTH_ADMIN_PIN || '2468').trim();
+391: const SLOT_PHOTO_BLEED_PIXELS = 0;
+392: const CACHE_PREFIX = 'photobooth-frame-slots:v3-transparent';
+393: const SLOT_MAP_SCHEMA = 'photobooth-slot-map:v1';
+394: const FRAME_PACKAGE_SCHEMA = 'photobooth-frame-package:v1';
+395: const GUEST_OUTPUT_SCHEMA = 'photobooth-guest-output:v1';
+396: const GUEST_STEP_ORDER = ['capture', 'frame', 'select', 'adjust', 'result'];
+397: const GUEST_CAPTURE_TARGET = 6;
+398: const GUEST_CAPTURE_MIN_TO_CONTINUE = 6;
+400: const GUEST_CAPTURE_TOTAL_SECONDS = 60;
+401: const GUEST_CAPTURE_INTERVAL_SECONDS = 10;
+406: const GUEST_FRAME_PREVIEW_PHOTO_TARGET = 4;
+414: const SELECTED_CAMERA_STORAGE_KEY = 'selectedCameraId';
+415: const PREFERRED_CAMERA_STORAGE_KEY = 'preferredCameraId';
+452: const GUEST_TOTAL_TIMER_STEPS = ['capture', 'frame', 'select', 'adjust'];
+467: const minCaptureBudget = GUEST_CAPTURE_TARGET * (GUEST_CAPTURE_INTERVAL_SECONDS + 5);
+479: const HIGH_QUALITY_CAMERA_CONSTRAINTS = {
+570: const getPhotoZone = (photo, zones) =>
+573: const clipCanvasToZone = (ctx, zone, outset = SLOT_PHOTO_BLEED_PIXELS) => {
+853: const fitPhotoToSlot = (img, zone) => {
+880: const fitPhotoInsideSlot = (img, zone) => {
+941: const slotEditToPhoto = (edit) => ({
+990: const extractPhotoStyle = (edit, zone) => ({
+1252: const getFirstCaptureIndices = (photoCount, targetCount = 4) =>
+1266: const naturalWidth = img.naturalWidth !== undefined ? img.naturalWidth : (img.videoWidth !== undefined ? img.videoWidth : (img.width || 0));
+1267: const naturalHeight = img.naturalHeight !== undefined ? img.naturalHeight : (img.videoHeight !== undefined ? img.videoHeight : (img.height || 0));
+1788: const createDownloadSlug = (value, fallback = 'photobooth') => {
+1854: const createGuestOutputPayload = ({ printDataUrl, printPngDataUrl = '', frameCanvases, draftsForPrint, capturedPhotosForSave = [], outputMeta, frameVideos = [] }) => {
+1858: const slug = createDownloadSlug(frameNames.join('-'), 'photobooth');
+1881: const fVideo = frameVideos?.[index];
+1893: const captureData = {
+2007: const printWindow = window.open('', 'photobooth-print', 'width=900,height=1100');
+2255: const isUsingFallbackCameraRef = useRef(false);
+2256: const preferredCameraIdRef = useRef(localStorage.getItem(PREFERRED_CAMERA_STORAGE_KEY) || '');
+2273: const latestIsLockedCaptureRunningRef = useRef(isLockedCaptureRunning);
+2276: const latestCaptureSessionSecondsLeftRef = useRef(captureSessionSecondsLeft);
+2334: const beautyCameraRef = useRef(null);
+2342: const cameraStreamRef = useRef(null);
+2343: const capturedPhotosCountRef = useRef(0);
+2344: const captureBusyRef = useRef(false);
+2345: const capturePausedRef = useRef(false);
+2352: const guestPreviewPhotoCacheRef = useRef(new Map());
+2714: const guestAutoPhotos = useMemo(
+2717: const photo = capturedPhotos[captureIndex];
+2722: const guestAutoCapturePhotoKey = useMemo(
+2730: const maxGuestPhotos = boothMode === 'photobooth' ? GUEST_CAPTURE_TARGET : 4;
+2731: const minGuestPhotosToContinue = boothMode === 'photobooth' ? GUEST_CAPTURE_MIN_TO_CONTINUE : 4;
+2812: const selectedPhoto = selectedPhotoId ? photos.find((photo) => photo.id === selectedPhotoId) : null;
+2814: const requiredPhotoCount = zones.length;
+2815: const isAnalyzingPhotos = photoAnalysisStatus.startsWith('Đang');
+2816: const canUploadPhotos = originalFrame && requiredPhotoCount > 0 && !isAutoDetecting && !isAnalyzingPhotos;
+2817: const canExport = !isPartnerMode && originalFrame && requiredPhotoCount > 0 && photos.length === requiredPhotoCount;
+3262: const handlePhotoUpload = async (event) => {
+3283: const photoResults = await Promise.all(files.map(async (file, index) => {
+3289: const placement = fitPhotoToSlot(img, assignedZone);
+3316: const nextPhotos = photoResults.map((result) => result.photo);
+3317: const nextAssignments = photoResults.map((result) => result.assignment);
+3572: const duplicatePhoto = (id) => {
+3573: const photo = photos.find((item) => item.id === id);
+3579: const removePhoto = (id) => {
+3585: const updatePhoto = (id, updates) => {
+3589: const handlePhotoPointerDown = (event, id) => {
+3664: const handlePointerUp = () => setIsDraggingPhoto(false);
+3689: const loadedPhotos = await Promise.all(photos.map(async (photo) => ({
+3696: const assignedZone = getPhotoZone(photo, normalizedZones);
+3710: const captureRawGuestVideoCanvas = (video) => {
+3723: const captureRawGuestVideoFrame = (video) => {
+3724: const canvas = captureRawGuestVideoCanvas(video);
+3729: const waitForReadableGuestVideoFrame = async (video, timeoutMs = 2500) => {
+3732: const canvas = captureRawGuestVideoCanvas(video);
+3783: const getGuestPreviewPhotoItem = async (captureIndex) => {
+3784: const photo = capturedPhotos[captureIndex];
+3787: const previewUrl = photo.previewUrl || photo.url;
+3788: const cached = guestPreviewPhotoCacheRef.current.get(photo.id);
+3794: const item = { captureIndex, photo, img, subject: createSlotFitSubject(img), url: previewUrl };
+3798: const validIds = new Set(capturedPhotos.map((itemPhoto) => itemPhoto.id));
+3830: const renderGuestFramePreview = async (frame, photoItems, { maxLongSide = 920 } = {}) => {
+3847: const photoItem = photoItems[index];
+3849: const placement = fitPhotoToSlot(photoItem.img, zone);
+4029: const activeStepsForScroll = boothMode === 'photobooth' ? GUEST_STEP_ORDER : ['capture', 'select', 'result'];
+4142: const DSLR_CAPTURE_REGEX = /eos|canon|nikon|sony|fuji|virtual|obs|sparko|capture|hdmi|cam\s?link|elgato|usb\s?video/i;
+4143: const getStoredSelectedCameraId = () => localStorage.getItem(SELECTED_CAMERA_STORAGE_KEY) || '';
+4144: const getStoredPreferredCameraId = () => (
+4149: const isPreferredCameraLabel = (label) => DSLR_CAPTURE_REGEX.test(String(label || ''));
+4150: const isPreferredCameraDevice = (device) => isPreferredCameraLabel(device?.label);
+4151: const getPreferredCameraDevice = (devices) => devices.find(isPreferredCameraDevice) || null;
+4152: const hasReadableCameraLabels = (devices) => devices.some((device) => String(device.label || '').trim());
+4154: const rememberSelectedCamera = (deviceId, { preferred = false } = {}) => {
+4187: const updateCameraDevices = async ({ allowDefaultSelection = false, preferPrimary = true } = {}) => {
+4191: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4196: const labelsAreReadable = hasReadableCameraLabels(videoDevices);
+4197: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4203: const activeId = getStoredSelectedCameraId();
+4204: const stillExists = videoDevices.some((d) => d.deviceId === activeId);
+4217: const defaultDevice = preferredDevice || videoDevices[0];
+4228: const handleCameraDisconnect = ({ allowFallback = true } = {}) => {
+4238: const selectedCameraIdAtStart = getStoredSelectedCameraId();
+4247: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4250: const preferredByLabel = getPreferredCameraDevice(videoDevices);
+4256: const storedPreferredId = getStoredPreferredCameraId();
+4260: const selectedDevice = selectedCameraIdAtStart
+4267: const activeTrack = cameraStreamRef.current?.getVideoTracks?.()[0];
+4270: const isAlreadyUsingPrimary = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4274: const stream = await initCameraStream(targetDevice.deviceId, { stopPolling: false });
+4275: const restoredTrack = stream?.getVideoTracks?.()[0];
+4278: const restoredIsPrimary = restoredTrack && isPreferredCameraLabel(restoredTrack.label);
+4303: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4304: const webcamDevice = videoDevices.find((d) => !isPreferredCameraDevice(d));
+4305: const fallbackId = webcamDevice ? webcamDevice.deviceId : (videoDevices[0]?.deviceId || null);
+4314: const hasPrimaryToRecover = Boolean(getStoredPreferredCameraId() || getPreferredCameraDevice(videoDevices));
+4336: const initCameraStreamLegacy = async (deviceId = null) => {
+4349: let targetDeviceId = deviceId || localStorage.getItem('selectedCameraId') || '';
+4354: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4355: const dslr = videoDevices.find((d) => DSLR_CAPTURE_REGEX.test(d.label));
+4376: const track = stream.getVideoTracks()[0];
+4377: const isDslr = track && DSLR_CAPTURE_REGEX.test(track.label);
+4409: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4410: const webcam = videoDevices.find((d) => !DSLR_CAPTURE_REGEX.test(d.label)) || videoDevices[0];
+4447: const initCameraStream = async (deviceId = null, { stopPolling = true, userSelected = false } = {}) => {
+4457: let targetDeviceId = deviceId || getStoredPreferredCameraId() || getStoredSelectedCameraId();
+4461: const videoDevices = await updateCameraDevices({ allowDefaultSelection: false, preferPrimary: true });
+4462: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4478: const track = stream.getVideoTracks()[0];
+4480: const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4481: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4508: const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || preferredDevice));
+4531: const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: true });
+4532: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4538: const webcam = videoDevices.find((device) => !isPreferredCameraDevice(device)) || videoDevices[0];
+4548: const fallbackTrack = fallbackStream.getVideoTracks()[0];
+4549: const fallbackDeviceId = fallbackTrack?.getSettings?.().deviceId || webcam.deviceId;
+4550: const refreshedDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4551: const refreshedPreferredDevice = getPreferredCameraDevice(refreshedDevices);
+4570: const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || refreshedPreferredDevice || targetDeviceIsKnownPrimary));
+4599: const handleCameraChange = async (deviceId) => {
+4612: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4614: const targetId = getStoredPreferredCameraId() || getStoredSelectedCameraId();
+4615: const activeStream = cameraStreamRef.current;
+4617: const dslrDevice = getPreferredCameraDevice(videoDevices);
+4620: const activeTrack = activeStream?.getVideoTracks()[0];
+4621: const isCurrentlyUsingDslr = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4703: const initialCaptureSeconds = Math.ceil(initialBudgets.capture);
+4717: const runGuestAiAnalysis = async (photosForAi) => {
+4719: const prompt = `Analyze each guest photo and return one JSON object only. Schema: {"photos":[{"dominantColors":[{"hex":"#ffffff","tag":"white","weight":50}],"paletteTags":["bright"],"lighting":{"brightness":0,"contrast":0,"saturation":0,"warmth":0,"coolness":0},"vibes":["cute"],"concepts":["portrait"],"events":[],"scores":{"cute":0,"romantic":0,"vintage":0,"fantasy":0,"elegant":0,"minimal":0,"pastel":0,"energetic":0,"luxury":0,"fresh":0,"warm":0,"cool":0},"qualityWeight":0.8}]}. Use English tags only. Scores are integers 0-100. No markdown.`;
+4720: const aiResult = await callVisionProfileAi({ images: photosForAi.map((photo) => photo.url), prompt });
+4721: const aiProfiles = Array.isArray(aiResult?.photos)
+4738: const analyzeGuestPhotoLocal = async (photo, nextPhotos) => {
+4740: const profile = await analyzeImageLocal(photo.previewUrl || photo.url, 'guest');
+4761: const canvas = beautyCameraRef.current?.getCanvas();
+4785: let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 6000000 };
+4823: const mimeType = recorder.mimeType || 'video/webm';
+4838: const captureGuestPhotoFrame = async () => {
+4850: const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+4851: const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+4864: let videoBlob = null;
+4874: const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady()
+4886: const photoIndex = capturedPhotosCountRef.current;
+4887: const photo = {
+4899: const nextPhotos = [...prev, photo];
+4913: const startGuestCaptureSession = async () => {
+4944: const requestFinishCaptureEarly = () => {
+4952: const finishCaptureEarly = () => {
+4954: const stepName = boothMode === 'photobooth' ? 'chọn khung' : 'tiếp tục';
+5001: const runCaptureCycle = async () => {
+5056: const didCapture = await captureGuestPhotoFrame();
+5059: const savedCount = capturedPhotosCountRef.current;
+5111: const targetCount = Math.min(4, capturedPhotos.length);
+5113: const firstCaptureIndices = getFirstCaptureIndices(capturedPhotos.length, targetCount);
+5226: const photoItems = (await Promise.all(guestAutoCaptureIndices.map(getGuestPreviewPhotoItem))).filter(Boolean);
+5280: const debounceMs = guestStep === 'capture' ? 500 : (guestStep === 'frame' ? 800 : 0);
+5298: const prompt = `Analyze this photobooth frame and return one JSON object only. Do not include slot count. Schema: {"dominantColors":[{"hex":"#ffffff","tag":"white","weight":50}],"paletteTags":["pink"],"lighting":{"brightness":0,"contrast":0,"saturation":0,"warmth":0,"coolness":0},"vibes":["cute"],"concepts":["decorative"],"events":[],"scores":{"cute":0,"romantic":0,"vintage":0,"fantasy":0,"elegant":0,"minimal":0,"pastel":0,"energetic":0,"luxury":0,"fresh":0,"warm":0,"cool":0}}. Use English tags only. Scores are integers 0-100. No markdown.`;
+5477: const toggleGuestPhotoSelection = (index) => {
+5502: const nextSelection = [...selectedCaptureIndices, index];
+5509: const requestCreateGuestResult = (captureIndicesOverride = null) => {
+5510: const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+5538: const pickGuestCaptureIndicesForAutoCommit = () => {
+5548: const buildGuestFrameDraft = async (frame, captureIndicesForResult, draftIndex = 0) => {
+5559: const sourceSelectionIndex = index % captureIndicesForResult.length;
+5560: const capturedPhoto = capturedPhotos[captureIndicesForResult[sourceSelectionIndex]];
+5562: const img = await loadImage(capturedPhoto.url);
+5563: const placement = fitPhotoToSlot(img, zone);
+5565: const photoId = `guest-${Date.now()}-${draftIndex}-${index}`;
+5595: const draftPhotos = validDraftResults.map((result) => result.photo);
+5598: const draftSlotEdits = draftPhotos.map((photo) => {
+5599: const assignedZone = normalizedZones[photo.slotIndex];
+5600: const baseTransform = extractTransformFromPlacement(photo, { naturalWidth: photo.naturalWidth, naturalHeight: photo.naturalHeight }, assignedZone);
+5658: const createGuestResult = async (captureIndicesOverride = null, frameOverride = null) => {
+5659: const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+5809: const renderGuestFrameDraftVideoComposition = (draft) => {
+5817: const hasVideos = (draft.slotEdits || []).some(edit => {
+5819: const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+5850: const containerId = 'temp-composition-video-container';
+5870: const videoItems = await Promise.all((draft.slotEdits || []).map(async (edit) => {
+5874: let targetVideoBlob = edit.videoBlob;
+5875: let photoUrl = edit.url;
+5877: const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+5884: const img = await loadImage(photoUrl || edit.url);
+5896: const video = document.createElement('video');
+5929: const allVideoItems = videoItems.filter(Boolean);
+5965: const stream = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
+5968: let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 6000000 };
+6014: const composedBlob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+6062: const renderAutoGuestFrameComposition = async (frame, captureIndicesForResult) => {
+6078: const sourceSelectionIndex = index % captureIndicesForResult.length;
+6079: const capturedPhoto = capturedPhotos[captureIndicesForResult[sourceSelectionIndex]];
+6081: const img = await loadImage(capturedPhoto.url);
+6082: const placement = fitPhotoToSlot(img, zone);
+6136: const placement = edit.fitMode === 'contain' ? fitPhotoInsideSlot(imgInfo, zone) : fitPhotoToSlot(imgInfo, zone);
+6280: const frameVideos = [];
+6285: const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
+6287: const dataUrl = await blobToDataUrl(videoBlob);
+6288: const mimeType = videoBlob.type || 'video/webm';
+6289: const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+6336: const capturedPhotosForSave = await Promise.all(capturedPhotos.map(async (photo) => {
+6339: const videoDataUrl = await blobToDataUrl(photo.videoBlob);
+6340: const mimeType = photo.videoBlob.type || 'video/webm';
+6341: const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+6413: const createIdPhotoResult = async (captureIndicesOverride = null) => {
+6414: const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+6431: const selectedIndex = captureIndicesForResult[0];
+6432: const photo = capturedPhotos[selectedIndex];
+6436: const img = await loadImage(photo.url);
+6439: const idPhotoCanvas = document.createElement('canvas');
+6442: const idCtx = idPhotoCanvas.getContext('2d');
+6460: const idPhotoDataUrl = idPhotoCanvas.toDataURL('image/jpeg', 0.95);
+6461: const idPhotoPngUrl = idPhotoCanvas.toDataURL('image/png');
+6661: const downloadGuestPhoto = () => {
+6669: const printGuestPhoto = async () => {
+6802: const requiredGuestPhotoCount = zones.length;
+6803: const hasEnoughGuestSetup = selectedFrame && requiredGuestPhotoCount > 0;
+6810: const activeSteps = boothMode === 'photobooth' ? GUEST_STEP_ORDER : ['capture', 'select', 'result'];
+6814: const isCaptureUnlocked = isModeSelected && currentGuestStepIndex >= activeSteps.indexOf('capture');
+6815: const shouldShowModeSelectorPopup = showModeSelector || (guestStep === 'capture' && !isModeSelected);
+6816: const isCaptureLocked = isGuestStepLocked('capture');
+6817: const hasFinishedGuestCapture = isGuestStepLocked('capture') && capturedPhotos.length >= minGuestPhotosToContinue;
+6818: const canFinishCaptureEarly = guestStep === 'capture' && !isCaptureLocked && capturedPhotos.length >= minGuestPhotosToContinue;
+6819: const isFrameUnlocked = boothMode === 'photobooth' && currentGuestStepIndex >= activeSteps.indexOf('frame') && hasFinishedGuestCapture;
+6820: const isSelectUnlocked = boothMode === 'photobooth'
+6823: const isAdjustUnlocked = boothMode === 'photobooth' && currentGuestStepIndex >= activeSteps.indexOf('adjust') && slotEdits.length > 0;
+6873: const channel = new BroadcastChannel('photobooth-channel');
+7019: const channel = new BroadcastChannel('photobooth-channel');
+7026: const video = beautyCameraRef.current?.getVideoElement() || document.querySelector('video');
+7054: const channel = new BroadcastChannel('photobooth-channel');
+7117: const guestCanCreateResult = boothMode === 'photobooth'
+7161: const price = idPhotoService === 'print' ? '50.000đ' : '15.000đ';
+7172: const selectedCount = guestTransitionPrompt.captureIndices?.length || selectedCaptureIndices.length;
+7173: const missingCount = Math.max(0, (requiredGuestPhotoCount || 0) - selectedCount);
+7296: const captureIndicesToCommit = pickGuestCaptureIndicesForAutoCommit();
+8736: const selectionOrder = selectedCaptureIndices.indexOf(index);
+9644: const assignedZone = getPhotoZone(photo, zones);
+9866: const channel = new BroadcastChannel('photobooth-channel');
+9960: const channel = new BroadcastChannel('photobooth-channel');
+10024: const isIdPhoto = s.isIdPhoto || s.meta?.isIdPhoto || s.frameName === 'id-photo-3x4';
+10025: const boothMode = s.boothMode || s.meta?.boothMode || (isIdPhoto ? 'id_photo' : 'photobooth');
+10026: const idPhotoService = s.idPhotoService || s.meta?.idPhotoService || 'print';
+10063: const steps = ['hero', 'capture', 'frame', 'select', 'adjust', 'result'];
+10470: const isIdPhoto = session.isIdPhoto || session.meta?.isIdPhoto || session.frameName === 'id-photo-3x4';
+10471: const boothMode = session.boothMode || session.meta?.boothMode || (isIdPhoto ? 'id_photo' : 'photobooth');
+10472: const idPhotoService = session.idPhotoService || session.meta?.idPhotoService || 'print';

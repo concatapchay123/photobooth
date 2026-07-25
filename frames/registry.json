@@ -1,0 +1,2898 @@
+﻿{
+    "schema":  "photobooth-frame-registry:v1",
+    "generatedAt":  "2026-06-27T03:02:45.0534738Z",
+    "source":  "transparent-alpha-source",
+    "standardFrame":  {
+                          "width":  880,
+                          "height":  2650,
+                          "fitMode":  "SourceTransparentAlphaSlots",
+                          "note":  "Frames are kept at native source dimensions."
+                      },
+    "frameCount":  14,
+    "frames":  [
+                   {
+                       "id":  "App love",
+                       "name":  "App love",
+                       "source":  "source/App love.png",
+                       "preview":  "source/App love.png",
+                       "overlay":  "source/App love.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "App love-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  64,
+                                         "width":  771,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  64
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  64
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  629
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  629
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  64,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  432313
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  64,
+                                                                "width":  771,
+                                                                "height":  565,
+                                                                "area":  432313
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432313
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "App love-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  676,
+                                         "width":  771,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1241
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1241
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  676,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  419324
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  676,
+                                                                "width":  771,
+                                                                "height":  565,
+                                                                "area":  419324
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  419324
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "App love-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  56,
+                                         "y":  1289,
+                                         "width":  771,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1289
+                                                        },
+                                                        {
+                                                            "x":  827,
+                                                            "y":  1289
+                                                        },
+                                                        {
+                                                            "x":  827,
+                                                            "y":  1853
+                                                        },
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1853
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1289,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  421118
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  56,
+                                                                "y":  1289,
+                                                                "width":  771,
+                                                                "height":  564,
+                                                                "area":  421118
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  421118
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "App love-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1901,
+                                         "width":  771,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1901
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1901
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  2465
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  2465
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1901,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  415699
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1901,
+                                                                "width":  771,
+                                                                "height":  564,
+                                                                "area":  415699
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  415699
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Film ảnh",
+                       "name":  "Film ảnh",
+                       "source":  "source/Film ảnh.png",
+                       "preview":  "source/Film ảnh.png",
+                       "overlay":  "source/Film ảnh.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Film ảnh-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  63,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  63
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  63
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  628
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  628
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  63,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  432779
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  63,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  432779
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432779
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Film ảnh-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  57,
+                                         "y":  676,
+                                         "width":  769,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  57,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1241
+                                                        },
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1241
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  432322
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  57,
+                                                                "y":  676,
+                                                                "width":  769,
+                                                                "height":  565,
+                                                                "area":  432322
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432322
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Film ảnh-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1290,
+                                         "width":  770,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1290
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  1290
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  1854
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1854
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1290,
+                                                              "width":  770,
+                                                              "height":  564,
+                                                              "area":  432091
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1290,
+                                                                "width":  770,
+                                                                "height":  564,
+                                                                "area":  432091
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432091
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Film ảnh-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1908,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  2473
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  2473
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1908,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  432795
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1908,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  432795
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432795
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Giấy chứng nhận kết hôn",
+                       "name":  "Giấy chứng nhận kết hôn",
+                       "source":  "source/Giấy chứng nhận kết hôn.png",
+                       "preview":  "source/Giấy chứng nhận kết hôn.png",
+                       "overlay":  "source/Giấy chứng nhận kết hôn.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Giấy chứng nhận kết hôn-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  63,
+                                         "y":  73,
+                                         "width":  754,
+                                         "height":  549,
+                                         "points":  [
+                                                        {
+                                                            "x":  63,
+                                                            "y":  73
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  73
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  622
+                                                        },
+                                                        {
+                                                            "x":  63,
+                                                            "y":  622
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  73,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  410959
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  63,
+                                                                "y":  73,
+                                                                "width":  754,
+                                                                "height":  549,
+                                                                "area":  410959
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  410959
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Giấy chứng nhận kết hôn-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  64,
+                                         "y":  684,
+                                         "width":  754,
+                                         "height":  549,
+                                         "points":  [
+                                                        {
+                                                            "x":  64,
+                                                            "y":  684
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  684
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1233
+                                                        },
+                                                        {
+                                                            "x":  64,
+                                                            "y":  1233
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  684,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  409654
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  64,
+                                                                "y":  684,
+                                                                "width":  754,
+                                                                "height":  549,
+                                                                "area":  409654
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  409654
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Giấy chứng nhận kết hôn-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  68,
+                                         "y":  1296,
+                                         "width":  754,
+                                         "height":  548,
+                                         "points":  [
+                                                        {
+                                                            "x":  68,
+                                                            "y":  1296
+                                                        },
+                                                        {
+                                                            "x":  822,
+                                                            "y":  1296
+                                                        },
+                                                        {
+                                                            "x":  822,
+                                                            "y":  1844
+                                                        },
+                                                        {
+                                                            "x":  68,
+                                                            "y":  1844
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  68,
+                                                              "y":  1296,
+                                                              "width":  754,
+                                                              "height":  548,
+                                                              "area":  398002
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  68,
+                                                                "y":  1296,
+                                                                "width":  754,
+                                                                "height":  548,
+                                                                "area":  398002
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  398002
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Giấy chứng nhận kết hôn-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  63,
+                                         "y":  1907,
+                                         "width":  755,
+                                         "height":  553,
+                                         "points":  [
+                                                        {
+                                                            "x":  63,
+                                                            "y":  1907
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1907
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  2460
+                                                        },
+                                                        {
+                                                            "x":  63,
+                                                            "y":  2460
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  1907,
+                                                              "width":  755,
+                                                              "height":  553,
+                                                              "area":  417293
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  63,
+                                                                "y":  1907,
+                                                                "width":  755,
+                                                                "height":  553,
+                                                                "area":  417293
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  417293
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Grow up girl",
+                       "name":  "Grow up girl",
+                       "source":  "source/Grow up girl.png",
+                       "preview":  "source/Grow up girl.png",
+                       "overlay":  "source/Grow up girl.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Grow up girl-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  64,
+                                         "y":  74,
+                                         "width":  753,
+                                         "height":  546,
+                                         "points":  [
+                                                        {
+                                                            "x":  64,
+                                                            "y":  74
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  74
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  620
+                                                        },
+                                                        {
+                                                            "x":  64,
+                                                            "y":  620
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  74,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  397948
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  64,
+                                                                "y":  74,
+                                                                "width":  753,
+                                                                "height":  546,
+                                                                "area":  397948
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  397948
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Grow up girl-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  64,
+                                         "y":  686,
+                                         "width":  753,
+                                         "height":  546,
+                                         "points":  [
+                                                        {
+                                                            "x":  64,
+                                                            "y":  686
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  686
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  1232
+                                                        },
+                                                        {
+                                                            "x":  64,
+                                                            "y":  1232
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  686,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  396441
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  64,
+                                                                "y":  686,
+                                                                "width":  753,
+                                                                "height":  546,
+                                                                "area":  396441
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  396441
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Grow up girl-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  65,
+                                         "y":  1298,
+                                         "width":  753,
+                                         "height":  546,
+                                         "points":  [
+                                                        {
+                                                            "x":  65,
+                                                            "y":  1298
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1298
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1844
+                                                        },
+                                                        {
+                                                            "x":  65,
+                                                            "y":  1844
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  65,
+                                                              "y":  1298,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  396946
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  65,
+                                                                "y":  1298,
+                                                                "width":  753,
+                                                                "height":  546,
+                                                                "area":  396946
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  396946
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Grow up girl-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  65,
+                                         "y":  1910,
+                                         "width":  753,
+                                         "height":  546,
+                                         "points":  [
+                                                        {
+                                                            "x":  65,
+                                                            "y":  1910
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1910
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  2456
+                                                        },
+                                                        {
+                                                            "x":  65,
+                                                            "y":  2456
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  65,
+                                                              "y":  1910,
+                                                              "width":  753,
+                                                              "height":  546,
+                                                              "area":  363182
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  65,
+                                                                "y":  1910,
+                                                                "width":  753,
+                                                                "height":  546,
+                                                                "area":  363182
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  363182
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Iphone screen",
+                       "name":  "Iphone screen",
+                       "source":  "source/Iphone screen.png",
+                       "preview":  "source/Iphone screen.png",
+                       "overlay":  "source/Iphone screen.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Iphone screen-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  63,
+                                         "y":  71,
+                                         "width":  754,
+                                         "height":  549,
+                                         "points":  [
+                                                        {
+                                                            "x":  63,
+                                                            "y":  71
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  71
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  620
+                                                        },
+                                                        {
+                                                            "x":  63,
+                                                            "y":  620
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  71,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  405719
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  63,
+                                                                "y":  71,
+                                                                "width":  754,
+                                                                "height":  549,
+                                                                "area":  405719
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  405719
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Iphone screen-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  64,
+                                         "y":  684,
+                                         "width":  754,
+                                         "height":  549,
+                                         "points":  [
+                                                        {
+                                                            "x":  64,
+                                                            "y":  684
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  684
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1233
+                                                        },
+                                                        {
+                                                            "x":  64,
+                                                            "y":  1233
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  684,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  406584
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  64,
+                                                                "y":  684,
+                                                                "width":  754,
+                                                                "height":  549,
+                                                                "area":  406584
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  406584
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Iphone screen-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  64,
+                                         "y":  1295,
+                                         "width":  754,
+                                         "height":  549,
+                                         "points":  [
+                                                        {
+                                                            "x":  64,
+                                                            "y":  1295
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1295
+                                                        },
+                                                        {
+                                                            "x":  818,
+                                                            "y":  1844
+                                                        },
+                                                        {
+                                                            "x":  64,
+                                                            "y":  1844
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  64,
+                                                              "y":  1295,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  401573
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  64,
+                                                                "y":  1295,
+                                                                "width":  754,
+                                                                "height":  549,
+                                                                "area":  401573
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  401573
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Iphone screen-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  63,
+                                         "y":  1916,
+                                         "width":  754,
+                                         "height":  549,
+                                         "points":  [
+                                                        {
+                                                            "x":  63,
+                                                            "y":  1916
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  1916
+                                                        },
+                                                        {
+                                                            "x":  817,
+                                                            "y":  2465
+                                                        },
+                                                        {
+                                                            "x":  63,
+                                                            "y":  2465
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  63,
+                                                              "y":  1916,
+                                                              "width":  754,
+                                                              "height":  549,
+                                                              "area":  401730
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  63,
+                                                                "y":  1916,
+                                                                "width":  754,
+                                                                "height":  549,
+                                                                "area":  401730
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  401730
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Just being yourself",
+                       "name":  "Just being yourself",
+                       "source":  "source/Just being yourself.png",
+                       "preview":  "source/Just being yourself.png",
+                       "overlay":  "source/Just being yourself.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Just being yourself-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  61,
+                                         "y":  71,
+                                         "width":  758,
+                                         "height":  553,
+                                         "points":  [
+                                                        {
+                                                            "x":  61,
+                                                            "y":  71
+                                                        },
+                                                        {
+                                                            "x":  819,
+                                                            "y":  71
+                                                        },
+                                                        {
+                                                            "x":  819,
+                                                            "y":  624
+                                                        },
+                                                        {
+                                                            "x":  61,
+                                                            "y":  624
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  61,
+                                                              "y":  71,
+                                                              "width":  758,
+                                                              "height":  553,
+                                                              "area":  401885
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  61,
+                                                                "y":  71,
+                                                                "width":  758,
+                                                                "height":  553,
+                                                                "area":  401885
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  401885
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Just being yourself-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  62,
+                                         "y":  682,
+                                         "width":  758,
+                                         "height":  553,
+                                         "points":  [
+                                                        {
+                                                            "x":  62,
+                                                            "y":  682
+                                                        },
+                                                        {
+                                                            "x":  820,
+                                                            "y":  682
+                                                        },
+                                                        {
+                                                            "x":  820,
+                                                            "y":  1235
+                                                        },
+                                                        {
+                                                            "x":  62,
+                                                            "y":  1235
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  62,
+                                                              "y":  682,
+                                                              "width":  758,
+                                                              "height":  553,
+                                                              "area":  417966
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  62,
+                                                                "y":  682,
+                                                                "width":  758,
+                                                                "height":  553,
+                                                                "area":  417966
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  417966
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Just being yourself-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  66,
+                                         "y":  1294,
+                                         "width":  758,
+                                         "height":  552,
+                                         "points":  [
+                                                        {
+                                                            "x":  66,
+                                                            "y":  1294
+                                                        },
+                                                        {
+                                                            "x":  824,
+                                                            "y":  1294
+                                                        },
+                                                        {
+                                                            "x":  824,
+                                                            "y":  1846
+                                                        },
+                                                        {
+                                                            "x":  66,
+                                                            "y":  1846
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  66,
+                                                              "y":  1294,
+                                                              "width":  758,
+                                                              "height":  552,
+                                                              "area":  414135
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  66,
+                                                                "y":  1294,
+                                                                "width":  758,
+                                                                "height":  552,
+                                                                "area":  414135
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  414135
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Just being yourself-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  62,
+                                         "y":  1905,
+                                         "width":  758,
+                                         "height":  552,
+                                         "points":  [
+                                                        {
+                                                            "x":  62,
+                                                            "y":  1905
+                                                        },
+                                                        {
+                                                            "x":  820,
+                                                            "y":  1905
+                                                        },
+                                                        {
+                                                            "x":  820,
+                                                            "y":  2457
+                                                        },
+                                                        {
+                                                            "x":  62,
+                                                            "y":  2457
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  62,
+                                                              "y":  1905,
+                                                              "width":  758,
+                                                              "height":  552,
+                                                              "area":  407525
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  62,
+                                                                "y":  1905,
+                                                                "width":  758,
+                                                                "height":  552,
+                                                                "area":  407525
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  407525
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Just love yourself",
+                       "name":  "Just love yourself",
+                       "source":  "source/Just love yourself.png",
+                       "preview":  "source/Just love yourself.png",
+                       "overlay":  "source/Just love yourself.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Just love yourself-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  65,
+                                         "width":  770,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  65
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  65
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  629
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  629
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  65,
+                                                              "width":  770,
+                                                              "height":  564,
+                                                              "area":  415423
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  65,
+                                                                "width":  770,
+                                                                "height":  564,
+                                                                "area":  415423
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  415423
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Just love yourself-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  57,
+                                         "y":  676,
+                                         "width":  769,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  57,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1241
+                                                        },
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1241
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  432880
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  57,
+                                                                "y":  676,
+                                                                "width":  769,
+                                                                "height":  565,
+                                                                "area":  432880
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432880
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Just love yourself-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  61,
+                                         "y":  1288,
+                                         "width":  769,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  61,
+                                                            "y":  1288
+                                                        },
+                                                        {
+                                                            "x":  830,
+                                                            "y":  1288
+                                                        },
+                                                        {
+                                                            "x":  830,
+                                                            "y":  1852
+                                                        },
+                                                        {
+                                                            "x":  61,
+                                                            "y":  1852
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  61,
+                                                              "y":  1288,
+                                                              "width":  769,
+                                                              "height":  564,
+                                                              "area":  428953
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  61,
+                                                                "y":  1288,
+                                                                "width":  769,
+                                                                "height":  564,
+                                                                "area":  428953
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  428953
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Just love yourself-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  57,
+                                         "y":  1899,
+                                         "width":  769,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1899
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1899
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  2463
+                                                        },
+                                                        {
+                                                            "x":  57,
+                                                            "y":  2463
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  1899,
+                                                              "width":  769,
+                                                              "height":  564,
+                                                              "area":  420170
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  57,
+                                                                "y":  1899,
+                                                                "width":  769,
+                                                                "height":  564,
+                                                                "area":  420170
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  420170
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Locket",
+                       "name":  "Locket",
+                       "source":  "source/Locket.png",
+                       "preview":  "source/Locket.png",
+                       "overlay":  "source/Locket.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Locket-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  62,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  62
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  62
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  627
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  627
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  62,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  418001
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  62,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  418001
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  418001
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Locket-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  56,
+                                         "y":  676,
+                                         "width":  770,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  56,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1240
+                                                        },
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1240
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  676,
+                                                              "width":  770,
+                                                              "height":  564,
+                                                              "area":  431605
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  56,
+                                                                "y":  676,
+                                                                "width":  770,
+                                                                "height":  564,
+                                                                "area":  431605
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  431605
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Locket-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  56,
+                                         "y":  1287,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1287
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1287
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1852
+                                                        },
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1852
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1287,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  431185
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  56,
+                                                                "y":  1287,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  431185
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  431185
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Locket-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1909,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1909
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  1909
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  2474
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  2474
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1909,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  403789
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1909,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  403789
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  403789
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Sơn Tùng MTP",
+                       "name":  "Sơn Tùng MTP",
+                       "source":  "source/Sơn Tùng MTP.png",
+                       "preview":  "source/Sơn Tùng MTP.png",
+                       "overlay":  "source/Sơn Tùng MTP.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Sơn Tùng MTP-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  53,
+                                         "y":  51,
+                                         "width":  768,
+                                         "height":  560,
+                                         "points":  [
+                                                        {
+                                                            "x":  53,
+                                                            "y":  51
+                                                        },
+                                                        {
+                                                            "x":  821,
+                                                            "y":  51
+                                                        },
+                                                        {
+                                                            "x":  821,
+                                                            "y":  611
+                                                        },
+                                                        {
+                                                            "x":  53,
+                                                            "y":  611
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  53,
+                                                              "y":  51,
+                                                              "width":  768,
+                                                              "height":  560,
+                                                              "area":  430080
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  53,
+                                                                "y":  51,
+                                                                "width":  768,
+                                                                "height":  560,
+                                                                "area":  430080
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  430080
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Sơn Tùng MTP-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  668,
+                                         "width":  767,
+                                         "height":  560,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  668
+                                                        },
+                                                        {
+                                                            "x":  822,
+                                                            "y":  668
+                                                        },
+                                                        {
+                                                            "x":  822,
+                                                            "y":  1228
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1228
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  668,
+                                                              "width":  767,
+                                                              "height":  560,
+                                                              "area":  429520
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  668,
+                                                                "width":  767,
+                                                                "height":  560,
+                                                                "area":  429520
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  429520
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Sơn Tùng MTP-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1283,
+                                         "width":  767,
+                                         "height":  559,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1283
+                                                        },
+                                                        {
+                                                            "x":  822,
+                                                            "y":  1283
+                                                        },
+                                                        {
+                                                            "x":  822,
+                                                            "y":  1842
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1842
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1283,
+                                                              "width":  767,
+                                                              "height":  559,
+                                                              "area":  428753
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1283,
+                                                                "width":  767,
+                                                                "height":  559,
+                                                                "area":  428753
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  428753
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Sơn Tùng MTP-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  53,
+                                         "y":  1908,
+                                         "width":  768,
+                                         "height":  559,
+                                         "points":  [
+                                                        {
+                                                            "x":  53,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  821,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  821,
+                                                            "y":  2467
+                                                        },
+                                                        {
+                                                            "x":  53,
+                                                            "y":  2467
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  53,
+                                                              "y":  1908,
+                                                              "width":  768,
+                                                              "height":  559,
+                                                              "area":  429312
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  53,
+                                                                "y":  1908,
+                                                                "width":  768,
+                                                                "height":  559,
+                                                                "area":  429312
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  429312
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "starry nights",
+                       "name":  "starry nights",
+                       "source":  "source/starry nights.png",
+                       "preview":  "source/starry nights.png",
+                       "overlay":  "source/starry nights.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "starry nights-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  64,
+                                         "width":  771,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  64
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  64
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  629
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  629
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  64,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  64,
+                                                                "width":  771,
+                                                                "height":  565,
+                                                                "area":  435615
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "starry nights-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  676,
+                                         "width":  771,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1241
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1241
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  676,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  676,
+                                                                "width":  771,
+                                                                "height":  565,
+                                                                "area":  435615
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "starry nights-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  56,
+                                         "y":  1289,
+                                         "width":  771,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1289
+                                                        },
+                                                        {
+                                                            "x":  827,
+                                                            "y":  1289
+                                                        },
+                                                        {
+                                                            "x":  827,
+                                                            "y":  1853
+                                                        },
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1853
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1289,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  56,
+                                                                "y":  1289,
+                                                                "width":  771,
+                                                                "height":  564,
+                                                                "area":  434844
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "starry nights-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1901,
+                                         "width":  771,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1901
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1901
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  2465
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  2465
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1901,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1901,
+                                                                "width":  771,
+                                                                "height":  564,
+                                                                "area":  434844
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "starrynight",
+                       "name":  "starrynight",
+                       "source":  "source/starrynight.png",
+                       "preview":  "source/starrynight.png",
+                       "overlay":  "source/starrynight.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "starrynight-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  64,
+                                         "width":  771,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  64
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  64
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  629
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  629
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  64,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  64,
+                                                                "width":  771,
+                                                                "height":  565,
+                                                                "area":  435615
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "starrynight-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  676,
+                                         "width":  771,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1241
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1241
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  676,
+                                                              "width":  771,
+                                                              "height":  565,
+                                                              "area":  435615
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  676,
+                                                                "width":  771,
+                                                                "height":  565,
+                                                                "area":  435615
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  435615
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "starrynight-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  56,
+                                         "y":  1289,
+                                         "width":  771,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1289
+                                                        },
+                                                        {
+                                                            "x":  827,
+                                                            "y":  1289
+                                                        },
+                                                        {
+                                                            "x":  827,
+                                                            "y":  1853
+                                                        },
+                                                        {
+                                                            "x":  56,
+                                                            "y":  1853
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  56,
+                                                              "y":  1289,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  56,
+                                                                "y":  1289,
+                                                                "width":  771,
+                                                                "height":  564,
+                                                                "area":  434844
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "starrynight-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1901,
+                                         "width":  771,
+                                         "height":  564,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1901
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1901
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  2465
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  2465
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1901,
+                                                              "width":  771,
+                                                              "height":  564,
+                                                              "area":  434844
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1901,
+                                                                "width":  771,
+                                                                "height":  564,
+                                                                "area":  434844
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  434844
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Thư tay",
+                       "name":  "Thư tay",
+                       "source":  "source/Thư tay.png",
+                       "preview":  "source/Thư tay.png",
+                       "overlay":  "source/Thư tay.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Thư tay-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  63,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  63
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  63
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  628
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  628
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  63,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  424201
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  63,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  424201
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  424201
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Thư tay-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  57,
+                                         "y":  676,
+                                         "width":  769,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  57,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1241
+                                                        },
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1241
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  432615
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  57,
+                                                                "y":  676,
+                                                                "width":  769,
+                                                                "height":  565,
+                                                                "area":  432615
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432615
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Thư tay-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  57,
+                                         "y":  1287,
+                                         "width":  769,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1287
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1287
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1852
+                                                        },
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1852
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  1287,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  434485
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  57,
+                                                                "y":  1287,
+                                                                "width":  769,
+                                                                "height":  565,
+                                                                "area":  434485
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  434485
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Thư tay-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha-merged",
+                                         "x":  55,
+                                         "y":  1908,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  2473
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  2473
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1908,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  432946
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1908,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  432946
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  432946
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Tròn vuông tam giác",
+                       "name":  "Tròn vuông tam giác",
+                       "source":  "source/Tròn vuông tam giác.png",
+                       "preview":  "source/Tròn vuông tam giác.png",
+                       "overlay":  "source/Tròn vuông tam giác.png",
+                       "type":  "png",
+                       "width":  1200,
+                       "height":  3600,
+                       "sourceWidth":  1200,
+                       "sourceHeight":  3600,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  1200,
+                                           "cropHeight":  3600,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  1200,
+                                           "height":  3600,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Tròn vuông tam giác-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha-merged",
+                                         "x":  75,
+                                         "y":  84,
+                                         "width":  1046,
+                                         "height":  766,
+                                         "points":  [
+                                                        {
+                                                            "x":  75,
+                                                            "y":  84
+                                                        },
+                                                        {
+                                                            "x":  1121,
+                                                            "y":  84
+                                                        },
+                                                        {
+                                                            "x":  1121,
+                                                            "y":  850
+                                                        },
+                                                        {
+                                                            "x":  75,
+                                                            "y":  850
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  75,
+                                                              "y":  84,
+                                                              "width":  1046,
+                                                              "height":  766,
+                                                              "area":  792084
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  75,
+                                                                "y":  84,
+                                                                "width":  1046,
+                                                                "height":  766,
+                                                                "area":  792084
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  792084
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Tròn vuông tam giác-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha-merged",
+                                         "x":  78,
+                                         "y":  928,
+                                         "width":  1040,
+                                         "height":  760,
+                                         "points":  [
+                                                        {
+                                                            "x":  78,
+                                                            "y":  928
+                                                        },
+                                                        {
+                                                            "x":  1118,
+                                                            "y":  928
+                                                        },
+                                                        {
+                                                            "x":  1118,
+                                                            "y":  1688
+                                                        },
+                                                        {
+                                                            "x":  78,
+                                                            "y":  1688
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  78,
+                                                              "y":  928,
+                                                              "width":  1040,
+                                                              "height":  760,
+                                                              "area":  738851
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  78,
+                                                                "y":  928,
+                                                                "width":  1040,
+                                                                "height":  760,
+                                                                "area":  738851
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  738851
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Tròn vuông tam giác-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha-merged",
+                                         "x":  75,
+                                         "y":  1766,
+                                         "width":  1046,
+                                         "height":  766,
+                                         "points":  [
+                                                        {
+                                                            "x":  75,
+                                                            "y":  1766
+                                                        },
+                                                        {
+                                                            "x":  1121,
+                                                            "y":  1766
+                                                        },
+                                                        {
+                                                            "x":  1121,
+                                                            "y":  2532
+                                                        },
+                                                        {
+                                                            "x":  75,
+                                                            "y":  2532
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  75,
+                                                              "y":  1766,
+                                                              "width":  1046,
+                                                              "height":  766,
+                                                              "area":  718580
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  75,
+                                                                "y":  1766,
+                                                                "width":  1046,
+                                                                "height":  766,
+                                                                "area":  718580
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  718580
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Tròn vuông tam giác-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  75,
+                                         "y":  2607,
+                                         "width":  1046,
+                                         "height":  765,
+                                         "points":  [
+                                                        {
+                                                            "x":  75,
+                                                            "y":  2607
+                                                        },
+                                                        {
+                                                            "x":  1121,
+                                                            "y":  2607
+                                                        },
+                                                        {
+                                                            "x":  1121,
+                                                            "y":  3372
+                                                        },
+                                                        {
+                                                            "x":  75,
+                                                            "y":  3372
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  75,
+                                                              "y":  2607,
+                                                              "width":  1046,
+                                                              "height":  765,
+                                                              "area":  783442
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  75,
+                                                                "y":  2607,
+                                                                "width":  1046,
+                                                                "height":  765,
+                                                                "area":  783442
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  783442
+                                     }
+                                 ]
+                   },
+                   {
+                       "id":  "Xanh Jean",
+                       "name":  "Xanh Jean",
+                       "source":  "source/Xanh Jean.png",
+                       "preview":  "source/Xanh Jean.png",
+                       "overlay":  "source/Xanh Jean.png",
+                       "type":  "png",
+                       "width":  880,
+                       "height":  2650,
+                       "sourceWidth":  880,
+                       "sourceHeight":  2650,
+                       "standardFit":  {
+                                           "mode":  "Source",
+                                           "cropX":  0,
+                                           "cropY":  0,
+                                           "cropWidth":  880,
+                                           "cropHeight":  2650,
+                                           "x":  0,
+                                           "y":  0,
+                                           "width":  880,
+                                           "height":  2650,
+                                           "scaleX":  1,
+                                           "scaleY":  1
+                                       },
+                       "slotCount":  4,
+                       "detectionMode":  "alpha",
+                       "chromaSettings":  null,
+                       "slots":  [
+                                     {
+                                         "slotIndex":  0,
+                                         "id":  "Xanh Jean-slot-0",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  63,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  63
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  63
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  628
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  628
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  63,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  414552
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  63,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  414552
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  414552
+                                     },
+                                     {
+                                         "slotIndex":  1,
+                                         "id":  "Xanh Jean-slot-1",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  57,
+                                         "y":  676,
+                                         "width":  769,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  57,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  676
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1241
+                                                        },
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1241
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  676,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  414270
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  57,
+                                                                "y":  676,
+                                                                "width":  769,
+                                                                "height":  565,
+                                                                "area":  414270
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  414270
+                                     },
+                                     {
+                                         "slotIndex":  2,
+                                         "id":  "Xanh Jean-slot-2",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  57,
+                                         "y":  1287,
+                                         "width":  769,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1287
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1287
+                                                        },
+                                                        {
+                                                            "x":  826,
+                                                            "y":  1852
+                                                        },
+                                                        {
+                                                            "x":  57,
+                                                            "y":  1852
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  57,
+                                                              "y":  1287,
+                                                              "width":  769,
+                                                              "height":  565,
+                                                              "area":  400719
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  57,
+                                                                "y":  1287,
+                                                                "width":  769,
+                                                                "height":  565,
+                                                                "area":  400719
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  400719
+                                     },
+                                     {
+                                         "slotIndex":  3,
+                                         "id":  "Xanh Jean-slot-3",
+                                         "shape":  "rect",
+                                         "detectionMode":  "alpha",
+                                         "x":  55,
+                                         "y":  1908,
+                                         "width":  770,
+                                         "height":  565,
+                                         "points":  [
+                                                        {
+                                                            "x":  55,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  1908
+                                                        },
+                                                        {
+                                                            "x":  825,
+                                                            "y":  2473
+                                                        },
+                                                        {
+                                                            "x":  55,
+                                                            "y":  2473
+                                                        }
+                                                    ],
+                                         "sourceBounds":  {
+                                                              "x":  55,
+                                                              "y":  1908,
+                                                              "width":  770,
+                                                              "height":  565,
+                                                              "area":  405609
+                                                          },
+                                         "standardBounds":  {
+                                                                "x":  55,
+                                                                "y":  1908,
+                                                                "width":  770,
+                                                                "height":  565,
+                                                                "area":  405609
+                                                            },
+                                         "pointCount":  4,
+                                         "area":  405609
+                                     }
+                                 ]
+                   }
+               ]
+}

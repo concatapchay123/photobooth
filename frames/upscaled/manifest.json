@@ -1,0 +1,479 @@
+﻿{
+    "schema":  "photobooth-upscaled-frames:v1",
+    "generatedAt":  "2026-05-24T09:55:54.1134790Z",
+    "scale":  2,
+    "sharpen":  0.28,
+    "frameCount":  47,
+    "frames":  [
+                   {
+                       "id":  "10",
+                       "name":  "10.jpg",
+                       "source":  "source/10.jpg",
+                       "preview":  "upscaled/preview/10.preview.png",
+                       "overlay":  "upscaled/overlay/10.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "12",
+                       "name":  "12.jpg",
+                       "source":  "source/12.jpg",
+                       "preview":  "upscaled/preview/12.preview.png",
+                       "overlay":  "upscaled/overlay/12.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "14",
+                       "name":  "14.jpg",
+                       "source":  "source/14.jpg",
+                       "preview":  "upscaled/preview/14.preview.png",
+                       "overlay":  "upscaled/overlay/14.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "16",
+                       "name":  "16.jpg",
+                       "source":  "source/16.jpg",
+                       "preview":  "upscaled/preview/16.preview.png",
+                       "overlay":  "upscaled/overlay/16.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "18",
+                       "name":  "18.jpg",
+                       "source":  "source/18.jpg",
+                       "preview":  "upscaled/preview/18.preview.png",
+                       "overlay":  "upscaled/overlay/18.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "2",
+                       "name":  "2.png",
+                       "source":  "source/2.png",
+                       "preview":  "upscaled/preview/2.preview.png",
+                       "overlay":  "upscaled/overlay/2.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "20",
+                       "name":  "20.jpg",
+                       "source":  "source/20.jpg",
+                       "preview":  "upscaled/preview/20.preview.png",
+                       "overlay":  "upscaled/overlay/20.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "22",
+                       "name":  "22.jpg",
+                       "source":  "source/22.jpg",
+                       "preview":  "upscaled/preview/22.preview.png",
+                       "overlay":  "upscaled/overlay/22.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "24",
+                       "name":  "24.jpg",
+                       "source":  "source/24.jpg",
+                       "preview":  "upscaled/preview/24.preview.png",
+                       "overlay":  "upscaled/overlay/24.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "26",
+                       "name":  "26.png",
+                       "source":  "source/26.png",
+                       "preview":  "upscaled/preview/26.preview.png",
+                       "overlay":  "upscaled/overlay/26.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "4",
+                       "name":  "4.png",
+                       "source":  "source/4.png",
+                       "preview":  "upscaled/preview/4.preview.png",
+                       "overlay":  "upscaled/overlay/4.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "54cb1cd4e61bfd010b533750a35105f0",
+                       "name":  "54cb1cd4e61bfd010b533750a35105f0.jpg",
+                       "source":  "source/54cb1cd4e61bfd010b533750a35105f0.jpg",
+                       "preview":  "upscaled/preview/54cb1cd4e61bfd010b533750a35105f0.preview.png",
+                       "overlay":  "upscaled/overlay/54cb1cd4e61bfd010b533750a35105f0.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "5d5c4c59c0735e32ba67401cc35df875",
+                       "name":  "5d5c4c59c0735e32ba67401cc35df875.jpg",
+                       "source":  "source/5d5c4c59c0735e32ba67401cc35df875.jpg",
+                       "preview":  "upscaled/preview/5d5c4c59c0735e32ba67401cc35df875.preview.png",
+                       "overlay":  "upscaled/overlay/5d5c4c59c0735e32ba67401cc35df875.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "6",
+                       "name":  "6.jpg",
+                       "source":  "source/6.jpg",
+                       "preview":  "upscaled/preview/6.preview.png",
+                       "overlay":  "upscaled/overlay/6.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "70439c758494131e6eb373b8442d903",
+                       "name":  "70439c758494131e6eb373b8442d903.jpg",
+                       "source":  "source/70439c758494131e6eb373b8442d903.jpg",
+                       "preview":  "upscaled/preview/70439c758494131e6eb373b8442d903.preview.png",
+                       "overlay":  "upscaled/overlay/70439c758494131e6eb373b8442d903.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "7353d33774cdd000c7bb4ca2723f4ee6",
+                       "name":  "7353d33774cdd000c7bb4ca2723f4ee6.jpg",
+                       "source":  "source/7353d33774cdd000c7bb4ca2723f4ee6.jpg",
+                       "preview":  "upscaled/preview/7353d33774cdd000c7bb4ca2723f4ee6.preview.png",
+                       "overlay":  "upscaled/overlay/7353d33774cdd000c7bb4ca2723f4ee6.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "75642abdff5f4f0965551273dca8274a",
+                       "name":  "75642abdff5f4f0965551273dca8274a.jpg",
+                       "source":  "source/75642abdff5f4f0965551273dca8274a.jpg",
+                       "preview":  "upscaled/preview/75642abdff5f4f0965551273dca8274a.preview.png",
+                       "overlay":  "upscaled/overlay/75642abdff5f4f0965551273dca8274a.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "799c7285d9e02572db2e0e2c97da4ada",
+                       "name":  "799c7285d9e02572db2e0e2c97da4ada.jpg",
+                       "source":  "source/799c7285d9e02572db2e0e2c97da4ada.jpg",
+                       "preview":  "upscaled/preview/799c7285d9e02572db2e0e2c97da4ada.preview.png",
+                       "overlay":  "upscaled/overlay/799c7285d9e02572db2e0e2c97da4ada.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "7fcb42b483ec84b1a6520a7ea11b8cae",
+                       "name":  "7fcb42b483ec84b1a6520a7ea11b8cae.jpg",
+                       "source":  "source/7fcb42b483ec84b1a6520a7ea11b8cae.jpg",
+                       "preview":  "upscaled/preview/7fcb42b483ec84b1a6520a7ea11b8cae.preview.png",
+                       "overlay":  "upscaled/overlay/7fcb42b483ec84b1a6520a7ea11b8cae.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "8",
+                       "name":  "8.jpg",
+                       "source":  "source/8.jpg",
+                       "preview":  "upscaled/preview/8.preview.png",
+                       "overlay":  "upscaled/overlay/8.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "8564933756d90b9231bcdac98ab478ab",
+                       "name":  "8564933756d90b9231bcdac98ab478ab.jpg",
+                       "source":  "source/8564933756d90b9231bcdac98ab478ab.jpg",
+                       "preview":  "upscaled/preview/8564933756d90b9231bcdac98ab478ab.preview.png",
+                       "overlay":  "upscaled/overlay/8564933756d90b9231bcdac98ab478ab.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "9b968e54f86fcf88b20857f8966c68a8",
+                       "name":  "9b968e54f86fcf88b20857f8966c68a8.jpg",
+                       "source":  "source/9b968e54f86fcf88b20857f8966c68a8.jpg",
+                       "preview":  "upscaled/preview/9b968e54f86fcf88b20857f8966c68a8.preview.png",
+                       "overlay":  "upscaled/overlay/9b968e54f86fcf88b20857f8966c68a8.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "bb702589c40caae5f39a2d64d54648ab",
+                       "name":  "bb702589c40caae5f39a2d64d54648ab.jpg",
+                       "source":  "source/bb702589c40caae5f39a2d64d54648ab.jpg",
+                       "preview":  "upscaled/preview/bb702589c40caae5f39a2d64d54648ab.preview.png",
+                       "overlay":  "upscaled/overlay/bb702589c40caae5f39a2d64d54648ab.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "bc63f587d34ca6d26d8bb00245194b33",
+                       "name":  "bc63f587d34ca6d26d8bb00245194b33.jpg",
+                       "source":  "source/bc63f587d34ca6d26d8bb00245194b33.jpg",
+                       "preview":  "upscaled/preview/bc63f587d34ca6d26d8bb00245194b33.preview.png",
+                       "overlay":  "upscaled/overlay/bc63f587d34ca6d26d8bb00245194b33.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_01_candy",
+                       "name":  "cute_frame_01_candy.png",
+                       "source":  "source/cute_frame_01_candy.png",
+                       "preview":  "upscaled/preview/cute_frame_01_candy.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_01_candy.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_02_neon",
+                       "name":  "cute_frame_02_neon.png",
+                       "source":  "source/cute_frame_02_neon.png",
+                       "preview":  "upscaled/preview/cute_frame_02_neon.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_02_neon.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_03_summer",
+                       "name":  "cute_frame_03_summer.png",
+                       "source":  "source/cute_frame_03_summer.png",
+                       "preview":  "upscaled/preview/cute_frame_03_summer.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_03_summer.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_04_dino",
+                       "name":  "cute_frame_04_dino.png",
+                       "source":  "source/cute_frame_04_dino.png",
+                       "preview":  "upscaled/preview/cute_frame_04_dino.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_04_dino.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_05_y2k",
+                       "name":  "cute_frame_05_y2k.png",
+                       "source":  "source/cute_frame_05_y2k.png",
+                       "preview":  "upscaled/preview/cute_frame_05_y2k.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_05_y2k.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_06_cherry",
+                       "name":  "cute_frame_06_cherry.png",
+                       "source":  "source/cute_frame_06_cherry.png",
+                       "preview":  "upscaled/preview/cute_frame_06_cherry.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_06_cherry.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_07_space",
+                       "name":  "cute_frame_07_space.png",
+                       "source":  "source/cute_frame_07_space.png",
+                       "preview":  "upscaled/preview/cute_frame_07_space.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_07_space.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_08_comic",
+                       "name":  "cute_frame_08_comic.png",
+                       "source":  "source/cute_frame_08_comic.png",
+                       "preview":  "upscaled/preview/cute_frame_08_comic.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_08_comic.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_09_dreamy",
+                       "name":  "cute_frame_09_dreamy.png",
+                       "source":  "source/cute_frame_09_dreamy.png",
+                       "preview":  "upscaled/preview/cute_frame_09_dreamy.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_09_dreamy.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "cute_frame_10_grid",
+                       "name":  "cute_frame_10_grid.png",
+                       "source":  "source/cute_frame_10_grid.png",
+                       "preview":  "upscaled/preview/cute_frame_10_grid.preview.png",
+                       "overlay":  "upscaled/overlay/cute_frame_10_grid.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "grok-image-2d75e169-4e84-408f-b4a5-ac50b0debea1",
+                       "name":  "grok-image-2d75e169-4e84-408f-b4a5-ac50b0debea1.png",
+                       "source":  "source/grok-image-2d75e169-4e84-408f-b4a5-ac50b0debea1.png",
+                       "preview":  "upscaled/preview/grok-image-2d75e169-4e84-408f-b4a5-ac50b0debea1.preview.png",
+                       "overlay":  "upscaled/overlay/grok-image-2d75e169-4e84-408f-b4a5-ac50b0debea1.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "grok-image-eaf7f154-164c-4b25-880e-eb516e4fe01e",
+                       "name":  "grok-image-eaf7f154-164c-4b25-880e-eb516e4fe01e.png",
+                       "source":  "source/grok-image-eaf7f154-164c-4b25-880e-eb516e4fe01e.png",
+                       "preview":  "upscaled/preview/grok-image-eaf7f154-164c-4b25-880e-eb516e4fe01e.preview.png",
+                       "overlay":  "upscaled/overlay/grok-image-eaf7f154-164c-4b25-880e-eb516e4fe01e.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "grok-image-f065987b-cb60-4ebf-a1cf-5314ff27d8dd",
+                       "name":  "grok-image-f065987b-cb60-4ebf-a1cf-5314ff27d8dd.png",
+                       "source":  "source/grok-image-f065987b-cb60-4ebf-a1cf-5314ff27d8dd.png",
+                       "preview":  "upscaled/preview/grok-image-f065987b-cb60-4ebf-a1cf-5314ff27d8dd.preview.png",
+                       "overlay":  "upscaled/overlay/grok-image-f065987b-cb60-4ebf-a1cf-5314ff27d8dd.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_01_seoul_pink",
+                       "name":  "kr_frame_01_seoul_pink.png",
+                       "source":  "source/kr_frame_01_seoul_pink.png",
+                       "preview":  "upscaled/preview/kr_frame_01_seoul_pink.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_01_seoul_pink.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_02_cherry_blossom",
+                       "name":  "kr_frame_02_cherry_blossom.png",
+                       "source":  "source/kr_frame_02_cherry_blossom.png",
+                       "preview":  "upscaled/preview/kr_frame_02_cherry_blossom.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_02_cherry_blossom.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_03_milk_cafe",
+                       "name":  "kr_frame_03_milk_cafe.png",
+                       "source":  "source/kr_frame_03_milk_cafe.png",
+                       "preview":  "upscaled/preview/kr_frame_03_milk_cafe.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_03_milk_cafe.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_04_idol_flash",
+                       "name":  "kr_frame_04_idol_flash.png",
+                       "source":  "source/kr_frame_04_idol_flash.png",
+                       "preview":  "upscaled/preview/kr_frame_04_idol_flash.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_04_idol_flash.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_05_han_river_night",
+                       "name":  "kr_frame_05_han_river_night.png",
+                       "source":  "source/kr_frame_05_han_river_night.png",
+                       "preview":  "upscaled/preview/kr_frame_05_han_river_night.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_05_han_river_night.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_06_school_day",
+                       "name":  "kr_frame_06_school_day.png",
+                       "source":  "source/kr_frame_06_school_day.png",
+                       "preview":  "upscaled/preview/kr_frame_06_school_day.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_06_school_day.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_07_sticker_pic",
+                       "name":  "kr_frame_07_sticker_pic.png",
+                       "source":  "source/kr_frame_07_sticker_pic.png",
+                       "preview":  "upscaled/preview/kr_frame_07_sticker_pic.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_07_sticker_pic.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_08_lavender_picnic",
+                       "name":  "kr_frame_08_lavender_picnic.png",
+                       "source":  "source/kr_frame_08_lavender_picnic.png",
+                       "preview":  "upscaled/preview/kr_frame_08_lavender_picnic.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_08_lavender_picnic.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_09_mono_chic",
+                       "name":  "kr_frame_09_mono_chic.png",
+                       "source":  "source/kr_frame_09_mono_chic.png",
+                       "preview":  "upscaled/preview/kr_frame_09_mono_chic.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_09_mono_chic.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   },
+                   {
+                       "id":  "kr_frame_10_winter_snow",
+                       "name":  "kr_frame_10_winter_snow.png",
+                       "source":  "source/kr_frame_10_winter_snow.png",
+                       "preview":  "upscaled/preview/kr_frame_10_winter_snow.preview.png",
+                       "overlay":  "upscaled/overlay/kr_frame_10_winter_snow.overlay.png",
+                       "width":  1240,
+                       "height":  1740,
+                       "scale":  2
+                   }
+               ]
+}

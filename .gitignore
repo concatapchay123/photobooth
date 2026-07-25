@@ -1,0 +1,54 @@
+.vercel
+.tools
+.kiosk-edge-profile
+.kiosk-edge-admin-profile
+.env
+.env.*
+!.env.example
+!.env.rental
+dist
+tmp-*
+tmp-video-frames/
+*.log
+*.err
+data/temp/
+data/guest-outputs/
+data/public-share-origin.json
+data/saved-sessions/
+data/rental/
+
+.vercel
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build
+dist/
+build/
+coverage/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Backup folders and temporary files
+backup/
+*.bak
+*_bak
+*.before_restore.bak
+*.optimization_bak
+*.current_bak
+
+# Logs and caches
+*.log
+.cache/
+component_crx_cache/
+__pycache__/
+*.pyc
+
+# Editors and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

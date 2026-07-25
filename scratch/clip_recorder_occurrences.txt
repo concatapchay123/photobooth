@@ -1,0 +1,21 @@
+=== d:/my-photobooth/src/App.jsx ===
+2390: const clipRecorderRef = useRef(null);
+4874: clipRecorderRef.current = { recorder, chunks };
+4886: const active = clipRecorderRef.current;
+4904: clipRecorderRef.current = null;
+6943: if (clipRecorderRef.current) {
+6945: clipRecorderRef.current.stop();
+6947: clipRecorderRef.current = null;
+
+
+========================================
+
+
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx ===
+2362: const clipRecorderRef = useRef(null);
+4807: clipRecorderRef.current = { recorder, chunks };
+4816: const active = clipRecorderRef.current;
+4834: clipRecorderRef.current = null;
+6707: if (clipRecorderRef.current) {
+6709: clipRecorderRef.current.stop();
+6711: clipRecorderRef.current = null;

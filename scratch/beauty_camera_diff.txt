@@ -1,0 +1,191 @@
+--- d:/my-photobooth/backup/my-photobooth/my-photobooth/src/BeautyFilterCamera.jsx
++++ d:/my-photobooth/src/BeautyFilterCamera.jsx
+@@ -1,4 +1,4 @@
+-import { useEffect, useImperativeHandle, useRef, useState } from 'react';
++import { useEffect, useImperativeHandle, useRef, useState, memo } from 'react';
+ import { DEFAULT_BEAUTY_FILTER_SETTINGS } from './beautyFilterSettings.js';
+ 
+ const BEAUTY_FILTER_PRESETS = [
+@@ -202,19 +202,66 @@
+     if (blurNeed > 0.001) {
+       float radius = 1.5 + blurNeed * 26.0;
+       vec2 pixel = 1.0 / uResolution;
+-      for (int i = 0; i < 24; i++) {
+-        float angle = float(i) * 2.39996323;
+-        float dist = sqrt(float(i) + 0.5) * (radius / 4.8);
+-        vec2 offset = vec2(cos(angle), sin(angle)) * dist * pixel;
+-        vec3 samp = sampleFrame(warpedUV + offset);
+-        float colorDiff = distance(samp, rawColor.rgb);
+-        float sigma = 0.036 + 0.11 * (1.0 - uSmoothness);
+-        float weightSpatial = exp(-(dist * dist) / max(2.0 * radius * radius, 0.001));
+-        float weightRange = exp(-(colorDiff * colorDiff) / max(sigma, 0.001));
+-        float w = weightSpatial * weightRange;
+-        blurSum += samp * w;
+-        totalWeight += w;
+-      }
++      float sigma = 0.036 + 0.11 * (1.0 - uSmoothness);
++      float sigma2 = max(sigma, 0.001);
++      
++      vec2 offset; vec3 samp; float colorDiff; float weightRange; float w;
++
++      offset = vec2(0.252538, 0.000000) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.968615 * weightRange;
++      blurSum += samp * w; totalWeight += w;
++
++      offset = vec2(-0.322532, 0.295465) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.908770 * weightRange;
++      blurSum += samp * w; totalWeight += w;
++
++      offset = vec2(0.049369, -0.562530) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.852622 * weightRange;
++      blurSum += samp * w; totalWeight += w;
++
++      offset = vec2(0.406530, 0.530247) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.799943 * weightRange;
++      blurSum += samp * w; totalWeight += w;
++
++      offset = vec2(-0.746033, -0.131963) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.750519 * weightRange;
++      blurSum += samp * w; totalWeight += w;
++
++      offset = vec2(0.706708, -0.449550) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.704149 * weightRange;
++      blurSum += samp * w; totalWeight += w;
++
++      offset = vec2(-0.236380, 0.879321) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.660644 * weightRange;
++      blurSum += samp * w; totalWeight += w;
++
++      offset = vec2(-0.450802, -0.867992) * radius * pixel;
++      samp = sampleFrame(warpedUV + offset);
++      colorDiff = distance(samp, rawColor.rgb);
++      weightRange = exp(-(colorDiff * colorDiff) / sigma2);
++      w = 0.619826 * weightRange;
++      blurSum += samp * w; totalWeight += w;
+     }
+ 
+     vec3 smoothedColor = blurSum / max(totalWeight, 0.001);
+@@ -471,7 +518,7 @@
+   };
+ };
+ 
+-function BeautyFilterCamera({
++const BeautyFilterCamera = memo(function BeautyFilterCamera({
+   stream,
+   settings = DEFAULT_BEAUTY_FILTER_SETTINGS,
+   mirror = true,
+@@ -492,6 +539,8 @@
+   const detectedFacesRef = useRef([]);
+   const detectedLandmarksRef = useRef([]);
+   const lastDetectionTimeRef = useRef(0);
++
++
+ 
+   useEffect(() => {
+     settingsRef.current = settings;
+@@ -599,7 +648,15 @@
+     };
+   }, []);
+ 
++  const isRecordingRef = useRef(false);
++
+   useImperativeHandle(ref, () => ({
++    startRecording() {
++      isRecordingRef.current = true;
++    },
++    stopRecording() {
++      isRecordingRef.current = false;
++    },
+     captureDataUrl(type = 'image/jpeg', quality = 0.86, timeoutMs = 1500) {
+       const canvas = canvasRef.current;
+       if (!readyRef.current) return Promise.resolve(null);
+@@ -646,6 +703,10 @@
+     getCanvas() {
+       return canvasRef.current;
+     },
++    getRecordingCanvas() {
++      isRecordingRef.current = true;
++      return canvasRef.current;
++    },
+     isReady() {
+       return readyRef.current;
+     },
+@@ -701,16 +762,17 @@
+       }
+ 
+       const activeSettings = settingsRef.current || DEFAULT_BEAUTY_FILTER_SETTINGS;
++      const width = video.videoWidth;
++      const height = video.videoHeight;
+ 
+       if (!webgl) {
+         readyRef.current = renderCanvas2dFallback(canvas, video, activeSettings, mirrorRef.current);
++        // No-op (recording directly from main canvas)
+         animationRef.current = window.requestAnimationFrame(render);
+         return;
+       }
+ 
+       const { gl, program, texture, uniforms } = webgl;
+-      const width = video.videoWidth;
+-      const height = video.videoHeight;
+ 
+       if (canvas.width !== width || canvas.height !== height) {
+         canvas.width = width;
+@@ -718,13 +780,18 @@
+         gl.viewport(0, 0, width, height);
+       }
+ 
+-      // Run face detection on the video frame at ~12 fps (every 80ms)
++      // Run face detection on the video frame at ~12 fps (every 80ms) only when face morphing filters are active
+       const now = performance.now();
+-      if (faceDetectionRef.current && now - lastDetectionTimeRef.current > 80) {
++      const needsFaceDetection = (activeSettings.slimming || 0) > 0 || (activeSettings.enlargeEyes || 0) > 0;
++      if (needsFaceDetection && faceDetectionRef.current && now - lastDetectionTimeRef.current > 80) {
+         lastDetectionTimeRef.current = now;
+         faceDetectionRef.current.send({ image: video }).catch((err) => {
+           console.warn('MediaPipe Face Detection processing error:', err);
+         });
++      } else if (!needsFaceDetection) {
++        // Clear detected faces when no longer needed
++        detectedFacesRef.current = [];
++        detectedLandmarksRef.current = [];
+       }
+ 
+       // Pack face bounding boxes into flat array for Uniform vec4 uFaces[8]
+@@ -797,6 +864,8 @@
+ 
+       gl.drawArrays(gl.TRIANGLES, 0, 6);
+ 
++      // No-op (recording directly from main canvas)
++
+       readyRef.current = true;
+       animationRef.current = window.requestAnimationFrame(render);
+     };
+@@ -837,6 +906,6 @@
+       />
+     </div>
+   );
+-}
++});
+ 
+ export default BeautyFilterCamera;

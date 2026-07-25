@@ -1,0 +1,600 @@
+900: -
+901: -      // HTTP relay (cross-profile communication)
+902: +      channel.close();
+903: +    } catch (e) {}
+904: +
+905: +    // Throttle HTTP relay to at most once per 1.5 seconds during capture countdown, otherwise 200ms
+906: +    const now = Date.now();
+907: +    const isCaptureCountdownActive = guestStep === 'capture' && isLockedCaptureRunning;
+908: +    const throttleLimit = isCaptureCountdownActive ? 1500 : 200;
+909: +
+910: +    if (now - lastStateSendTimeRef.current >= throttleLimit) {
+911: +      lastStateSendTimeRef.current = now;
+912: fetch('/api/admin/kiosk-state', {
+913: method: 'POST',
+914: @@ -6914,10 +7168,50 @@
+915: data.commands.forEach(cmd => {
+916: // Replay server-queued commands as BroadcastChannel messages
+917: -              handleMessage({ data: { type: 'COMMAND', action: cmd.action, ...cmd.payload } });
+918: +              handleMessageRef.current?.({ data: { type: 'COMMAND', action: cmd.action, ...cmd.payload } });
+919: });
+920: }
+921: })
+922: .catch(() => {});
+923: -    };
+924: +    }
+925: +  }, [
+926: +    isPartnerMode,
+927: +    isDashboardMode,
+928: +    guestStep,
+929: +    visibleGuestStep,
+930: +    boothMode,
+931: +    isModeSelected,
+932: +    idPhotoService,
+933: +    capturedPhotos,
+934: +    maxGuestPhotos,
+935: +    minGuestPhotosToContinue,
+936: +    captureCountdown,
+937: +    captureSessionSecondsLeft,
+938: +    nextCaptureSecondsLeft,
+939: +    isLockedCaptureRunning,
+940: +    flashActive,
+941: +    guestNotice,
+942: +    isGuestPrinting,
+943: +    guestPrintStatus,
+944: +    guestPrintFallbackAvailable,
+945: +    guestQrUrl,
+946: +    guestPreviewUrl,
+947: +    isKioskFullscreenActive,
+948: +    selectedFrame,
+949: +    activeBeautyPresetId,
+950: +    beautyFilterSettings,
+951: +  ]);
+952: +
+953: +  sendStateUpdateRef.current = sendStateUpdate;
+954: +
+955: +  // Trigger state broadcast when relevant state changes
+956: +  useEffect(() => {
+957: +    sendStateUpdate();
+958: +  }, [sendStateUpdate]);
+959: +
+960: +  // Set up a single BroadcastChannel listener once on mount
+961: +  useEffect(() => {
+962: +    if (isPartnerMode || isDashboardMode) return undefined;
+963: +
+964: +    const channel = new BroadcastChannel('photobooth-channel');
+965: 
+966: const handleMessage = async (event) => {
+967: @@ -6926,5 +7220,5 @@
+968: 
+969: if (data.type === 'REQUEST_STATE') {
+970: -        sendStateUpdate();
+971: +        sendStateUpdateRef.current?.();
+972: } else if (data.type === 'COMMAND') {
+973: switch (data.action) {
+974: @@ -6936,5 +7230,5 @@
+975: break;
+976: case 'TAKE_PHOTO':
+977: -            captureGuestPhotoFrame();
+978: +            triggerManualCapture();
+979: break;
+980: case 'FINISH_CAPTURE_EARLY':
+981: @@ -6976,8 +7270,9 @@
+982: };
+983: 
+984: +    handleMessageRef.current = handleMessage;
+985: channel.addEventListener('message', handleMessage);
+986: 
+987: // Initial broadcast
+988: -    sendStateUpdate();
+989: +    sendStateUpdateRef.current?.();
+990: 
+991: return () => {
+992: @@ -6985,31 +7280,5 @@
+993: channel.close();
+994: };
+995: -  }, [
+996: -    isPartnerMode,
+997: -    isDashboardMode,
+998: -    guestStep,
+999: -    visibleGuestStep,
+1000: -    boothMode,
+1001: -    isModeSelected,
+1002: -    idPhotoService,
+1003: -    capturedPhotos,
+1004: -    maxGuestPhotos,
+1005: -    minGuestPhotosToContinue,
+1006: -    captureCountdown,
+1007: -    captureSessionSecondsLeft,
+1008: -    nextCaptureSecondsLeft,
+1009: -    isLockedCaptureRunning,
+1010: -    flashActive,
+1011: -    guestNotice,
+1012: -    isGuestPrinting,
+1013: -    guestPrintStatus,
+1014: -    guestPrintFallbackAvailable,
+1015: -    guestQrUrl,
+1016: -    guestPreviewUrl,
+1017: -    isKioskFullscreenActive,
+1018: -    selectedFrame,
+1019: -    activeBeautyPresetId,
+1020: -    beautyFilterSettings,
+1021: -  ]);
+1022: +  }, [isPartnerMode, isDashboardMode]);
+1023: 
+1024: // 1 FPS webcam live-view stream to dashboard during capture
+1025: @@ -7356,5 +7625,5 @@
+1026: if (!isPartnerMode) {
+1027: return (
+1028: -      <div className="pink-pop-app min-h-screen overflow-x-clip" data-kiosk-locked={isKioskGuardEnabled ? 'true' : undefined}>
+1029: +      <div className={`pink-pop-app min-h-screen overflow-x-clip guest-step-${guestStep}`} data-kiosk-locked={isKioskGuardEnabled ? 'true' : undefined}>
+1030: <canvas ref={frameCanvasRef} width={frameDimensions.width} height={frameDimensions.height} className="hidden" />
+1031: {isKioskGuardEnabled && (
+1032: @@ -8066,8 +8335,10 @@
+1033: <Heart className="absolute right-10 top-14 size-8 text-pink-300" />
+1034: <Heart className="absolute bottom-8 right-12 size-6 text-pink-300" />
+1035: -                  <div className="absolute size-72 rounded-full border-[18px] border-white/60" />
+1036: -                  <div className="absolute size-52 rounded-full border-[22px] border-pink-400/90 shadow-[0_0_35px_rgba(236,72,153,.35)]" />
+1037: -                  <div className="z-10 flex size-32 items-center justify-center rounded-full bg-white/90 shadow-[0_20px_50px_rgba(236,72,153,.25)]">
+1038: -                    <Camera className="size-16 text-pink-500" />
+1039: +                  <div className="relative size-72 flex items-center justify-center mx-auto">
+1040: +                    <div className="absolute inset-0 rounded-full border-[18px] border-white/60" />
+1041: +                    <div className="absolute size-52 rounded-full border-[22px] border-pink-400/90 shadow-[0_0_35px_rgba(236,72,153,.35)]" />
+1042: +                    <div className="absolute size-32 flex items-center justify-center rounded-full bg-white/90 shadow-[0_20px_50px_rgba(236,72,153,.25)] z-10">
+1043: +                      <Camera className="size-16 text-pink-500 shrink-0" />
+1044: +                    </div>
+1045: </div>
+1046: <p className="absolute bottom-10 z-10 rounded-full bg-white/35 px-4 py-2 text-sm font-bold text-pink-400">
+1047: @@ -8284,5 +8555,5 @@
+1048: </div>
+1049: 
+1050: -                  {cameraDevices.length > 0 && boothMode !== 'id_photo' && (
+1051: +                  {cameraDevices.length > 0 && (
+1052: <div className="flex items-center gap-2 pointer-events-auto">
+1053: <div className="pink-camera-select-wrapper">
+1054: @@ -8304,4 +8575,15 @@
+1055: </div>
+1056: 
+1057: +                      <label className="flex items-center gap-1.5 bg-white/95 hover:bg-white text-[11px] text-pink-700 font-extrabold px-2.5 py-1.5 rounded-full border border-pink-200 shadow-sm cursor-pointer hover:border-pink-400 hover:text-pink-800 transition-all select-none shrink-0">
+1058: +                        <input
+1059: +                          type="checkbox"
+1060: +                          checked={useDslrCapture}
+1061: +                          onChange={(e) => setUseDslrCapture(e.target.checked)}
+1062: +                          className="accent-pink-600 rounded cursor-pointer size-3.5"
+1063: +                          disabled={isLockedCaptureRunning || isCapturingGuestPhoto}
+1064: +                        />
+1065: +                        <span>DSLR (digiCamControl)</span>
+1066: +                      </label>
+1067: +
+1068: <button
+1069: type="button"
+1070: @@ -8355,18 +8637,26 @@
+1071: <div className="space-y-3 text-xs text-left leading-relaxed">
+1072: <div>
+1073: -                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 1: Kết nối bằng dây Capture Card (Khuyên dùng - Ổn định nhất)</p>
+1074: +                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 1: Kết nối bằng dây Capture Card (Cung cấp Liveview)</p>
+1075: <ul className="list-disc list-inside space-y-0.5 pl-1 text-pink-700">
+1076: <li>Cắm cáp **Micro-HDMI** từ Canon M50 vào cổng HDMI của **Capture Card**.</li>
+1077: -                            <li>Cắm đầu USB của Capture Card vào máy tính.</li>
+1078: -                            <li>Ở danh sách camera phía trên, chọn thiết bị tên là **USB Video** hoặc **HDMI Video**.</li>
+1079: +                            <li>Cắm đầu USB của Capture Card vào máy tính và chọn camera tên là **USB Video** hoặc **HDMI Video**.</li>
+1080: </ul>
+1081: </div>
+1082: 
+1083: <div>
+1084: -                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 2: Cắm dây USB trực tiếp (Sử dụng EOS Webcam Utility)</p>
+1085: +                          <p className="font-bold text-pink-800 text-[11px] mb-1">Cách 2: Cắm dây USB trực tiếp (Cung cấp Liveview qua EOS Webcam Utility)</p>
+1086: <ul className="list-disc list-inside space-y-0.5 pl-1 text-pink-700">
+1087: <li>Cắm cáp USB trực tiếp từ máy ảnh Canon M50 vào cổng USB máy tính.</li>
+1088: -                            <li>Tải và cài đặt driver miễn phí **Canon EOS Webcam Utility** từ trang chủ Canon.</li>
+1089: -                            <li>Chọn thiết bị camera là **EOS Webcam Utility** trong danh sách phía trên.</li>
+1090: +                            <li>Tải & cài đặt driver **Canon EOS Webcam Utility** và chọn camera là **EOS Webcam Utility** ở phía trên.</li>
+1091: +                          </ul>
+1092: +                        </div>
+1093: +
+1094: +                        <div>
+1095: +                          <p className="font-bold text-pink-800 text-[11px] mb-1">Chụp ảnh chất lượng cao (HD) bằng DSLR qua digiCamControl:</p>
+1096: +                          <ul className="list-disc list-inside space-y-0.5 pl-1 text-pink-700">
+1097: +                            <li>Bật nút **DSLR (digiCamControl)** ngay cạnh nút Chọn Camera phía trên.</li>
+1098: +                            <li>Kết nối máy ảnh với máy tính bằng cáp USB.</li>
+1099: +                            <li>Mở phần mềm **digiCamControl** lên. Vào **Settings** &rarr; **Webserver** &rarr; Chọn **Use web server** (cổng mặc định 5513) và khởi động lại phần mềm.</li>
+1100: +                            <li>Hệ thống sẽ tự động bắt lệnh chụp từ máy ảnh gốc, trả về file ảnh HD cực nét thay vì chụp màn hình liveview mờ!</li>
+1101: </ul>
+1102: </div>
+1103: @@ -8407,6 +8697,16 @@
+1104: </div>
+1105: )}
+1106: -                {boothMode !== 'id_photo' && (
+1107: -                  <div className="pink-shutter-overlay">
+1108: +                <div className="pink-shutter-overlay pointer-events-none">
+1109: +                  <div className="flex items-center gap-3 justify-center pointer-events-auto">
+1110: +                    {canFinishCaptureEarly && (
+1111: +                      <button
+1112: +                        type="button"
+1113: +                        onClick={requestFinishCaptureEarly}
+1114: +                        className="pink-shutter-stop-btn shrink-0 cursor-pointer"
+1115: +                        title="Dừng chụp sớm và chuyển qua bước tiếp theo"
+1116: +                      >
+1117: +                        <ArrowRight className="size-3.5" /> Dừng chụp
+1118: +                      </button>
+1119: +                    )}
+1120: <button
+1121: type="button"
+1122: @@ -8419,105 +8719,21 @@
+1123: <span />
+1124: </button>
+1125: -                    <p className="pink-shutter-hint">
+1126: -                      {!cameraStream
+1127: -                        ? 'Camera đang kết nối, đợi màn hình hiện rõ rồi bấm chụp nha.'
+1128: -                        : capturedPhotos.length >= maxGuestPhotos
+1129: -                          ? `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn khung nha.`
+1130: -                          : capturedPhotos.length >= minGuestPhotosToContinue
+1131: -                            ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng tại đây hoặc chụp thêm.`
+1132: -                            : isLockedCaptureRunning
+1133: -                              ? `Máy tự chụp sau ${nextCaptureSecondsLeft}s. Bạn cứ tạo dáng thật thoải mái.`
+1134: -                              : 'Bấm nút chụp để bắt đầu đếm giờ.'}
+1135: -                    </p>
+1136: +                    {canFinishCaptureEarly && (
+1137: +                      <div className="w-[102px] hidden sm:block pointer-events-none" aria-hidden="true" />
+1138: +                    )}
+1139: </div>
+1140: -                )}
+1141: -              </div>
+1142: -
+1143: -              {/* Chế độ chụp ảnh thẻ: Đặt nút chụp và các điều khiển ở bên dưới camera để tránh đè giao diện */}
+1144: -              {boothMode === 'id_photo' && (
+1145: -                <div className="bg-gradient-to-r from-pink-50/80 to-fuchsia-50/80 border border-pink-100/90 rounded-2xl p-3 my-3 flex flex-col items-center gap-2.5 shadow-sm select-none animate-fade-in">
+1146: -
+1147: -                  {cameraDevices.length > 0 && (
+1148: -                    <div className="flex items-center justify-center gap-2 text-xs w-full">
+1149: -                      <div className="pink-camera-select-wrapper" style={{ padding: '0.15rem 0.45rem', minHeight: 'auto', borderRadius: '10px', border: '1px solid #ffd2e8', boxShadow: 'none' }}>
+1150: -                        <Camera className="size-3 text-pink-600 shrink-0" />
+1151: -                        <select
+1152: -                          value={selectedCameraId}
+1153: -                          onChange={(e) => handleCameraChange(e.target.value)}
+1154: -                          className="pink-camera-select text-[11px] font-bold text-[#74194a]"
+1155: -                          style={{ maxWidth: '150px', height: '20px' }}
+1156: -                          aria-label="Select camera"
+1157: -                          title="Chọn Camera / Máy ảnh"
+1158: -                          disabled={isLockedCaptureRunning || isCapturingGuestPhoto}
+1159: -                        >
+1160: -                          {cameraDevices.map((device) => (
+1161: -                            <option key={device.deviceId} value={device.deviceId}>
+1162: -                              {device.label || `Camera ${device.deviceId.slice(0, 5)}`}
+1163: -                            </option>
+1164: -                          ))}
+1165: -                        </select>
+1166: -                      </div>
+1167: -
+1168: -                      <button
+1169: -                        type="button"
+1170: -                        onClick={() => setShowDslrGuide(!showDslrGuide)}
+1171: -                        className="flex items-center justify-center size-6 rounded-full bg-white text-pink-600 border border-pink-200 shadow-sm hover:border-pink-500 hover:text-pink-700 transition-all font-bold text-[10px] shrink-0 cursor-pointer"
+1172: -                        title="Hướng dẫn kết nối Canon M50 / DSLR"
+1173: -                      >
+1174: -                        ?
+1175: -                      </button>
+1176: -                    </div>
+1177: -                  )}
+1178: -
+1179: -                  <div className="flex items-center justify-center gap-3 w-full">
+1180: -                    {canFinishCaptureEarly && (
+1181: -                      <button
+1182: -                        type="button"
+1183: -                        onClick={requestFinishCaptureEarly}
+1184: -                        className="pink-btn h-10 px-4 text-xs font-bold flex items-center gap-1.5 shadow-md hover:scale-105 active:scale-95 transition-transform shrink-0 cursor-pointer"
+1185: -                        title="Dừng chụp sớm và chuyển qua bước tiếp theo"
+1186: -                      >
+1187: -                        <ArrowRight className="size-3.5" /> Dừng chụp
+1188: -                      </button>
+1189: -                    )}
+1190: -
+1191: -                    <button
+1192: -                      type="button"
+1193: -                      onClick={startGuestCaptureSession}
+1194: -                      disabled={!cameraStream || isLockedCaptureRunning || isCapturingGuestPhoto || capturedPhotos.length >= maxGuestPhotos}
+1195: -                      className={`pink-shutter ${isLockedCaptureRunning ? 'locked' : ''} hover:scale-105 active:scale-95 transition-transform shrink-0 cursor-pointer`}
+1196: -                      aria-label="Start automatic capture"
+1197: -                      title="Bắt đầu chụp tự động"
+1198: -                      style={{ position: 'static', transform: 'none', width: '56px', height: '56px', borderWidth: '3px', padding: '4px', cursor: (!cameraStream || isLockedCaptureRunning || isCapturingGuestPhoto || capturedPhotos.length >= maxGuestPhotos) ? 'not-allowed' : 'pointer' }}
+1199: -                    >
+1200: -                      <span />
+1201: -                    </button>
+1202: -
+1203: -                    {/* Giữ cân bằng khoảng cách nếu nút Dừng chụp hiển thị */}
+1204: -                    {canFinishCaptureEarly && <div className="w-[95px] hidden sm:block" />}
+1205: -                  </div>
+1206: -
+1207: -                  <p className="text-[11px] text-[#74194a]/80 font-bold text-center leading-tight max-w-sm">
+1208: +                  <p className="pink-shutter-hint">
+1209: {!cameraStream
+1210: ? 'Camera đang kết nối, đợi màn hình hiện rõ rồi bấm chụp nha.'
+1211: : capturedPhotos.length >= maxGuestPhotos
+1212: -                        ? `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn ảnh nha.`
+1213: +                        ? (boothMode === 'id_photo' ? `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn ảnh nha.` : `Đã đủ ${maxGuestPhotos} tấm rồi, qua chọn khung nha.`)
+1214: : capturedPhotos.length >= minGuestPhotosToContinue
+1215: -                          ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng chụp tại đây hoặc chụp tiếp.`
+1216: +                          ? `Đã có ${capturedPhotos.length} tấm rồi, bạn có thể dừng tại đây hoặc chụp thêm.`
+1217: : isLockedCaptureRunning
+1218: ? `Máy tự chụp sau ${nextCaptureSecondsLeft}s. Bạn cứ tạo dáng thật thoải mái.`
+1219: -                            : `Bấm nút chụp để bắt đầu đếm ngược tự động chụp ${maxGuestPhotos} tấm.`}
+1220: +                            : (boothMode === 'id_photo' ? `Bấm nút chụp để bắt đầu đếm ngược tự động chụp ${maxGuestPhotos} tấm.` : 'Bấm nút chụp để bắt đầu đếm giờ.')}
+1221: </p>
+1222: </div>
+1223: -              )}
+1224: -
+1225: -              {canFinishCaptureEarly && boothMode !== 'id_photo' && (
+1226: -                <div className="pink-capture-actions mb-4">
+1227: -                  <button type="button" onClick={requestFinishCaptureEarly} className="pink-btn">
+1228: -                    <ArrowRight className="size-5" /> Dừng chụp tại đây
+1229: -                  </button>
+1230: -                  <p>Đã có {capturedPhotos.length} tấm rồi, muốn qua chọn khung luôn cũng được nha.</p>
+1231: -                </div>
+1232: -              )}
+1233: +              </div>
+1234: 
+1235: {guestNotice && guestStep === 'capture' && (
+1236: @@ -8924,5 +9140,5 @@
+1237: <label className="pink-adjust-control">
+1238: <span><b>Phóng to</b><em>{zoomValue}%</em></span>
+1239: -                          <input disabled={!canEditGuestAdjustment} type="range" min="20" max="600" step="1" value={zoomValue} aria-label="Adjust slot zoom" onChange={(event) => updateSlotEdit(edit.slotIndex, { scale: extractZoomScale(edit, event.target.value) })} />
+1240: +                          <input disabled={!canEditGuestAdjustment} type="range" min="5" max="600" step="1" value={zoomValue} aria-label="Adjust slot zoom" onChange={(event) => updateSlotEdit(edit.slotIndex, { scale: extractZoomScale(edit, event.target.value) })} />
+1241: </label>
+1242: <label className="pink-adjust-control">
+1243: @@ -9014,17 +9230,17 @@
+1244: <div className="flex flex-col items-center gap-5">
+1245: <div className="pink-result-box pink-result-paper-mockup p-6 rounded-[28px] bg-gradient-to-br from-[#fff7fb] to-[#fff]/40 border border-pink-100/60 shadow-inner flex items-center justify-center w-full">
+1246: -                    {isGeneratingGuestResult && (
+1247: -                      <div className="flex flex-col items-center gap-3 text-sm font-black text-[#f73591] py-12">
+1248: -                        <Loader2 className="size-10 animate-spin" />
+1249: -                        <span>Đang rửa ảnh, bạn đợi xíu nha…</span>
+1250: -                      </div>
+1251: -                    )}
+1252: -                    {!isGeneratingGuestResult && guestPreviewUrl && (
+1253: +                    {isGeneratingGuestResult ? (
+1254: +                      <CuteProcessingLoader
+1255: +                        progress={guestResultProgress}
+1256: +                        boothMode={boothMode}
+1257: +                        hasVideos={boothMode === 'photobooth' && capturedPhotos.some(p => p.videoBlob)}
+1258: +                        idPhotoService={idPhotoService}
+1259: +                      />
+1260: +                    ) : guestPreviewUrl ? (
+1261: <div className="relative group p-2 bg-white rounded-xl shadow-lg border border-slate-100/80 transform hover:scale-[1.01] transition-all duration-300">
+1262: <img src={guestPreviewUrl} alt={boothMode === 'photobooth' ? "Tờ in photobooth 10x15 hoàn thành" : "Tờ in ảnh thẻ 10x15 hoàn thành"} className="pink-result-image max-w-full rounded-lg border border-slate-50 shadow-sm" />
+1263: <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-lg" />
+1264: </div>
+1265: -                    )}
+1266: -                    {!isGeneratingGuestResult && !guestPreviewUrl && (
+1267: +                    ) : (
+1268: <div className="text-sm font-black text-pink-400 py-12">Chờ bạn ở bước rửa ảnh nha…</div>
+1269: )}
+1270: @@ -10647,2 +10863,291 @@
+1271: );
+1272: }
+1273: +
+1274: +function CuteProcessingLoader({ progress, boothMode, hasVideos, idPhotoService }) {
+1275: +  const { step, videoIndex, videoTotal, printStatus } = progress;
+1276: +
+1277: +  // Determine what tasks are needed
+1278: +  const tasks = [];
+1279: +
+1280: +  if (boothMode === 'id_photo') {
+1281: +    tasks.push({
+1282: +      id: 'image',
+1283: +      label: 'Xử lý ảnh thẻ 3x4 chuyên nghiệp',
+1284: +      status: step === 'rendering_image' ? 'active' : 'completed',
+1285: +    });
+1286: +    if (idPhotoService === 'print') {
+1287: +      tasks.push({
+1288: +        id: 'print',
+1289: +        label: 'Gửi lệnh in tự động đến máy in',
+1290: +        status:
+1291: +          step === 'rendering_image'
+1292: +            ? 'pending'
+1293: +            : printStatus === 'sending'
+1294: +            ? 'active'
+1295: +            : printStatus === 'success'
+1296: +            ? 'completed'
+1297: +            : printStatus === 'error'
+1298: +            ? 'failed'
+1299: +            : 'pending',
+1300: +      });
+1301: +    }
+1302: +    tasks.push({
+1303: +      id: 'qr',
+1304: +      label: 'Tạo mã QR tải ảnh về điện thoại',
+1305: +      status:
+1306: +        step === 'rendering_image' || (idPhotoService === 'print' && printStatus === 'sending')
+1307: +          ? 'pending'
+1308: +          : step === 'generating_qr'
+1309: +          ? 'active'
+1310: +          : step === 'completed'
+1311: +          ? 'completed'
+1312: +          : 'pending',
+1313: +    });
+1314: +  } else {
+1315: +    // Photobooth mode
+1316: +    tasks.push({
+1317: +      id: 'image',
+1318: +      label: 'Thiết kế & ghép khung ảnh xinh xắn',
+1319: +      status: step === 'rendering_image' ? 'active' : 'completed',
+1320: +    });
+1321: +
+1322: +    tasks.push({
+1323: +      id: 'print',
+1324: +      label: 'Gửi lệnh in tự động đến máy in',
+1325: +      status:
+1326: +        step === 'rendering_image'
+1327: +          ? 'pending'
+1328: +          : printStatus === 'sending'
+1329: +          ? 'active'
+1330: +          : printStatus === 'success'
+1331: +          ? 'completed'
+1332: +          : printStatus === 'error'
+1333: +          ? 'failed'
+1334: +          : 'pending',
+1335: +    });
+1336: +
+1337: +    if (hasVideos) {
+1338: +      tasks.push({
+1339: +        id: 'video',
+1340: +        label: `Dựng video kỷ niệm live photo ${videoIndex > 0 ? `(${videoIndex}/${videoTotal})` : ''}`,
+1341: +        status:
+1342: +          step === 'rendering_image' || printStatus === 'sending'
+1343: +            ? 'pending'
+1344: +            : step === 'rendering_video'
+1345: +            ? 'active'
+1346: +            : step === 'generating_qr' || step === 'completed'
+1347: +            ? 'completed'
+1348: +            : 'pending',
+1349: +      });
+1350: +    }
+1351: +
+1352: +    tasks.push({
+1353: +      id: 'qr',
+1354: +      label: 'Tạo mã QR tải ảnh & video live',
+1355: +      status:
+1356: +        step === 'rendering_image' || printStatus === 'sending' || (hasVideos && step === 'rendering_video')
+1357: +          ? 'pending'
+1358: +          : step === 'generating_qr'
+1359: +          ? 'active'
+1360: +          : step === 'completed'
+1361: +          ? 'completed'
+1362: +          : 'pending',
+1363: +    });
+1364: +  }
+1365: +
+1366: +  // Calculate percentage progress for the overall cute bar
+1367: +  const completedCount = tasks.filter(t => t.status === 'completed').length;
+1368: +  const percent = Math.round((completedCount / tasks.length) * 100);
+1369: +
+1370: +  return (
+1371: +    <div
+1372: +      className="relative overflow-visible w-full max-w-md mx-auto my-6 p-8 flex flex-col items-center justify-center bg-white border-4 border-[#5c1123] rounded-[36px] shadow-[10px_10px_0px_rgba(247,53,145,0.12)] text-center space-y-6 animate-fade-in"
+1373: +      style={{
+1374: +        backgroundImage: 'linear-gradient(rgba(247, 53, 145, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(247, 53, 145, 0.04) 1px, transparent 1px)',
+1375: +        backgroundSize: '20px 20px'
+1376: +      }}
+1377: +    >
+1378: +      {/* Decorative Stickers */}
+1379: +      <div className="korean-vibe-sticker text-2xl absolute -top-3 -left-3 drop-shadow-md select-none animate-[bounce_2s_infinite] z-20" title="Cherries!🍒">🍒</div>
+1380: +      <div className="korean-vibe-sticker text-xl absolute top-8 -right-3 drop-shadow-md select-none animate-[pulse_1.5s_infinite] z-20" title="Star!⭐">⭐</div>
+1381: +      <div className="korean-vibe-sticker text-2xl absolute -bottom-3 -left-3 drop-shadow-md select-none animate-[pulse_2s_infinite] z-20" title="Heart!💖">💖</div>
+1382: +      <div className="korean-vibe-sticker text-xl absolute -bottom-3 -right-3 drop-shadow-md select-none animate-[bounce_1.5s_infinite_alternate] z-20" title="Sparkle!✨">✨</div>
+1383: +
+1384: +      {/* Sea Bubbles Floating */}
+1385: +      <div className="sea-bubble sea-bubble--1" />
+1386: +      <div className="sea-bubble sea-bubble--2" />
+1387: +      <div className="sea-bubble sea-bubble--3" />
+1388: +
+1389: +      {/* Main Mascot Animation: Custom SVG Octopus */}
+1390: +      <div className="relative w-40 h-36 mx-auto flex items-center justify-center shrink-0">
+1391: +        <svg
+1392: +          viewBox="0 0 160 160"
+1393: +          className="w-full h-full animate-[octopus-swim-camera_1.8s_ease-in-out_infinite]"
+1394: +          style={{ shapeRendering: 'crispEdges' }}
+1395: +        >
+1396: +          {/* Octopus shadow */}
+1397: +          <ellipse cx="80" cy="142" rx="34" ry="5" fill="#fbcfe8" opacity="0.4" />
+1398: +
+1399: +          {/* Tentacles */}
+1400: +          {/* Tentacle 1 - Left Outer */}
+1401: +          <g style={{ transformOrigin: '50px 105px', animation: 'tentacle-move-1 1.2s ease-in-out infinite' }}>
+1402: +            <path d="M 50 105 C 30 115, 20 95, 10 110 C 5 117, 12 125, 22 120 C 35 112, 42 120, 54 112" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
+1403: +            <circle cx="22" cy="111" r="2.5" fill="#fff" />
+1404: +            <circle cx="34" cy="115" r="2" fill="#fff" />
+1405: +          </g>
+1406: +          {/* Tentacle 2 - Left Inner */}
+1407: +          <g style={{ transformOrigin: '65px 110px', animation: 'tentacle-move-2 1.2s ease-in-out infinite' }}>
+1408: +            <path d="M 65 110 C 50 125, 40 120, 35 132 C 32 138, 42 142, 48 135 C 56 125, 62 130, 70 120" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
+1409: +            <circle cx="45" cy="128" r="2.5" fill="#fff" />
+1410: +            <circle cx="58" cy="126" r="2" fill="#fff" />
+1411: +          </g>
+1412: +          {/* Tentacle 3 - Right Inner */}
+1413: +          <g style={{ transformOrigin: '95px 110px', animation: 'tentacle-move-3 1.2s ease-in-out infinite' }}>
+1414: +            <path d="M 95 110 C 110 125, 120 120, 125 132 C 128 138, 118 142, 112 135 C 104 125, 98 130, 90 120" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
+1415: +            <circle cx="115" cy="128" r="2.5" fill="#fff" />
+1416: +            <circle cx="102" cy="126" r="2" fill="#fff" />
+1417: +          </g>
+1418: +          {/* Tentacle 4 - Right Outer */}
+1419: +          <g style={{ transformOrigin: '110px 105px', animation: 'tentacle-move-4 1.2s ease-in-out infinite' }}>
+1420: +            <path d="M 110 105 C 130 115, 140 95, 150 110 C 155 117, 148 125, 138 120 C 125 112, 118 120, 106 112" fill="#f19cb2" stroke="#5c1123" strokeWidth="2.5" />
+1421: +            <circle cx="138" cy="111" r="2.5" fill="#fff" />
+1422: +            <circle cx="126" cy="115" r="2" fill="#fff" />
+1423: +          </g>
+1424: +
+1425: +          {/* Main Head */}
+1426: +          <rect x="44" y="44" width="72" height="68" rx="34" fill="#f19cb2" stroke="#5c1123" strokeWidth="3.5" />
+1427: +
+1428: +          {/* Head Highlight */}
+1429: +          <path d="M 58 54 A 20 20 0 0 1 76 48" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+1430: +
+1431: +          {/* Blush cheeks */}
+1432: +          <circle cx="58" cy="85" r="6" fill="#f77595" opacity="0.8" />
+1433: +          <circle cx="102" cy="85" r="6" fill="#f77595" opacity="0.8" />
+1434: +
+1435: +          {/* Face expressions based on step */}
+1436: +          {step === 'completed' ? (
+1437: +            <>
+1438: +              {/* Happy eyes (^^) */}
+1439: +              <path d="M 58 76 Q 64 70 70 76" stroke="#5c1123" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+1440: +              <path d="M 90 76 Q 96 70 102 76" stroke="#5c1123" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+1441: +              {/* Joyful open mouth */}
+1442: +              <path d="M 74 85 Q 80 96 86 85 Z" fill="#ff527b" stroke="#5c1123" strokeWidth="2.5" />
+1443: +            </>
+1444: +          ) : (
+1445: +            <>
+1446: +              {/* Cute round eyes */}
+1447: +              <g>
+1448: +                <circle cx="66" cy="78" r="7.5" fill="#5c1123" />
+1449: +                <circle cx="64" cy="76" r="3" fill="#fff" />
+1450: +                <circle cx="68" cy="80" r="1" fill="#fff" />
+1451: +              </g>
+1452: +              <g>
+1453: +                <circle cx="94" cy="78" r="7.5" fill="#5c1123" />
+1454: +                <circle cx="92" cy="76" r="3" fill="#fff" />
+1455: +                <circle cx="96" cy="80" r="1" fill="#fff" />
+1456: +              </g>
+1457: +
+1458: +              {/* Interactive mouth */}
+1459: +              {step === 'rendering_image' ? (
+1460: +                <circle cx="80" cy="86" r="4" fill="#5c1123" />
+1461: +              ) : step === 'rendering_video' ? (
+1462: +                <path d="M 76 86 C 76 82, 84 82, 84 86 C 84 90, 76 90, 76 86 Z" fill="#5c1123" />
+1463: +              ) : (
+1464: +                <path d="M 76 85 Q 80 89 84 85" stroke="#5c1123" strokeWidth="3" fill="none" strokeLinecap="round" />
+1465: +              )}
+1466: +            </>
+1467: +          )}
+1468: +
+1469: +          {/* Floating task accessory */}
+1470: +          {step !== 'completed' && (
+1471: +            <g style={{ transform: 'translate(66px, 6px)', animation: 'ribbon-float 1.2s infinite alternate' }}>
+1472: +              {step === 'rendering_image' ? (
+1473: +                <path d="M 12 6 L 16 14 H 32 L 36 6 L 30 10 L 24 4 L 18 10 Z" fill="#ffd166" stroke="#5c1123" strokeWidth="2" />
+1474: +              ) : printStatus === 'sending' ? (
+1475: +                <path d="M 10 10 H 30 V 26 H 10 Z M 14 14 H 26 V 22 H 14 Z" fill="#ff77b6" stroke="#5c1123" strokeWidth="2" />
+1476: +              ) : step === 'rendering_video' ? (
+1477: +                <path d="M 20 22 C 20 22, 10 16, 10 10 C 10 5, 15 2, 20 6 C 25 2, 30 5, 30 10 C 30 16, 20 22, 20 22 Z" fill="#ff4b72" stroke="#5c1123" strokeWidth="2" />
+1478: +              ) : (
+1479: +                <path d="M 10 6 H 30 V 26 H 10 Z M 14 10 H 18 V 14 H 14 Z M 22 10 H 26 V 14 H 22 Z M 14 18 H 18 V 22 H 14 Z M 22 18 H 26 V 22 H 22 Z" fill="#3b82f6" stroke="#5c1123" strokeWidth="2" />
+1480: +              )}
+1481: +            </g>
+1482: +          )}
+1483: +        </svg>
+1484: +      </div>
+1485: +
+1486: +      {/* Cute Headers */}
+1487: +      <div className="space-y-1.5 relative z-10">
+1488: +        <h3
+1489: +          className="text-2xl font-black text-[#5c1123] flex items-center justify-center gap-1.5"
+1490: +          style={{
+1491: +            fontFamily: '"Cherry Bomb One", cursive',
+1492: +            textShadow: '2px 2px 0px #ffffff, 3px 3px 0px #ffccd5'
+1493: +          }}
+1494: +        >
+1495: +          <span>Đang hoàn thiện ảnh xinh...</span>
+1496: +          <span className="animate-bounce">🌸</span>
+1497: +        </h3>
+1498: +        <p className="text-[13px] text-[#8c515e] font-extrabold font-sans">
+1499: +          {step === 'rendering_image' && 'Đang sắp xếp những khoảnh khắc đáng yêu...'}

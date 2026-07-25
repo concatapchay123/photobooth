@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Nơ xanh dth",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 64,
+          "y": 63
+        },
+        {
+          "x": 826,
+          "y": 63
+        },
+        {
+          "x": 826,
+          "y": 619
+        },
+        {
+          "x": 64,
+          "y": 619
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 60,
+          "y": 680
+        },
+        {
+          "x": 822,
+          "y": 680
+        },
+        {
+          "x": 822,
+          "y": 1237
+        },
+        {
+          "x": 60,
+          "y": 1237
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 60,
+          "y": 1291
+        },
+        {
+          "x": 822,
+          "y": 1291
+        },
+        {
+          "x": 822,
+          "y": 1848
+        },
+        {
+          "x": 60,
+          "y": 1848
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 59,
+          "y": 1912
+        },
+        {
+          "x": 821,
+          "y": 1912
+        },
+        {
+          "x": 821,
+          "y": 2469
+        },
+        {
+          "x": 59,
+          "y": 2469
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-17T08:47:25.437Z",
+  "savedAt": "2026-06-17T08:47:25.439Z"
+}

@@ -1,0 +1,250 @@
+const renderGuestFrameDraftVideoComposition = (draft) => {
+    return new Promise(async (resolve) => {
+      try {
+        if (!draft?.originalImage || !draft?.frameDimensions || !Array.isArray(draft.zones)) {
+          resolve(null);
+          return;
+        }
+
+        const hasVideos = (draft.slotEdits || []).some(edit => {
+          if (edit.videoBlob) return true;
+          const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+          return photo && photo.videoBlob;
+        });
+
+        if (!hasVideos) {
+          console.log('No video blobs found in draft, skipping video composition');
+          resolve(null);
+          return;
+        }
+
+        const normalizedZones = sortZonesNatural(draft.zones);
+        const overlayCanvas = createFrameOverlayCanvasFromImage(draft.originalImage, draft.frameDimensions);
+
+        // Độ phân giải video composite tối ưu (chiều rộng 640px) để đảm bảo hiệu suất encode mượt mà không bị giật lag
+        const scaleFactor = Math.min(1.0, 640 / draft.frameDimensions.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(draft.frameDimensions.width * scaleFactor);
+        canvas.height = Math.round(draft.frameDimensions.height * scaleFactor);
+        canvas.style.position = 'fixed';
+        canvas.style.top = '-9999px';
+        canvas.style.left = '-9999px';
+        canvas.style.width = '100px';
+        canvas.style.height = '100px';
+        canvas.style.opacity = '0';
+        canvas.style.pointerEvents = 'none';
+        document.body.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scaleFactor, scaleFactor);
+
+        // Create temporary visible container for video elements to bypass Chromium background throttling
+        const containerId = 'temp-composition-video-container';
+        let container = document.getElementById(containerId);
+        if (!container) {
+          container = document.createElement('div');
+          container.id = containerId;
+          container.style.position = 'fixed';
+          container.style.bottom = '10px';
+          container.style.right = '10px';
+          container.style.display = 'flex';
+          container.style.gap = '8px';
+          container.style.padding = '8px';
+          container.style.opacity = '0.02'; // Visible but transparent to bypass Chromium culling
+          container.style.zIndex = '999999'; // Keep on top to bypass occlusion culling
+          container.style.pointerEvents = 'none';
+          document.body.appendChild(container);
+        }
+
+        // Create video elements for slots, supporting both static fallback and layered dynamic playback
+        const videoItems = await Promise.all((draft.slotEdits || []).map(async (edit) => {
+          const assignedZone = normalizedZones[edit.slotIndex];
+          if (!assignedZone) return null;
+
+          let targetVideoBlob = edit.videoBlob;
+          let photoUrl = edit.url;
+          if (!targetVideoBlob) {
+            const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+            if (photo) {
+              targetVideoBlob = photo.videoBlob;
+              photoUrl = photo.url;
+            }
+          }
+
+          const img = await loadImage(photoUrl || edit.url);
+
+          if (!targetVideoBlob) {
+            // Keep the slot index for static representation if video blob is completely missing
+            return {
+              edit,
+              video: null,
+              zone: assignedZone,
+              img,
+            };
+          }
+
+          const video = document.createElement('video');
+          video.src = URL.createObjectURL(targetVideoBlob);
+          video.muted = true;
+          video.playsInline = true;
+          video.loop = true;
+          
+          // Place video elements in the visible overlay container to keep Chrome decoders awake and running
+          video.style.width = '120px';
+          video.style.height = '90px';
+          video.style.objectFit = 'cover';
+          video.style.borderRadius = '8px';
+          video.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+          container.appendChild(video);
+
+          // Wait for video to actually start decoding frames (HAVE_CURRENT_DATA or higher) to bypass Chrome background throttling
+          await new Promise((res) => {
+            if (video.readyState >= 2) {
+              res();
+              return;
+            }
+            video.oncanplay = () => res();
+            // Fallback timeout of 2 seconds to prevent blocking
+            setTimeout(res, 2000);
+          });
+
+          return {
+            edit,
+            video,
+            zone: assignedZone,
+            img,
+          };
+        }));
+
+        const allVideoItems = videoItems.filter(Boolean);
+
+        // Play ALL videos simultaneously in lockstep, starting from the exact same frame (currentTime = 0)
+        await Promise.all(allVideoItems.map(async (item) => {
+          if (!item.video) return;
+          try {
+            item.video.currentTime = 0;
+            await item.video.play();
+          } catch (e) {
+            console.warn('Failed to auto-play video in sync for composition:', e);
+          }
+        }));
+
+        // Wait until all video elements have actually started playing (currentTime > 0)
+        // or a timeout of 1000ms is reached, to ensure synchronized start
+        await Promise.race([
+          Promise.all(allVideoItems.map((item) => {
+            if (!item.video) return Promise.resolve();
+            return new Promise((res) => {
+              const check = () => {
+                if (item.video.currentTime > 0 && !item.video.paused) {
+                  res();
+                } else {
+                  setTimeout(check, 10);
+                }
+              };
+              check();
+            });
+          })),
+          new Promise((res) => setTimeout(res, 1000))
+        ]);
+
+        // Allow a brief moment (50ms) for Chrome's decoder to buffer the first frame so they are rendered perfectly in sync from frame 1
+        await new Promise((res) => setTimeout(res, 50));
+
+        // Start canvas capture
+        const stream = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
+        
+        // Prioritize stable VP8 codec at 3 Mbps for software-encoding safety and low resource usage
+        let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 3000000 };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/webm', videoBitsPerSecond: 3000000 };
+        }
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 3000000 };
+        }
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/mp4', videoBitsPerSecond: 3000000 };
+        }
+
+        const chunks = [];
+        const recorder = new MediaRecorder(stream, options);
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          // Clean up URLs and video elements
+          allVideoItems.forEach(item => {
+            if (item.video) {
+              try {
+                item.video.pause();
+                URL.revokeObjectURL(item.video.src);
+                if (item.video.parentNode) {
+                  item.video.parentNode.removeChild(item.video);
+                }
+              } catch (e) {}
+            }
+          });
+
+          // Clean up temporary container if empty
+          try {
+            const containerEl = document.getElementById(containerId);
+            if (containerEl && containerEl.childNodes.length === 0) {
+              containerEl.parentNode.removeChild(containerEl);
+            }
+          } catch (e) {}
+
+          // Clean up composition canvas from DOM
+          try {
+            if (canvas.parentNode) {
+              canvas.parentNode.removeChild(canvas);
+            }
+          } catch (e) {}
+
+          const composedBlob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+          resolve(composedBlob);
+        };
+
+        // Draw loop
+        let isDrawing = true;
+        const drawFrame = () => {
+          if (!isDrawing) return;
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, draft.frameDimensions.width, draft.frameDimensions.height);
+
+          // Draw each slot (always draw the static image first, then dynamic video if playing and ready)
+          allVideoItems.forEach(item => {
+            const { edit, video, zone, img } = item;
+            if (img) {
+              drawImageIntoTransparentSlot(ctx, img, edit, zone);
+            }
+            if (video && !video.paused && !video.ended && video.readyState >= 2) {
+              drawImageIntoTransparentSlot(ctx, video, edit, zone);
+            }
+          });
+
+          // Draw frame overlay
+          ctx.drawImage(overlayCanvas, 0, 0);
+
+          requestAnimationFrame(drawFrame);
+        };
+
+        // Start draw loop and recording
+        recorder.start();
+        drawFrame();
+
+        // Record for the duration matching the countdown time
+        setTimeout(() => {
+          isDrawing = false;
+          if (recorder.state !== 'inactive') {
+            recorder.stop();
+          }
+        }, GUEST_CAPTURE_INTERVAL_SECONDS * 1000);
+
+      } catch (e) {
+        console.error('Error during video composition rendering:', e);
+        resolve(null);
+      }
+    });
+  }

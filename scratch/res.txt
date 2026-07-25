@@ -1,0 +1,13 @@
+401: const GUEST_CAPTURE_INTERVAL_SECONDS = 10;
+467: const minCaptureBudget = GUEST_CAPTURE_TARGET * (GUEST_CAPTURE_INTERVAL_SECONDS + 5);
+2260: const [nextCaptureSecondsLeft, setNextCaptureSecondsLeft] = useState(GUEST_CAPTURE_INTERVAL_SECONDS);
+4705: setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);
+4911: setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);
+4912: setCaptureCountdown(String(GUEST_CAPTURE_INTERVAL_SECONDS));
+4947: maxGuestPhotos * (GUEST_CAPTURE_INTERVAL_SECONDS + 5)
+4952: setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);
+4953: setCaptureCountdown(String(GUEST_CAPTURE_INTERVAL_SECONDS));
+4975: for (let secondsLeft = GUEST_CAPTURE_INTERVAL_SECONDS; secondsLeft > 0; secondsLeft--) {
+4982: if (boothMode === 'photobooth' && secondsLeft === GUEST_CAPTURE_INTERVAL_SECONDS) {
+5969: }, GUEST_CAPTURE_INTERVAL_SECONDS * 1000);
+6664: setNextCaptureSecondsLeft(GUEST_CAPTURE_INTERVAL_SECONDS);

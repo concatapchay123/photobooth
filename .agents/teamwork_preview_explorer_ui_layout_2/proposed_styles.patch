@@ -1,0 +1,29 @@
+diff --git a/src/styles.css b/src/styles.css
+index 72e42ef..b835ac3 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -6278,9 +6278,9 @@
+ .pink-frame-grid.pink-frame-preview-grid {
+   display: grid !important;
+-  grid-template-columns: repeat(4, 1fr) !important;
++  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+   gap: 0.85rem !important;
+   overflow-y: auto !important;
+   padding: 0.25rem !important;
+-  align-content: center !important;
++  align-content: start !important;
+ }
+ 
+@@ -6450,10 +6450,10 @@
+ .pink-selection-panel .pink-selection-grid {
+   display: grid !important;
+-  grid-template-columns: repeat(3, 1fr) !important;
++  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+   gap: 1rem !important;
+   overflow-y: auto !important;
+   max-height: none !important;
+   padding: 0.25rem !important;
+   flex: 1 1 auto !important;
+-  align-content: center !important;
++  align-content: start !important;
+ }

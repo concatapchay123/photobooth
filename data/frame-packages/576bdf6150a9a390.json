@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Dâu planet",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 60,
+          "y": 71
+        },
+        {
+          "x": 824,
+          "y": 71
+        },
+        {
+          "x": 824,
+          "y": 624
+        },
+        {
+          "x": 60,
+          "y": 624
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 62,
+          "y": 683
+        },
+        {
+          "x": 818,
+          "y": 683
+        },
+        {
+          "x": 818,
+          "y": 1232
+        },
+        {
+          "x": 62,
+          "y": 1232
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 69,
+          "y": 1300
+        },
+        {
+          "x": 809,
+          "y": 1300
+        },
+        {
+          "x": 809,
+          "y": 1841
+        },
+        {
+          "x": 69,
+          "y": 1841
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 65,
+          "y": 1913
+        },
+        {
+          "x": 825,
+          "y": 1913
+        },
+        {
+          "x": 825,
+          "y": 2439
+        },
+        {
+          "x": 65,
+          "y": 2439
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-21T08:36:49.702Z",
+  "savedAt": "2026-06-21T08:36:49.703Z"
+}

@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "09 - Mứt Dâu Dịu Dàng",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 55
+        },
+        {
+          "x": 825,
+          "y": 55
+        },
+        {
+          "x": 825,
+          "y": 634
+        },
+        {
+          "x": 55,
+          "y": 634
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 670
+        },
+        {
+          "x": 825,
+          "y": 670
+        },
+        {
+          "x": 825,
+          "y": 1264
+        },
+        {
+          "x": 55,
+          "y": 1264
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 79,
+          "y": 1302
+        },
+        {
+          "x": 825,
+          "y": 1302
+        },
+        {
+          "x": 825,
+          "y": 1864
+        },
+        {
+          "x": 79,
+          "y": 1864
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 1902
+        },
+        {
+          "x": 825,
+          "y": 1902
+        },
+        {
+          "x": 825,
+          "y": 2474
+        },
+        {
+          "x": 55,
+          "y": 2474
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-10T05:58:58.790Z",
+  "savedAt": "2026-06-10T05:58:58.792Z"
+}

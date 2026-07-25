@@ -1,0 +1,130 @@
+/* 🌸 CUTE KOREAN PHOTOBOOTH THEME 🌸 */
+/* This theme overrides styles to create a premium, modern, glassmorphic layout */
+
+:root {
+  --korean-pink-50: #fff5f8;
+  --korean-pink-100: #ffe4ef;
+  --korean-pink-200: #ffc2db;
+  --korean-pink-300: #ff91c0;
+  --korean-pink-400: #ff529c;
+  --korean-pink-500: #f72585;
+  --korean-pink-600: #db146a;
+  --korean-pink-700: #ba0a55;
+  
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-shadow: 0 16px 40px rgba(247, 37, 133, 0.15);
+  --glass-blur: blur(24px);
+}
+
+.pink-pop-app {
+  --pink-primary: var(--korean-pink-500);
+  --pink-bg: var(--korean-pink-50);
+  background: 
+    radial-gradient(circle at 15% 50%, var(--korean-pink-100), transparent 45%),
+    radial-gradient(circle at 85% 30%, var(--korean-pink-200), transparent 50%),
+    radial-gradient(circle at 50% 80%, var(--korean-pink-100), transparent 50%),
+    var(--korean-pink-50) !important;
+  font-family: "Nunito", sans-serif;
+  color: #5c1836;
+}
+
+/* Base App Background Overlay */
+.pink-pop-app::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff4d9e' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Glassmorphic Cards */
+.pink-card, .pink-hero-stage, .pink-guide-card {
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 2px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  border-radius: 40px !important;
+  overflow: visible !important;
+}
+
+/* Cute Buttons */
+.pink-btn {
+  background: linear-gradient(135deg, var(--korean-pink-400), var(--korean-pink-500)) !important;
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 99px !important;
+  box-shadow: 0 8px 24px rgba(255, 77, 158, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+  color: white !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.pink-btn:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.02) !important;
+  box-shadow: 0 12px 32px rgba(255, 77, 158, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.5) !important;
+}
+
+.pink-btn:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98) !important;
+}
+
+.pink-outline-btn {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 2px solid var(--korean-pink-400) !important;
+  color: var(--korean-pink-600) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.pink-outline-btn:hover:not(:disabled) {
+  background: white !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 20px rgba(255, 77, 158, 0.15) !important;
+}
+
+/* Typography Enhancements */
+.pink-hero-title span {
+  text-shadow: 0 4px 16px rgba(255, 77, 158, 0.2) !important;
+}
+
+/* Frame Slots & Previews */
+.pink-frame-slot-item {
+  border-radius: 20px !important;
+  border: 4px solid white !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  will-change: transform;
+}
+
+.pink-frame-slot-item:hover {
+  transform: scale(1.03) translateY(-5px) !important;
+  box-shadow: 0 20px 40px rgba(255, 77, 158, 0.2) !important;
+}
+
+/* Animations for Confetti/Mascot */
+.mascot-container {
+  will-change: transform;
+  filter: drop-shadow(0 10px 20px rgba(255, 77, 158, 0.3));
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.floating-element {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+/* Modals & Popups */
+.pink-modal {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 240, 245, 0.9)) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 32px !important;
+  border: 2px solid white !important;
+  box-shadow: 0 24px 60px rgba(255, 77, 158, 0.2) !important;
+}

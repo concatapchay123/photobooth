@@ -1,0 +1,300 @@
+300: -      await wait(120);
+301: -
+302: -      const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+303: -      const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+304: -
+305: -      if (!rawCanvas) {
+306: -        if (boothMode === 'photobooth') {
+307: -          try {
+308: -            await stopClipRecording();
+309: -          } catch (e) {}
+310: -        }
+311: -        setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
+312: -        return false;
+313: -      }
+314: -
+315: -      // Stop video recording right after we capture the rawCanvas frame so the video matches the snapshot moment exactly
+316: -      let videoBlob = null;
+317: -      if (boothMode === 'photobooth') {
+318: +    let videoBlob = null;
+319: +    const shouldStopVideoImmediately = boothMode === 'photobooth';
+320: +    const stopVideo = async () => {
+321: +      if (shouldStopVideoImmediately) {
+322: try {
+323: videoBlob = await stopClipRecording();
+324: @@ -4870,12 +4922,52 @@
+325: }
+326: }
+327: -
+328: -      const rawDataUrl = rawCanvas.toDataURL('image/jpeg', 0.95);
+329: -      const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady()
+330: +    };
+331: +
+332: +    const flashTimeout = setTimeout(() => {
+333: +      setFlashActive(false);
+334: +    }, 250);
+335: +
+336: +    try {
+337: +      setCaptureCountdown('📸');
+338: +      playShutterSound();
+339: +      setFlashActive(true);
+340: +
+341: +      let dslrDataUrl = null;
+342: +      if (useDslrCapture) {
+343: +        await stopVideo();
+344: +        try {
+345: +          dslrDataUrl = await captureDslrPhotoHelper();
+346: +        } catch (error) {
+347: +          console.warn('DSLR capture failed, falling back to webcam/liveview stream:', error);
+348: +          setGuestNotice('⚠️ Không chụp được bằng DSLR (digiCamControl), đang tự động dùng ảnh liveview.');
+349: +        }
+350: +      }
+351: +
+352: +      const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+353: +      const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+354: +
+355: +      if (!rawCanvas && !dslrDataUrl) {
+356: +        if (!useDslrCapture) {
+357: +          await stopVideo();
+358: +        }
+359: +        setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
+360: +        return false;
+361: +      }
+362: +
+363: +      if (!useDslrCapture) {
+364: +        await stopVideo();
+365: +      }
+366: +
+367: +      const rawDataUrl = rawCanvas ? rawCanvas.toDataURL('image/jpeg', 0.95) : null;
+368: +      const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady() && rawCanvas
+369: ? await beautyCameraRef.current.captureDataUrl('image/jpeg', 0.95)
+370: : null;
+371: -      let dataUrl = typeof filteredDataUrl === 'string' && filteredDataUrl.startsWith('data:')
+372: -        ? filteredDataUrl
+373: -        : rawDataUrl;
+374: +
+375: +      let dataUrl = dslrDataUrl;
+376: +      if (!dataUrl) {
+377: +        dataUrl = typeof filteredDataUrl === 'string' && filteredDataUrl.startsWith('data:')
+378: +          ? filteredDataUrl
+379: +          : rawDataUrl;
+380: +      }
+381: 
+382: if (boothMode === 'id_photo') {
+383: @@ -4903,6 +4995,21 @@
+384: });
+385: setGuestPreviewUrl('');
+386: +
+387: +      // Restart stream if ended or DSLR capture was used, to restore liveview smoothly
+388: +      try {
+389: +        const activeTrack = cameraStreamRef.current?.getVideoTracks?.()[0];
+390: +        const isTrackEnded = !activeTrack || activeTrack.readyState === 'ended';
+391: +        if (useDslrCapture || isTrackEnded) {
+392: +          console.log('Re-initializing camera stream after capture...');
+393: +          const targetId = getStoredPreferredCameraId() || getStoredSelectedCameraId() || '';
+394: +          await initCameraStream(targetId);
+395: +        }
+396: +      } catch (e) {
+397: +        console.warn('Failed to re-initialize camera stream after capture:', e);
+398: +      }
+399: +
+400: return true;
+401: } finally {
+402: +      clearTimeout(flashTimeout);
+403: setFlashActive(false);
+404: setIsCapturingGuestPhoto(false);
+405: @@ -4971,4 +5078,7 @@
+406: 
+407: let cancelled = false;
+408: +    captureCancelTriggerRef.current = () => {
+409: +      cancelled = true;
+410: +    };
+411: 
+412: const totalSeconds = Math.max(
+413: @@ -5078,4 +5188,5 @@
+414: return () => {
+415: cancelled = true;
+416: +      captureCancelTriggerRef.current = null;
+417: if (boothMode === 'photobooth') {
+418: try {
+419: @@ -5086,5 +5197,5 @@
+420: setCaptureCountdown(null);
+421: };
+422: -  }, [isLockedCaptureRunning]);
+423: +  }, [isLockedCaptureRunning, captureCycleIndex]);
+424: 
+425: useEffect(() => {
+426: @@ -5122,5 +5233,5 @@
+427: if (
+428: isPartnerMode ||
+429: -      !['capture', 'frame'].includes(guestStep) ||
+430: +      guestStep !== 'frame' || // Only run preview generation when in the frame selection step to prevent camera preview lag
+431: guestAutoCaptureIndices.length < GUEST_FRAME_PREVIEW_PHOTO_TARGET ||
+432: !guestAutoCapturePhotoKey ||
+433: @@ -5514,5 +5625,5 @@
+434: return;
+435: }
+436: -      openGuestTransitionPrompt('select', { captureIndices: captureIndicesForResult });
+437: +      createIdPhotoResult(captureIndicesForResult);
+438: return;
+439: }
+440: @@ -5830,6 +5941,6 @@
+441: const overlayCanvas = createFrameOverlayCanvasFromImage(draft.originalImage, draft.frameDimensions);
+442: 
+443: -        // Tăng độ phân giải video composite (chiều rộng tối thiểu 960px thay vì 480px để sắc nét)
+444: -        const scaleFactor = Math.min(1.0, 960 / draft.frameDimensions.width);
+445: +        // Độ phân giải video composite tối ưu (chiều rộng 640px) để đảm bảo hiệu suất encode mượt mà không bị giật lag
+446: +        const scaleFactor = Math.min(1.0, 640 / draft.frameDimensions.width);
+447: const canvas = document.createElement('canvas');
+448: canvas.width = Math.round(draft.frameDimensions.width * scaleFactor);
+449: @@ -5859,8 +5970,6 @@
+450: container.style.gap = '8px';
+451: container.style.padding = '8px';
+452: -          container.style.background = 'rgba(0, 0, 0, 0.85)';
+453: -          container.style.border = '2px solid #ec4899';
+454: -          container.style.borderRadius = '16px';
+455: -          container.style.zIndex = '999999';
+456: +          container.style.opacity = '0.02'; // Visible but transparent to bypass Chromium culling
+457: +          container.style.zIndex = '999999'; // Keep on top to bypass occlusion culling
+458: container.style.pointerEvents = 'none';
+459: document.body.appendChild(container);
+460: @@ -5963,16 +6072,16 @@
+461: 
+462: // Start canvas capture
+463: -        const stream = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
+464: +        const stream = canvas.captureStream ? canvas.captureStream(45) : canvas.mozCaptureStream(45);
+465: 
+466: -        // Prioritize stable VP8 codec at 6 Mbps for software-encoding safety and low resource usage
+467: -        let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 6000000 };
+468: +        // Prioritize stable VP8 codec at 3 Mbps for software-encoding safety and low resource usage
+469: +        let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 3000000 };
+470: if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+471: -          options = { mimeType: 'video/webm', videoBitsPerSecond: 6000000 };
+472: +          options = { mimeType: 'video/webm', videoBitsPerSecond: 3000000 };
+473: }
+474: if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+475: -          options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 6000000 };
+476: +          options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 3000000 };
+477: }
+478: if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+479: -          options = { mimeType: 'video/mp4', videoBitsPerSecond: 6000000 };
+480: +          options = { mimeType: 'video/mp4', videoBitsPerSecond: 3000000 };
+481: }
+482: 
+483: @@ -6058,4 +6167,87 @@
+484: }
+485: });
+486: +  };
+487: +
+488: +  const startBrowserSideVideoComposition = async (draftsForPrint, guestOutputId) => {
+489: +    for (let index = 0; index < draftsForPrint.length; index++) {
+490: +      const draft = draftsForPrint[index];
+491: +      setGuestResultProgress(prev => ({
+492: +        ...prev,
+493: +        step: 'rendering_video',
+494: +        videoIndex: index + 1,
+495: +        videoTotal: draftsForPrint.length
+496: +      }));
+497: +      try {
+498: +        console.log(`[Browser Video Sync] Checking if server already finished video composition for frame ${index + 1}...`);
+499: +
+500: +        // 1. Check if the server already has this video
+501: +        try {
+502: +          const checkResponse = await fetch(`/api/guest-output/${guestOutputId}`);
+503: +          if (checkResponse.ok) {
+504: +            const checkData = await checkResponse.json();
+505: +            if (checkData.frames?.[index]?.video?.fileName) {
+506: +              console.log(`[Browser Video Sync] Server already has video for frame ${index + 1}. Skipping browser rendering.`);
+507: +              continue;
+508: +            }
+509: +          }
+510: +        } catch (checkErr) {
+511: +          console.warn('[Browser Video Sync] Failed to check server video status:', checkErr);
+512: +        }
+513: +
+514: +        console.log(`[Browser Video Sync] Starting browser rendering for frame ${index + 1}/${draftsForPrint.length}...`);
+515: +        const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
+516: +        if (videoBlob) {
+517: +          // 2. Check again if the server has finished in the meantime
+518: +          try {
+519: +            const checkResponse2 = await fetch(`/api/guest-output/${guestOutputId}`);
+520: +            if (checkResponse2.ok) {
+521: +              const checkData2 = await checkResponse2.json();
+522: +              if (checkData2.frames?.[index]?.video?.fileName) {
+523: +                console.log(`[Browser Video Sync] Server already has video for frame ${index + 1} (finished during render). Skipping upload.`);
+524: +                continue;
+525: +              }
+526: +            }
+527: +          } catch (checkErr) {
+528: +            console.warn('[Browser Video Sync] Failed to check server video status before upload:', checkErr);
+529: +          }
+530: +
+531: +          const dataUrl = await blobToDataUrl(videoBlob);
+532: +          const mimeType = videoBlob.type || 'video/webm';
+533: +          const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+534: +
+535: +          console.log(`[Browser Video Sync] Uploading browser-rendered video for frame ${index + 1}...`);
+536: +
+537: +          const updatePayload = {
+538: +            schema: GUEST_OUTPUT_SCHEMA,
+539: +            id: guestOutputId,
+540: +            frames: []
+541: +          };
+542: +          for (let i = 0; i <= index; i++) {
+543: +            updatePayload.frames.push(i === index ? {
+544: +              video: {
+545: +                dataUrl,
+546: +                mimeType,
+547: +                ext,
+548: +                fileName: `video-frame-${index + 1}.${ext}`,
+549: +                label: `Khung ${index + 1} kèm video`
+550: +              }
+551: +            } : null);
+552: +          }
+553: +
+554: +          if (index === draftsForPrint.length - 1) {
+555: +            updatePayload.hasPendingVideos = false;
+556: +          }
+557: +
+558: +          const res = await saveGuestOutputToServer(updatePayload);
+559: +          if (res) {
+560: +            console.log(`[Browser Video Sync] Successfully saved browser-rendered video for frame ${index + 1}`);
+561: +          } else {
+562: +            console.warn(`[Browser Video Sync] Failed to save browser-rendered video for frame ${index + 1}`);
+563: +          }
+564: +        }
+565: +      } catch (e) {
+566: +        console.error(`[Browser Video Sync] Error rendering/uploading video for index ${index}:`, e);
+567: +      }
+568: +    }
+569: };
+570: 
+571: @@ -6206,5 +6398,5 @@
+572: return;
+573: }
+574: -    openGuestTransitionPrompt('adjust');
+575: +    finishGuestAdjustment();
+576: };
+577: 
+578: @@ -6252,7 +6444,19 @@
+579: const sessionId = guestSessionIdRef.current;
+580: setIsGeneratingGuestResult(true);
+581: +    setGuestResultProgress({
+582: +      step: 'rendering_image',
+583: +      videoIndex: 0,
+584: +      videoTotal: 0,
+585: +      printStatus: 'waiting',
+586: +    });
+587: setGuestShareStatus('');
+588: setGuestPrintStatus('');
+589: setGuestPrintFallbackAvailable(false);
+590: +    setGuestPreviewUrl('');
+591: +    setGuestQrUrl('');
+592: +    setGuestShare(null);
+593: +    setGuestNotice('');
+594: +    goToGuestStep('result');
+595: +
+596: try {
+597: const activeSlotEdits = slotEditsOverride || [];
+598: @@ -6277,24 +6481,11 @@
+599: const sharePrintJpegUrl = outputCanvas.toDataURL('image/jpeg', 0.95);

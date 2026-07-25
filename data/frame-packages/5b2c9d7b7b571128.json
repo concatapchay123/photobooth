@@ -1,0 +1,110 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "grok-image-f065987b-cb60-4ebf-a1cf-5314ff27d8dd.png",
+  "frameWidth": 576,
+  "frameHeight": 1760,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "manual-green-screen",
+  "chromaSettings": {
+    "color": "#00ff00",
+    "tolerance": 42,
+    "softness": 70
+  },
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "polygon",
+      "detectionMode": "manual-green-screen",
+      "points": [
+        {
+          "x": 30,
+          "y": 30
+        },
+        {
+          "x": 545,
+          "y": 30
+        },
+        {
+          "x": 545,
+          "y": 387
+        },
+        {
+          "x": 30,
+          "y": 387
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "polygon",
+      "detectionMode": "manual-green-screen",
+      "points": [
+        {
+          "x": 30,
+          "y": 445
+        },
+        {
+          "x": 546,
+          "y": 445
+        },
+        {
+          "x": 546,
+          "y": 803
+        },
+        {
+          "x": 30,
+          "y": 803
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "polygon",
+      "detectionMode": "manual-green-screen",
+      "points": [
+        {
+          "x": 33,
+          "y": 870
+        },
+        {
+          "x": 548,
+          "y": 870
+        },
+        {
+          "x": 548,
+          "y": 1227
+        },
+        {
+          "x": 33,
+          "y": 1227
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "polygon",
+      "detectionMode": "manual-green-screen",
+      "points": [
+        {
+          "x": 30,
+          "y": 1287
+        },
+        {
+          "x": 545,
+          "y": 1287
+        },
+        {
+          "x": 545,
+          "y": 1643
+        },
+        {
+          "x": 30,
+          "y": 1643
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-05-21T15:44:23.563Z",
+  "savedAt": "2026-05-21T15:44:23.566Z"
+}

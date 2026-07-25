@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "58 - Ký Ức Hồng Xinh",
+  "frameWidth": 724,
+  "frameHeight": 2172,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 191,
+          "y": 265
+        },
+        {
+          "x": 684,
+          "y": 265
+        },
+        {
+          "x": 684,
+          "y": 593
+        },
+        {
+          "x": 191,
+          "y": 593
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 191,
+          "y": 615
+        },
+        {
+          "x": 684,
+          "y": 615
+        },
+        {
+          "x": 684,
+          "y": 933
+        },
+        {
+          "x": 191,
+          "y": 933
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 191,
+          "y": 957
+        },
+        {
+          "x": 684,
+          "y": 957
+        },
+        {
+          "x": 684,
+          "y": 1277
+        },
+        {
+          "x": 191,
+          "y": 1277
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 191,
+          "y": 1299
+        },
+        {
+          "x": 684,
+          "y": 1299
+        },
+        {
+          "x": 684,
+          "y": 1621
+        },
+        {
+          "x": 191,
+          "y": 1621
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-10T09:00:23.699Z",
+  "savedAt": "2026-06-10T09:00:23.701Z"
+}

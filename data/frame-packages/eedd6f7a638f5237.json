@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Liên minh huyền thoại",
+  "frameWidth": 724,
+  "frameHeight": 2172,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "none",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 97,
+          "y": 262
+        },
+        {
+          "x": 623,
+          "y": 262
+        },
+        {
+          "x": 623,
+          "y": 638
+        },
+        {
+          "x": 97,
+          "y": 638
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 97,
+          "y": 672
+        },
+        {
+          "x": 622,
+          "y": 672
+        },
+        {
+          "x": 622,
+          "y": 1049
+        },
+        {
+          "x": 97,
+          "y": 1049
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 97,
+          "y": 1084
+        },
+        {
+          "x": 623,
+          "y": 1084
+        },
+        {
+          "x": 623,
+          "y": 1462
+        },
+        {
+          "x": 97,
+          "y": 1462
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 97,
+          "y": 1496
+        },
+        {
+          "x": 622,
+          "y": 1496
+        },
+        {
+          "x": 622,
+          "y": 1868
+        },
+        {
+          "x": 97,
+          "y": 1868
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-21T13:42:16.422Z",
+  "savedAt": "2026-06-21T13:42:16.423Z"
+}

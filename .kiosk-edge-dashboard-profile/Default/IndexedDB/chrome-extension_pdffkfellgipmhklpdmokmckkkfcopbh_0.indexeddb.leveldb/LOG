@@ -1,0 +1,13 @@
+2026/05/30-00:41:36.142 45a4 Reusing MANIFEST D:\my-photobooth\.kiosk-edge-dashboard-profile\Default\IndexedDB\chrome-extension_pdffkfellgipmhklpdmokmckkkfcopbh_0.indexeddb.leveldb/MANIFEST-000001
+2026/05/30-00:41:36.142 45a4 Recovering log #7
+2026/05/30-00:41:36.143 45a4 Reusing old log D:\my-photobooth\.kiosk-edge-dashboard-profile\Default\IndexedDB\chrome-extension_pdffkfellgipmhklpdmokmckkkfcopbh_0.indexeddb.leveldb/000007.log 
+2026/05/30-00:41:36.151 4578 Level-0 table #11: started
+2026/05/30-00:41:36.153 4578 Level-0 table #11: 620 bytes OK
+2026/05/30-00:41:36.154 4578 Delete type=0 #7
+2026/05/30-00:41:36.155 4578 Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at '\x00\x04\x00\x00\x05' @ 356 : 1
+2026/05/30-00:41:36.155 4578 Compacting 1@0 + 1@1 files
+2026/05/30-00:41:36.157 4578 Generated table #12@0: 145 keys, 131970 bytes
+2026/05/30-00:41:36.157 4578 Compacted 1@0 + 1@1 files => 131970 bytes
+2026/05/30-00:41:36.158 4578 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/05/30-00:41:36.159 4578 Delete type=2 #11
+2026/05/30-00:41:36.159 4578 Manual compaction at level-0 from '\x00\x04\x00\x00\x05' @ 356 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)

@@ -1,0 +1,35 @@
+=== d:/my-photobooth/src/App.jsx ===
+4826: const startClipRecording = () => {
+4830: console.warn('Cannot start video recording: canvas not found');
+4838: clipStreamRef.current.getTracks().forEach((track) => track.stop());
+4877: console.warn('Failed to start video recording:', e);
+4881: const stopClipRecording = () => {
+4883: beautyCameraRef.current?.stopRecording();
+4919: videoBlob = await stopClipRecording();
+4921: console.error('Error stopping clip recording in captureGuestPhotoFrame:', e);
+5118: await stopClipRecording();
+5126: startClipRecording();
+5157: await stopClipRecording();
+5193: stopClipRecording();
+6945: clipRecorderRef.current.stop();
+6951: clipStreamRef.current.getTracks().forEach((track) => track.stop());
+
+
+========================================
+
+
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx ===
+4759: const startClipRecording = () => {
+4763: console.warn('Cannot start video recording: canvas not found');
+4771: clipStreamRef.current.getTracks().forEach((track) => track.stop());
+4810: console.warn('Failed to start video recording:', e);
+4814: const stopClipRecording = () => {
+4856: await stopClipRecording();
+4867: videoBlob = await stopClipRecording();
+4869: console.error('Error stopping clip recording in captureGuestPhotoFrame:', e);
+5008: await stopClipRecording();
+5016: startClipRecording();
+5047: await stopClipRecording();
+5082: stopClipRecording();
+6709: clipRecorderRef.current.stop();
+6715: clipStreamRef.current.getTracks().forEach((track) => track.stop());

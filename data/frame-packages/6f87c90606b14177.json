@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "6a01b5a37c981.png",
+  "frameWidth": 724,
+  "frameHeight": 2172,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 74,
+          "y": 271
+        },
+        {
+          "x": 649,
+          "y": 271
+        },
+        {
+          "x": 649,
+          "y": 634
+        },
+        {
+          "x": 74,
+          "y": 634
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 74,
+          "y": 648
+        },
+        {
+          "x": 649,
+          "y": 648
+        },
+        {
+          "x": 649,
+          "y": 1012
+        },
+        {
+          "x": 74,
+          "y": 1012
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 74,
+          "y": 1025
+        },
+        {
+          "x": 649,
+          "y": 1025
+        },
+        {
+          "x": 649,
+          "y": 1389
+        },
+        {
+          "x": 74,
+          "y": 1389
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 74,
+          "y": 1403
+        },
+        {
+          "x": 649,
+          "y": 1403
+        },
+        {
+          "x": 649,
+          "y": 1766
+        },
+        {
+          "x": 74,
+          "y": 1766
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-05-26T07:04:21.646Z",
+  "savedAt": "2026-05-26T07:04:21.651Z"
+}

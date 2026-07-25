@@ -1,0 +1,178 @@
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx (lines 4755-4837) ===
+4755:       }
+4756:     }
+4757:   };
+4758: 
+4759:   const startClipRecording = () => {
+4760:     try {
+4761:       const canvas = beautyCameraRef.current?.getCanvas();
+4762:       if (!canvas) {
+4763:         console.warn('Cannot start video recording: canvas not found');
+4764:         return;
+4765:       }
+4766: 
+4767:       // Reset stream if the canvas element changed (due to unmounting/remounting between sessions)
+4768:       if (clipCanvasRef.current !== canvas) {
+4769:         if (clipStreamRef.current) {
+4770:           try {
+4771:             clipStreamRef.current.getTracks().forEach((track) => track.stop());
+4772:           } catch (err) {}
+4773:         }
+4774:         clipCanvasRef.current = canvas;
+4775:         clipStreamRef.current = null;
+4776:       }
+4777: 
+4778:       // Always reuse the same captureStream within the same session. DO NOT stop tracks between photos!
+4779:       if (!clipStreamRef.current) {
+4780:         clipStreamRef.current = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
+4781:       }
+4782:       const stream = clipStreamRef.current;
+4783: 
+4784:       // Prioritize stable VP8 codec at 6 Mbps for software-encoding safety and low resource usage
+4785:       let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 6000000 };
+4786:       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+4787:         options = { mimeType: 'video/webm', videoBitsPerSecond: 6000000 };
+4788:       }
+4789:       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+4790:         options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 6000000 };
+4791:       }
+4792:       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+4793:         options = { mimeType: 'video/mp4', videoBitsPerSecond: 6000000 };
+4794:       }
+4795: 
+4796:       const chunks = [];
+4797:       const recorder = new MediaRecorder(stream, options);
+4798:       recorder.ondataavailable = (e) => {
+4799:         if (e.data && e.data.size > 0) {
+4800:           chunks.push(e.data);
+4801:         }
+4802:       };
+4803:       recorder.onerror = (e) => {
+4804:         console.error('MediaRecorder error in clip recording:', e);
+4805:       };
+4806:       recorder.start();
+4807:       clipRecorderRef.current = { recorder, chunks };
+4808:       console.log('Started clip recording with options:', options.mimeType);
+4809:     } catch (e) {
+4810:       console.warn('Failed to start video recording:', e);
+4811:     }
+4812:   };
+4813: 
+4814:   const stopClipRecording = () => {
+4815:     return new Promise((resolve) => {
+4816:       const active = clipRecorderRef.current;
+4817:       if (!active || !active.recorder || active.recorder.state === 'inactive') {
+4818:         resolve(null);
+4819:         return;
+4820:       }
+4821:       const { recorder, chunks } = active;
+4822:       recorder.onstop = () => {
+4823:         const mimeType = recorder.mimeType || 'video/webm';
+4824:         const blob = new Blob(chunks, { type: mimeType });
+4825:         console.log('Stopped clip recording, blob size:', blob.size);
+4826:         resolve(blob);
+4827:       };
+4828:       try {
+4829:         recorder.stop();
+4830:       } catch (err) {
+4831:         console.warn('Error while calling recorder.stop():', err);
+4832:         resolve(null);
+4833:       }
+4834:       clipRecorderRef.current = null;
+4835:     });
+4836:   };
+4837: 
+
+
+========================================
+
+
+=== d:/my-photobooth/src/App.jsx (lines 4820-4907) ===
+4820:         guestAiAnalysisStartedRef.current = true;
+4821:         runGuestAiAnalysis(nextPhotos.slice(0, GUEST_CAPTURE_TARGET));
+4822:       }
+4823:     }
+4824:   };
+4825: 
+4826:   const startClipRecording = () => {
+4827:     try {
+4828:       const canvas = beautyCameraRef.current?.getRecordingCanvas() || beautyCameraRef.current?.getCanvas();
+4829:       if (!canvas) {
+4830:         console.warn('Cannot start video recording: canvas not found');
+4831:         return;
+4832:       }
+4833: 
+4834:       // Reset stream if the canvas element changed (due to unmounting/remounting between sessions)
+4835:       if (clipCanvasRef.current !== canvas) {
+4836:         if (clipStreamRef.current) {
+4837:           try {
+4838:             clipStreamRef.current.getTracks().forEach((track) => track.stop());
+4839:           } catch (err) {}
+4840:         }
+4841:         clipCanvasRef.current = canvas;
+4842:         clipStreamRef.current = null;
+4843:       }
+4844: 
+4845:       // Always reuse the same captureStream within the same session. DO NOT stop tracks between photos!
+4846:       if (!clipStreamRef.current) {
+4847:         clipStreamRef.current = canvas.captureStream ? canvas.captureStream(45) : canvas.mozCaptureStream(45);
+4848:       }
+4849:       const stream = clipStreamRef.current;
+4850: 
+4851:       // Prioritize stable VP8 codec at 2.5 Mbps for software-encoding safety and low resource usage
+4852:       let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 2500000 };
+4853:       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+4854:         options = { mimeType: 'video/webm', videoBitsPerSecond: 2500000 };
+4855:       }
+4856:       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+4857:         options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 };
+4858:       }
+4859:       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+4860:         options = { mimeType: 'video/mp4', videoBitsPerSecond: 2500000 };
+4861:       }
+4862: 
+4863:       const chunks = [];
+4864:       const recorder = new MediaRecorder(stream, options);
+4865:       recorder.ondataavailable = (e) => {
+4866:         if (e.data && e.data.size > 0) {
+4867:           chunks.push(e.data);
+4868:         }
+4869:       };
+4870:       recorder.onerror = (e) => {
+4871:         console.error('MediaRecorder error in clip recording:', e);
+4872:       };
+4873:       recorder.start();
+4874:       clipRecorderRef.current = { recorder, chunks };
+4875:       console.log('Started clip recording with options:', options.mimeType);
+4876:     } catch (e) {
+4877:       console.warn('Failed to start video recording:', e);
+4878:     }
+4879:   };
+4880: 
+4881:   const stopClipRecording = () => {
+4882:     try {
+4883:       beautyCameraRef.current?.stopRecording();
+4884:     } catch (e) {}
+4885:     return new Promise((resolve) => {
+4886:       const active = clipRecorderRef.current;
+4887:       if (!active || !active.recorder || active.recorder.state === 'inactive') {
+4888:         resolve(null);
+4889:         return;
+4890:       }
+4891:       const { recorder, chunks } = active;
+4892:       recorder.onstop = () => {
+4893:         const mimeType = recorder.mimeType || 'video/webm';
+4894:         const blob = new Blob(chunks, { type: mimeType });
+4895:         console.log('Stopped clip recording, blob size:', blob.size);
+4896:         resolve(blob);
+4897:       };
+4898:       try {
+4899:         recorder.stop();
+4900:       } catch (err) {
+4901:         console.warn('Error while calling recorder.stop():', err);
+4902:         resolve(null);
+4903:       }
+4904:       clipRecorderRef.current = null;
+4905:     });
+4906:   };
+4907: 

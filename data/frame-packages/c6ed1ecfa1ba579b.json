@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Hồng xinh baby",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 81,
+          "y": 97
+        },
+        {
+          "x": 797,
+          "y": 97
+        },
+        {
+          "x": 797,
+          "y": 651
+        },
+        {
+          "x": 81,
+          "y": 651
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 67,
+          "y": 705
+        },
+        {
+          "x": 704,
+          "y": 705
+        },
+        {
+          "x": 704,
+          "y": 1229
+        },
+        {
+          "x": 67,
+          "y": 1229
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 89,
+          "y": 1319
+        },
+        {
+          "x": 800,
+          "y": 1319
+        },
+        {
+          "x": 800,
+          "y": 1845
+        },
+        {
+          "x": 89,
+          "y": 1845
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 96,
+          "y": 1936
+        },
+        {
+          "x": 784,
+          "y": 1936
+        },
+        {
+          "x": 784,
+          "y": 2389
+        },
+        {
+          "x": 96,
+          "y": 2389
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-13T06:45:24.538Z",
+  "savedAt": "2026-06-13T06:45:24.539Z"
+}

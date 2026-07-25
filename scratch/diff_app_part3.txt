@@ -1,0 +1,300 @@
+600: 
+601: -      // Render the video composition sequentially for each draft frame to prevent hardware decoder congestion
+602: -      const frameVideos = [];
+603: -      for (let index = 0; index < draftsForPrint.length; index++) {
+604: -        const draft = draftsForPrint[index];
+605: -        try {
+606: -          setGuestShareStatus(`Đang tạo video chuyển động cho khung ${index + 1}/${draftsForPrint.length}...`);
+607: -          const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
+608: -          if (videoBlob) {
+609: -            const dataUrl = await blobToDataUrl(videoBlob);
+610: -            const mimeType = videoBlob.type || 'video/webm';
+611: -            const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+612: -            frameVideos.push({ dataUrl, mimeType, ext });
+613: -          } else {
+614: -            frameVideos.push(null);
+615: -          }
+616: -        } catch (e) {
+617: -          console.error(`Error rendering video composition for draft index ${index}:`, e);
+618: -          frameVideos.push(null);
+619: -        }
+620: -      }
+621: +      const hasVideos = draftsForPrint.some(draft => {
+622: +        return (draft.slotEdits || []).some(edit => {
+623: +          if (edit.videoBlob) return true;
+624: +          const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+625: +          return photo && photo.videoBlob;
+626: +        });
+627: +      });
+628: 
+629: const outputMeta = {
+630: @@ -6323,16 +6514,24 @@
+631: setGuestPreviewUrl(outputUrl);
+632: setGuestOutputMeta(outputMeta);
+633: -      setGuestShare(null);
+634: -      setGuestQrUrl('');
+635: -      setGuestNotice('');
+636: -      commitGuestStep('adjust');
+637: -      goToGuestStep('result');
+638: setGuestTransitionPrompt(null);
+639: -      setIsGeneratingGuestResult(false);
+640: -
+641: +
+642: +      // Trigger print job immediately in parallel
+643: +      setGuestResultProgress(prev => ({ ...prev, printStatus: 'sending' }));
+644: +      const printJobPromise = sendGuestPrintJob(outputUrl, { sessionId }).then((success) => {
+645: +        setGuestResultProgress(prev => ({ ...prev, printStatus: success ? 'success' : 'error' }));
+646: +        return success;
+647: +      }).catch(() => {
+648: +        setGuestResultProgress(prev => ({ ...prev, printStatus: 'error' }));
+649: +        return false;
+650: +      });
+651: +
+652: +      // Update step to Generating QR
+653: +      setGuestResultProgress(prev => ({ ...prev, step: 'generating_qr' }));
+654: setGuestShareStatus('Đang tạo mã QR tải ảnh…');
+655: -
+656: -      // Chuyển đổi video của ảnh chụp thành Data URL song song
+657: +
+658: +      // Convert captured photos to dataUrls and video blobs to dataUrl
+659: const capturedPhotosForSave = await Promise.all(capturedPhotos.map(async (photo) => {
+660: +        const base64Url = await urlToDataUrl(photo.url);
+661: +        const updatedPhoto = { ...photo, url: base64Url };
+662: if (photo.videoBlob) {
+663: try {
+664: @@ -6340,11 +6539,8 @@
+665: const mimeType = photo.videoBlob.type || 'video/webm';
+666: const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+667: -            return {
+668: -              ...photo,
+669: -              video: {
+670: -                dataUrl: videoDataUrl,
+671: -                mimeType,
+672: -                ext,
+673: -              }
+674: +            updatedPhoto.video = {
+675: +              dataUrl: videoDataUrl,
+676: +              mimeType,
+677: +              ext,
+678: };
+679: } catch (e) {
+680: @@ -6352,18 +6548,35 @@
+681: }
+682: }
+683: -        return photo;
+684: +        return updatedPhoto;
+685: }));
+686: 
+687: -      const sharePayload = createGuestOutputPayload({
+688: +      if (sessionId !== guestSessionIdRef.current) return;
+689: +
+690: +      // Create initial payload using the optimized JPEG URL to save network usage
+691: +      const initialSharePayload = createGuestOutputPayload({
+692: printDataUrl: sharePrintJpegUrl,
+693: -        printPngDataUrl: outputUrl,
+694: +        printPngDataUrl: sharePrintJpegUrl, // Optimized from outputUrl to JPEG
+695: frameCanvases,
+696: draftsForPrint,
+697: -        capturedPhotosForSave,
+698: +        capturedPhotosForSave, // Send captures with their video data URLs immediately!
+699: outputMeta,
+700: -        frameVideos,
+701: +        frameVideos: [], // Do not send frame videos (server will generate them in background)
+702: +        hasPendingVideos: hasVideos, // Tell guest page if videos are pending
+703: });
+704: -      const shareData = await saveGuestOutputToServer(sharePayload);
+705: +
+706: +      const shareData = await saveGuestOutputToServer(initialSharePayload);
+707: if (sessionId !== guestSessionIdRef.current) return;
+708: +
+709: +      // Start browser-side rendering and await its completion if has videos
+710: +      if (hasVideos && shareData?.id) {
+711: +        setGuestResultProgress(prev => ({
+712: +          ...prev,
+713: +          step: 'rendering_video',
+714: +          videoIndex: 0,
+715: +          videoTotal: draftsForPrint.length
+716: +        }));
+717: +        await startBrowserSideVideoComposition(draftsForPrint, shareData.id);
+718: +      }
+719: +
+720: const shareUrl = resolveGuestShareUrl(shareData);
+721: if (shareUrl) {
+722: @@ -6398,5 +6611,7 @@
+723: }
+724: 
+725: -      await sendGuestPrintJob(outputUrl, { sessionId });
+726: +      // Wait for print job to complete
+727: +      await printJobPromise;
+728: +      setGuestResultProgress(prev => ({ ...prev, step: 'completed' }));
+729: } catch (error) {
+730: console.error('Không thể hoàn tất chỉnh sửa:', error);
+731: @@ -6419,4 +6634,10 @@
+732: const sessionId = guestSessionIdRef.current;
+733: setIsGeneratingGuestResult(true);
+734: +    setGuestResultProgress({
+735: +      step: 'rendering_image',
+736: +      videoIndex: 0,
+737: +      videoTotal: 0,
+738: +      printStatus: 'waiting',
+739: +    });
+740: setGuestShareStatus('');
+741: setGuestPrintStatus('');
+742: @@ -6427,4 +6648,5 @@
+743: setGuestQrUrl('');
+744: setGuestNotice('');
+745: +    goToGuestStep('result');
+746: 
+747: try {
+748: @@ -6536,14 +6758,25 @@
+749: setGuestPreviewUrl(sheetPngUrl);
+750: setGuestOutputMeta(outputMeta);
+751: -      setGuestShare(null);
+752: -      setGuestQrUrl('');
+753: -      setGuestNotice('');
+754: commitGuestStep('select');
+755: -      goToGuestStep('result');
+756: setGuestTransitionPrompt(null);
+757: -      setIsGeneratingGuestResult(false);
+758: +
+759: +      // Trigger print job immediately in parallel if print service is active
+760: +      let printJobPromise = Promise.resolve(true);
+761: +      if (idPhotoService === 'print') {
+762: +        setGuestResultProgress(prev => ({ ...prev, printStatus: 'sending' }));
+763: +        printJobPromise = sendGuestPrintJob(sheetPngUrl, { sessionId }).then((success) => {
+764: +          setGuestResultProgress(prev => ({ ...prev, printStatus: success ? 'success' : 'error' }));
+765: +          return success;
+766: +        }).catch(() => {
+767: +          setGuestResultProgress(prev => ({ ...prev, printStatus: 'error' }));
+768: +          return false;
+769: +        });
+770: +      }
+771: +
+772: +      // Update progress to Generating QR
+773: +      setGuestResultProgress(prev => ({ ...prev, step: 'generating_qr' }));
+774: +      setGuestShareStatus('Đang tạo mã QR tải ảnh…');
+775: 
+776: // Upload payload
+777: -      setGuestShareStatus('Đang tạo mã QR tải ảnh…');
+778: const sharePayload = {
+779: schema: GUEST_OUTPUT_SCHEMA,
+780: @@ -6565,10 +6798,13 @@
+781: }
+782: ],
+783: -        captures: capturedPhotos.map((photo, index) => ({
+784: -          dataUrl: photo.url,
+785: -          label: `Ảnh chụp ${index + 1}`,
+786: -          fileName: `anh-the-anh-chup-${index + 1}.png`,
+787: -          capturedAt: photo.capturedAt || '',
+788: -          sourceId: photo.id || '',
+789: +        captures: await Promise.all(capturedPhotos.map(async (photo, index) => {
+790: +          const base64Url = await urlToDataUrl(photo.url);
+791: +          return {
+792: +            dataUrl: base64Url,
+793: +            label: `Ảnh chụp ${index + 1}`,
+794: +            fileName: `anh-the-anh-chup-${index + 1}.png`,
+795: +            capturedAt: photo.capturedAt || '',
+796: +            sourceId: photo.id || '',
+797: +          };
+798: })),
+799: meta: outputMeta,
+800: @@ -6610,12 +6846,12 @@
+801: }
+802: 
+803: -      // ONLY print if idPhotoService is 'print'
+804: +      // Wait for print job to complete and clean up
+805: if (idPhotoService === 'print') {
+806: -        await sendGuestPrintJob(sheetPngUrl, { sessionId });
+807: +        await printJobPromise;
+808: } else {
+809: setGuestPrintStatus(`Chỉ lấy file - Không in. Phiên mới sẽ bắt đầu sau ${GUEST_AUTO_NEW_SESSION_SECONDS} giây.`);
+810: startGuestNewSessionCountdown();
+811: }
+812: -
+813: +      setGuestResultProgress(prev => ({ ...prev, step: 'completed' }));
+814: } catch (error) {
+815: console.error('Không thể tạo ảnh thẻ:', error);
+816: @@ -6867,42 +7103,60 @@
+817: latestGuestTimedStepSecondsLeftRef.current = guestTimedStepSecondsLeft;
+818: 
+819: -  // Broadcast Kiosk state changes & receive dashboard remote control commands
+820: -  useEffect(() => {
+821: -    if (isPartnerMode || isDashboardMode) return undefined;
+822: -
+823: -    const channel = new BroadcastChannel('photobooth-channel');
+824: -
+825: -    const sendStateUpdate = () => {
+826: -      const statePayload = {
+827: -        guestStep,
+828: -        visibleGuestStep,
+829: -        boothMode,
+830: -        isModeSelected,
+831: -        idPhotoService,
+832: -        capturedPhotosCount: capturedPhotos.length,
+833: -        capturedPhotos: capturedPhotos.map((p) => ({ id: p.id, name: p.name, url: p.url })),
+834: -        maxGuestPhotos,
+835: -        minGuestPhotosToContinue,
+836: -        captureCountdown,
+837: -        captureSessionSecondsLeft,
+838: -        nextCaptureSecondsLeft,
+839: -        isLockedCaptureRunning,
+840: -        flashActive,
+841: -        guestNotice,
+842: -        isGuestPrinting,
+843: -        guestPrintStatus,
+844: -        guestPrintFallbackAvailable,
+845: -        guestQrUrl,
+846: -        guestPreviewUrl,
+847: -        isKioskFullscreenActive,
+848: -        selectedFrame: selectedFrame ? { name: selectedFrame.name, width: selectedFrame.width, height: selectedFrame.height } : null,
+849: -        activeBeautyPresetId,
+850: -        beautyFilterSettings,
+851: -      };
+852: -
+853: -      // BroadcastChannel (same-profile communication)
+854: +  const triggerManualCapture = async () => {
+855: +    if (captureBusyRef.current || capturedPhotosCountRef.current >= maxGuestPhotos) return;
+856: +    if (captureCancelTriggerRef.current) {
+857: +      captureCancelTriggerRef.current();
+858: +    }
+859: +    const didCapture = await captureGuestPhotoFrame();
+860: +    if (didCapture && capturedPhotosCountRef.current < maxGuestPhotos) {
+861: +      setCaptureCycleIndex((prev) => prev + 1);
+862: +    }
+863: +  };
+864: +
+865: +  // Helper to send state updates over BroadcastChannel and (throttled) HTTP relay
+866: +  const sendStateUpdate = useCallback(() => {
+867: +    if (isPartnerMode || isDashboardMode) return;
+868: +
+869: +    const statePayload = {
+870: +      guestStep,
+871: +      visibleGuestStep,
+872: +      boothMode,
+873: +      isModeSelected,
+874: +      idPhotoService,
+875: +      capturedPhotosCount: capturedPhotos.length,
+876: +      capturedPhotos: capturedPhotos.map((p) => ({ id: p.id, name: p.name, url: p.url })),
+877: +      maxGuestPhotos,
+878: +      minGuestPhotosToContinue,
+879: +      captureCountdown,
+880: +      captureSessionSecondsLeft,
+881: +      nextCaptureSecondsLeft,
+882: +      isLockedCaptureRunning,
+883: +      flashActive,
+884: +      guestNotice,
+885: +      isGuestPrinting,
+886: +      guestPrintStatus,
+887: +      guestPrintFallbackAvailable,
+888: +      guestQrUrl,
+889: +      guestPreviewUrl,
+890: +      isKioskFullscreenActive,
+891: +      selectedFrame: selectedFrame ? { name: selectedFrame.name, width: selectedFrame.width, height: selectedFrame.height } : null,
+892: +      activeBeautyPresetId,
+893: +      beautyFilterSettings,
+894: +    };
+895: +
+896: +    // BroadcastChannel is in-memory and super fast
+897: +    try {
+898: +      const channel = new BroadcastChannel('photobooth-channel');
+899: channel.postMessage({ type: 'STATE_UPDATE', state: statePayload });

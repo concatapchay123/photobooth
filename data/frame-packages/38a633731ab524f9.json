@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "App love",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "none",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 64
+        },
+        {
+          "x": 826,
+          "y": 64
+        },
+        {
+          "x": 826,
+          "y": 629
+        },
+        {
+          "x": 55,
+          "y": 629
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 676
+        },
+        {
+          "x": 826,
+          "y": 676
+        },
+        {
+          "x": 826,
+          "y": 1241
+        },
+        {
+          "x": 55,
+          "y": 1241
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 56,
+          "y": 1289
+        },
+        {
+          "x": 827,
+          "y": 1289
+        },
+        {
+          "x": 827,
+          "y": 1853
+        },
+        {
+          "x": 56,
+          "y": 1853
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 1901
+        },
+        {
+          "x": 826,
+          "y": 1901
+        },
+        {
+          "x": 826,
+          "y": 2465
+        },
+        {
+          "x": 55,
+          "y": 2465
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-28T05:42:59.205Z",
+  "savedAt": "2026-06-28T05:42:59.206Z"
+}

@@ -1,0 +1,301 @@
+Total lines in diff: 1562
+0: --- d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx
+1: +++ d:/my-photobooth/src/App.jsx
+2: @@ -415,4 +415,22 @@
+3: const PREFERRED_CAMERA_STORAGE_KEY = 'preferredCameraId';
+4: 
+5: +const urlToDataUrl = async (url) => {
+6: +  if (!url || url.startsWith('data:')) return url;
+7: +  try {
+8: +    const res = await fetch(url);
+9: +    if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+10: +    const blob = await res.blob();
+11: +    return new Promise((resolve, reject) => {
+12: +      const reader = new FileReader();
+13: +      reader.onloadend = () => resolve(reader.result);
+14: +      reader.onerror = () => reject(new Error('FileReader error'));
+15: +      reader.readAsDataURL(blob);
+16: +    });
+17: +  } catch (e) {
+18: +    console.error(`Failed to convert url to dataUrl: ${url}`, e);
+19: +    return url;
+20: +  }
+21: +};
+22: +
+23: const createLowResPreview = (dataUrl, maxDimension = 640) => {
+24: return new Promise((resolve) => {
+25: @@ -480,4 +498,5 @@
+26: width: { ideal: 1920 },
+27: height: { ideal: 1440 },
+28: +  frameRate: { ideal: 60, min: 30 }
+29: };
+30: 
+31: @@ -918,5 +937,5 @@
+32: const maxScale = Math.max(minScale, next.baseScale * 6);
+33: const requestedScale = Number.isFinite(next.scale) ? next.scale : next.baseScale;
+34: -  const scale = clampValue(requestedScale, minScale, maxScale);
+35: +  const scale = clampValue(requestedScale, minScale * 0.05, maxScale);
+36: const drawW = next.naturalWidth * scale;
+37: const drawH = next.naturalHeight * scale;
+38: @@ -1258,4 +1277,6 @@
+39: canvas.height = dimensions.height;
+40: const ctx = canvas.getContext('2d', { willReadFrequently: true });
+41: +  ctx.imageSmoothingEnabled = true;
+42: +  ctx.imageSmoothingQuality = 'high';
+43: ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
+44: return canvas;
+45: @@ -1355,52 +1376,41 @@
+46: canvas.height = PRINT_SHEET.height;
+47: const ctx = canvas.getContext('2d');
+48: +
+49: +  // Điền nền trắng
+50: ctx.fillStyle = '#ffffff';
+51: ctx.fillRect(0, 0, canvas.width, canvas.height);
+52: 
+53: -  const gap = PRINT_CUT_GAP;
+54: -  const itemsSource = [...frameCanvases];
+55: -  if (itemsSource.length === 1) {
+56: -    itemsSource.push(itemsSource[0]);
+57: +  if (!frameCanvases || !frameCanvases.length) return canvas;
+58: +
+59: +  const firstCanvas = frameCanvases[0];
+60: +  if (!firstCanvas) return canvas;
+61: +
+62: +  const aspect = firstCanvas.width / firstCanvas.height;
+63: +  const isStrip = aspect < 0.5;
+64: +
+65: +  // Hàm vẽ phủ kín (Cover Fit) bảo toàn tỉ lệ hình ảnh gốc, không bị co giãn méo hình
+66: +  const drawImageCover = (source, dx, dy, dWidth, dHeight) => {
+67: +    const scale = Math.max(dWidth / source.width, dHeight / source.height);
+68: +    const w = Math.round(source.width * scale);
+69: +    const h = Math.round(source.height * scale);
+70: +    const x = Math.round(dx + (dWidth - w) / 2);
+71: +    const y = Math.round(dy + (dHeight - h) / 2);
+72: +    ctx.drawImage(source, 0, 0, source.width, source.height, x, y, w, h);
+73: +  };
+74: +
+75: +  if (isStrip) {
+76: +    // Khung dạng dải ảnh (2x6 strip): nhân đôi và xếp cạnh nhau chiếm đúng 50% chiều ngang mỗi bên
+77: +    const halfWidth = canvas.width / 2;
+78: +
+79: +    // Vẽ dải bên trái
+80: +    drawImageCover(firstCanvas, 0, 0, halfWidth, canvas.height);
+81: +
+82: +    // Vẽ dải bên phải (sử dụng dải thứ 2 nếu có, hoặc nhân bản dải thứ nhất)
+83: +    const secondCanvas = frameCanvases[1] || firstCanvas;
+84: +    drawImageCover(secondCanvas, halfWidth, 0, halfWidth, canvas.height);
+85: +  } else {
+86: +    // Khung dạng thẻ đơn (4x6 card hoặc tấm ảnh thẻ): in một bản duy nhất phủ kín toàn bộ tờ 10x15cm
+87: +    drawImageCover(firstCanvas, 0, 0, canvas.width, canvas.height);
+88: }
+89: -  const items = itemsSource
+90: -    .slice(0, 2)
+91: -    .flatMap((frameCanvas) => (frameCanvas ? [{
+92: -      frameCanvas,
+93: -      bounds: getCanvasContentBounds(frameCanvas),
+94: -    }] : []));
+95: -
+96: -  if (!items.length) return canvas;
+97: -
+98: -  const availableWidth = canvas.width - PRINT_EDGE_PADDING * 2 - gap * Math.max(0, items.length - 1);
+99: -  const availableHeight = canvas.height - PRINT_EDGE_PADDING * 2;
+100: -  const sourceWidth = items.reduce((total, item) => total + item.bounds.width, 0);
+101: -  const sourceHeight = Math.max(...items.map((item) => item.bounds.height));
+102: -  const scale = Math.min(
+103: -    availableWidth / Math.max(1, sourceWidth),
+104: -    availableHeight / Math.max(1, sourceHeight),
+105: -  );
+106: -  const drawItems = items.map((item) => ({
+107: -    ...item,
+108: -    width: Math.max(1, Math.round(item.bounds.width * scale)),
+109: -    height: Math.max(1, Math.round(item.bounds.height * scale)),
+110: -  }));
+111: -  const totalWidth = drawItems.reduce((total, item) => total + item.width, 0) + gap * Math.max(0, drawItems.length - 1);
+112: -  let x = Math.round((canvas.width - totalWidth) / 2);
+113: -
+114: -  drawItems.forEach((item, index) => {
+115: -    const y = Math.round((canvas.height - item.height) / 2);
+116: -    ctx.drawImage(
+117: -      item.frameCanvas,
+118: -      item.bounds.x,
+119: -      item.bounds.y,
+120: -      item.bounds.width,
+121: -      item.bounds.height,
+122: -      x,
+123: -      y,
+124: -      item.width,
+125: -      item.height,
+126: -    );
+127: -    x += item.width + (index < drawItems.length - 1 ? gap : 0);
+128: -  });
+129: 
+130: return canvas;
+131: @@ -1852,5 +1862,5 @@
+132: };
+133: 
+134: -const createGuestOutputPayload = ({ printDataUrl, printPngDataUrl = '', frameCanvases, draftsForPrint, capturedPhotosForSave = [], outputMeta, frameVideos = [] }) => {
+135: +const createGuestOutputPayload = ({ printDataUrl, printPngDataUrl = '', frameCanvases, draftsForPrint, capturedPhotosForSave = [], outputMeta, frameVideos = [], hasPendingVideos = false }) => {
+136: const frameNames = Array.isArray(outputMeta?.frameNames) && outputMeta.frameNames.length > 0
+137: ? outputMeta.frameNames
+138: @@ -1861,4 +1871,5 @@
+139: title: 'Ảnh photobooth của bạn',
+140: createdAt: outputMeta?.createdAt || new Date().toISOString(),
+141: +    hasPendingVideos,
+142: print: {
+143: dataUrl: printDataUrl,
+144: @@ -1870,7 +1881,8 @@
+145: },
+146: frames: frameCanvases.map((canvas, index) => {
+147: +      const jpegUrl = canvas.toDataURL('image/jpeg', 0.97);
+148: const frameData = {
+149: -        dataUrl: canvas.toDataURL('image/jpeg', 0.95),
+150: -        pngDataUrl: canvas.toDataURL('image/png'),
+151: +        dataUrl: jpegUrl,
+152: +        pngDataUrl: jpegUrl, // Optimized to JPEG to reduce upload payload and encoding time
+153: label: `Khung ${index + 1}`,
+154: frameName: draftsForPrint[index]?.frame?.name || '',
+155: @@ -2249,6 +2261,14 @@
+156: const [cameraError, setCameraError] = useState('');
+157: const [showDslrGuide, setShowDslrGuide] = useState(false);
+158: +  const [useDslrCapture, setUseDslrCapture] = useState(() => localStorage.getItem('useDslrCapture') === 'true');
+159: +
+160: +  useEffect(() => {
+161: +    localStorage.setItem('useDslrCapture', useDslrCapture);
+162: +  }, [useDslrCapture]);
+163: 
+164: const reconnectAttemptsRef = useRef(0);
+165: +  const lastStateSendTimeRef = useRef(0);
+166: +  const sendStateUpdateRef = useRef(null);
+167: +  const handleMessageRef = useRef(null);
+168: const reconnectTimeoutRef = useRef(null);
+169: const reconnectIntervalIdRef = useRef(null);
+170: @@ -2260,4 +2280,6 @@
+171: const [nextCaptureSecondsLeft, setNextCaptureSecondsLeft] = useState(GUEST_CAPTURE_INTERVAL_SECONDS);
+172: const [isLockedCaptureRunning, setIsLockedCaptureRunning] = useState(false);
+173: +  const [captureCycleIndex, setCaptureCycleIndex] = useState(0);
+174: +  const captureCancelTriggerRef = useRef(null);
+175: const [flashActive, setFlashActive] = useState(false);
+176: const [guestNotice, setGuestNotice] = useState('');
+177: @@ -2309,4 +2331,10 @@
+178: const [adjustDrag, setAdjustDrag] = useState(null);
+179: const [isGeneratingGuestResult, setIsGeneratingGuestResult] = useState(false);
+180: +  const [guestResultProgress, setGuestResultProgress] = useState({
+181: +    step: 'idle', // 'idle' | 'rendering_image' | 'printing' | 'rendering_video' | 'generating_qr' | 'completed'
+182: +    videoIndex: 0,
+183: +    videoTotal: 0,
+184: +    printStatus: 'waiting', // 'waiting' | 'sending' | 'success' | 'error'
+185: +  });
+186: const [frameProfiles, setFrameProfiles] = useState({});
+187: const [guestPhotoProfiles, setGuestPhotoProfiles] = useState([]);
+188: @@ -2751,5 +2779,6 @@
+189: 
+190: useEffect(() => {
+191: -    if (guestStep !== 'capture' && guestStep !== 'hero' && cameraStream) {
+192: +    // Only stop the camera stream when returning to the welcome screen (hero)
+193: +    if (guestStep === 'hero' && cameraStream) {
+194: cameraStream.getTracks().forEach((track) => track.stop());
+195: setCameraStream(null);
+196: @@ -3739,4 +3768,38 @@
+197: };
+198: 
+199: +  const captureDslrPhotoHelper = async () => {
+200: +    const initRes = await fetch('/api/dslr/last-captured');
+201: +    if (!initRes.ok) throw new Error('digiCamControl web server is not running or unreachable');
+202: +    const initData = await initRes.json();
+203: +    const initialFile = initData.filename;
+204: +
+205: +    const captureRes = await fetch('/api/dslr/capture');
+206: +    if (!captureRes.ok) throw new Error('Failed to send capture command to digiCamControl');
+207: +
+208: +    const maxWaitMs = 15000;
+209: +    const pollIntervalMs = 1000;
+210: +    const startTime = Date.now();
+211: +
+212: +    // Initial wait before polling to let the camera trigger and write file
+213: +    await wait(1000);
+214: +
+215: +    while (Date.now() - startTime < maxWaitMs) {
+216: +      const pollRes = await fetch('/api/dslr/last-captured');
+217: +      if (!pollRes.ok) {
+218: +        await wait(pollIntervalMs);
+219: +        continue;
+220: +      }
+221: +      const pollData = await pollRes.json();
+222: +      const currentFile = pollData.filename;
+223: +
+224: +      if (currentFile && currentFile !== '-' && currentFile !== initialFile) {
+225: +        return `/api/dslr/image?file=${encodeURIComponent(currentFile)}`;
+226: +      }
+227: +      await wait(pollIntervalMs);
+228: +    }
+229: +
+230: +    throw new Error('Timeout waiting for DSLR capture to complete');
+231: +  };
+232: +
+233: const renderFrameOverlayCanvas = (zonesForRender) => {
+234: if (!originalImgRef.current || frameDimensions.width === 0 || frameDimensions.height === 0) return null;
+235: @@ -4227,5 +4290,9 @@
+236: 
+237: const handleCameraDisconnect = ({ allowFallback = true } = {}) => {
+238: -    if (capturePausedRef.current) return;
+239: +    // Ignore disconnects during active guest capture session or capture action to avoid laggy webcam fallback switching
+240: +    if (capturePausedRef.current || isLockedCaptureRunning || captureBusyRef.current) {
+241: +      console.log('Camera disconnect ignored: capture session or command in progress.');
+242: +      return;
+243: +    }
+244: 
+245: setIsCameraReconnecting(true);
+246: @@ -4718,5 +4785,5 @@
+247: try {
+248: const prompt = `Analyze each guest photo and return one JSON object only. Schema: {"photos":[{"dominantColors":[{"hex":"#ffffff","tag":"white","weight":50}],"paletteTags":["bright"],"lighting":{"brightness":0,"contrast":0,"saturation":0,"warmth":0,"coolness":0},"vibes":["cute"],"concepts":["portrait"],"events":[],"scores":{"cute":0,"romantic":0,"vintage":0,"fantasy":0,"elegant":0,"minimal":0,"pastel":0,"energetic":0,"luxury":0,"fresh":0,"warm":0,"cool":0},"qualityWeight":0.8}]}. Use English tags only. Scores are integers 0-100. No markdown.`;
+249: -      const aiResult = await callVisionProfileAi({ images: photosForAi.map((photo) => photo.url), prompt });
+250: +      const aiResult = await callVisionProfileAi({ images: photosForAi.map((photo) => photo.previewUrl || photo.url), prompt });
+251: const aiProfiles = Array.isArray(aiResult?.photos)
+252: ? aiResult.photos.flatMap((item) => {
+253: @@ -4759,5 +4826,5 @@
+254: const startClipRecording = () => {
+255: try {
+256: -      const canvas = beautyCameraRef.current?.getCanvas();
+257: +      const canvas = beautyCameraRef.current?.getRecordingCanvas() || beautyCameraRef.current?.getCanvas();
+258: if (!canvas) {
+259: console.warn('Cannot start video recording: canvas not found');
+260: @@ -4778,18 +4845,18 @@
+261: // Always reuse the same captureStream within the same session. DO NOT stop tracks between photos!
+262: if (!clipStreamRef.current) {
+263: -        clipStreamRef.current = canvas.captureStream ? canvas.captureStream(30) : canvas.mozCaptureStream(30);
+264: +        clipStreamRef.current = canvas.captureStream ? canvas.captureStream(45) : canvas.mozCaptureStream(45);
+265: }
+266: const stream = clipStreamRef.current;
+267: 
+268: -      // Prioritize stable VP8 codec at 6 Mbps for software-encoding safety and low resource usage
+269: -      let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 6000000 };
+270: +      // Prioritize stable VP8 codec at 2.5 Mbps for software-encoding safety and low resource usage
+271: +      let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 2500000 };
+272: if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+273: -        options = { mimeType: 'video/webm', videoBitsPerSecond: 6000000 };
+274: +        options = { mimeType: 'video/webm', videoBitsPerSecond: 2500000 };
+275: }
+276: if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+277: -        options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 6000000 };
+278: +        options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 };
+279: }
+280: if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+281: -        options = { mimeType: 'video/mp4', videoBitsPerSecond: 6000000 };
+282: +        options = { mimeType: 'video/mp4', videoBitsPerSecond: 2500000 };
+283: }
+284: 
+285: @@ -4813,4 +4880,7 @@
+286: 
+287: const stopClipRecording = () => {
+288: +    try {
+289: +      beautyCameraRef.current?.stopRecording();
+290: +    } catch (e) {}
+291: return new Promise((resolve) => {
+292: const active = clipRecorderRef.current;
+293: @@ -4842,26 +4912,8 @@
+294: setGuestNotice('');
+295: 
+296: -    try {
+297: -      setCaptureCountdown('📸');
+298: -      playShutterSound();
+299: -      setFlashActive(true);

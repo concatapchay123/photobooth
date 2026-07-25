@@ -1,0 +1,21 @@
+4825: const captureGuestPhotoFrame = async (videoBlob = null) => {
+4865: videoBlob,
+5016: let videoBlob = null;
+5018: videoBlob = await stopClipRecording();
+5024: const didCapture = await captureGuestPhotoFrame(videoBlob);
+5536: videoBlob: capturedPhoto.videoBlob,
+5783: if (edit.videoBlob) return true;
+5785: return photo && photo.videoBlob;
+5819: let targetVideoBlob = edit.videoBlob;
+5821: if (!targetVideoBlob) {
+5824: targetVideoBlob = photo.videoBlob;
+5831: if (!targetVideoBlob) {
+5842: video.src = URL.createObjectURL(targetVideoBlob);
+6201: const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
+6202: if (videoBlob) {
+6203: const dataUrl = await blobToDataUrl(videoBlob);
+6204: const mimeType = videoBlob.type || 'video/webm';
+6253: if (photo.videoBlob) {
+6255: const videoDataUrl = await blobToDataUrl(photo.videoBlob);
+6256: const mimeType = photo.videoBlob.type || 'video/webm';
+6267: console.error('Error converting capture videoBlob to dataUrl:', e);

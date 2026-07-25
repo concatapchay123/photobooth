@@ -1,0 +1,151 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "68a98cd549993.png",
+  "frameWidth": 2750,
+  "frameHeight": 8281,
+  "frameType": "png",
+  "slotCount": 6,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 173,
+          "y": 140
+        },
+        {
+          "x": 2580,
+          "y": 140
+        },
+        {
+          "x": 2580,
+          "y": 1905
+        },
+        {
+          "x": 173,
+          "y": 1905
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 173,
+          "y": 2081
+        },
+        {
+          "x": 2504,
+          "y": 2081
+        },
+        {
+          "x": 2504,
+          "y": 3846
+        },
+        {
+          "x": 173,
+          "y": 3846
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 173,
+          "y": 2794
+        },
+        {
+          "x": 1230,
+          "y": 2794
+        },
+        {
+          "x": 1230,
+          "y": 3846
+        },
+        {
+          "x": 173,
+          "y": 3846
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 1785,
+          "y": 2716
+        },
+        {
+          "x": 2580,
+          "y": 2716
+        },
+        {
+          "x": 2580,
+          "y": 3846
+        },
+        {
+          "x": 1785,
+          "y": 3846
+        }
+      ]
+    },
+    {
+      "slotIndex": 4,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 173,
+          "y": 4022
+        },
+        {
+          "x": 2580,
+          "y": 4022
+        },
+        {
+          "x": 2580,
+          "y": 5787
+        },
+        {
+          "x": 173,
+          "y": 5787
+        }
+      ]
+    },
+    {
+      "slotIndex": 5,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 323,
+          "y": 5963
+        },
+        {
+          "x": 2492,
+          "y": 5963
+        },
+        {
+          "x": 2492,
+          "y": 7728
+        },
+        {
+          "x": 323,
+          "y": 7728
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-05-26T02:57:28.023Z",
+  "savedAt": "2026-05-26T02:57:28.027Z"
+}

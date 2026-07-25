@@ -1,0 +1,6 @@
+2026/06/02-09:31:02.312 1724 Reusing MANIFEST D:\my-photobooth\.kiosk-edge-dashboard-profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/06/02-09:31:02.313 1724 Recovering log #10
+2026/06/02-09:31:02.313 1724 Reusing old log D:\my-photobooth\.kiosk-edge-dashboard-profile\Default\EdgeCoupons/coupons_data.db/000010.log 
+2026/06/02-09:31:04.413 3fa0 Level-0 table #14: started
+2026/06/02-09:31:04.414 3fa0 Level-0 table #14: 682763 bytes OK
+2026/06/02-09:31:04.415 3fa0 Delete type=0 #10

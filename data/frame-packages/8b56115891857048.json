@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "Tròn vuông tam giác",
+  "frameWidth": 1200,
+  "frameHeight": 3600,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha-merged",
+      "points": [
+        {
+          "x": 75,
+          "y": 84
+        },
+        {
+          "x": 1121,
+          "y": 84
+        },
+        {
+          "x": 1121,
+          "y": 850
+        },
+        {
+          "x": 75,
+          "y": 850
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha-merged",
+      "points": [
+        {
+          "x": 78,
+          "y": 928
+        },
+        {
+          "x": 1118,
+          "y": 928
+        },
+        {
+          "x": 1118,
+          "y": 1688
+        },
+        {
+          "x": 78,
+          "y": 1688
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha-merged",
+      "points": [
+        {
+          "x": 75,
+          "y": 1766
+        },
+        {
+          "x": 1121,
+          "y": 1766
+        },
+        {
+          "x": 1121,
+          "y": 2532
+        },
+        {
+          "x": 75,
+          "y": 2532
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 75,
+          "y": 2607
+        },
+        {
+          "x": 1121,
+          "y": 2607
+        },
+        {
+          "x": 1121,
+          "y": 3372
+        },
+        {
+          "x": 75,
+          "y": 3372
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-28T10:54:35.320Z",
+  "savedAt": "2026-06-28T10:54:35.322Z"
+}

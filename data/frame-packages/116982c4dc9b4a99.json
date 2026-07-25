@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "42 - Nhạc Pop Nhẹ Tênh",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 53,
+          "y": 178
+        },
+        {
+          "x": 659,
+          "y": 178
+        },
+        {
+          "x": 659,
+          "y": 560
+        },
+        {
+          "x": 53,
+          "y": 560
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 59,
+          "y": 754
+        },
+        {
+          "x": 596,
+          "y": 754
+        },
+        {
+          "x": 596,
+          "y": 1186
+        },
+        {
+          "x": 59,
+          "y": 1186
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 50,
+          "y": 1412
+        },
+        {
+          "x": 577,
+          "y": 1412
+        },
+        {
+          "x": 577,
+          "y": 1816
+        },
+        {
+          "x": 50,
+          "y": 1816
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 111,
+          "y": 1987
+        },
+        {
+          "x": 670,
+          "y": 1987
+        },
+        {
+          "x": 670,
+          "y": 2411
+        },
+        {
+          "x": 111,
+          "y": 2411
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-10T05:33:07.137Z",
+  "savedAt": "2026-06-10T05:33:07.139Z"
+}

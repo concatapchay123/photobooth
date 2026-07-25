@@ -1,0 +1,76 @@
+=== d:/my-photobooth/backup/my-photobooth/my-photobooth/src/App.jsx (lines 4838-4912) ===
+4838:   const captureGuestPhotoFrame = async () => {
+4839:     if (captureBusyRef.current || capturedPhotosCountRef.current >= maxGuestPhotos || !cameraStreamRef.current) return false;
+4840:     captureBusyRef.current = true;
+4841:     setIsCapturingGuestPhoto(true);
+4842:     setGuestNotice('');
+4843: 
+4844:     try {
+4845:       setCaptureCountdown('📸');
+4846:       playShutterSound();
+4847:       setFlashActive(true);
+4848:       await wait(120);
+4849: 
+4850:       const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+4851:       const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+4852: 
+4853:       if (!rawCanvas) {
+4854:         if (boothMode === 'photobooth') {
+4855:           try {
+4856:             await stopClipRecording();
+4857:           } catch (e) {}
+4858:         }
+4859:         setGuestNotice('Camera đang trả về khung hình trống. Hãy kiểm tra nắp che camera/quyền camera rồi bấm chụp lại.');
+4860:         return false;
+4861:       }
+4862: 
+4863:       // Stop video recording right after we capture the rawCanvas frame so the video matches the snapshot moment exactly
+4864:       let videoBlob = null;
+4865:       if (boothMode === 'photobooth') {
+4866:         try {
+4867:           videoBlob = await stopClipRecording();
+4868:         } catch (e) {
+4869:           console.error('Error stopping clip recording in captureGuestPhotoFrame:', e);
+4870:         }
+4871:       }
+4872: 
+4873:       const rawDataUrl = rawCanvas.toDataURL('image/jpeg', 0.95);
+4874:       const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady()
+4875:         ? await beautyCameraRef.current.captureDataUrl('image/jpeg', 0.95)
+4876:         : null;
+4877:       let dataUrl = typeof filteredDataUrl === 'string' && filteredDataUrl.startsWith('data:')
+4878:         ? filteredDataUrl
+4879:         : rawDataUrl;
+4880: 
+4881:       if (boothMode === 'id_photo') {
+4882:         dataUrl = await cropDataUrlTo3x4(dataUrl);
+4883:       }
+4884: 
+4885:       const previewUrl = await createLowResPreview(dataUrl, 640);
+4886:       const photoIndex = capturedPhotosCountRef.current;
+4887:       const photo = {
+4888:         id: `capture-${Date.now()}-${photoIndex}`,
+4889:         url: dataUrl,
+4890:         previewUrl: previewUrl,
+4891:         name: `Ảnh ${photoIndex + 1}`,
+4892:         capturedAt: new Date().toISOString(),
+4893:         videoBlob,
+4894:       };
+4895:       capturedPhotosCountRef.current = Math.min(maxGuestPhotos, photoIndex + 1);
+4896: 
+4897:       setCapturedPhotos((prev) => {
+4898:         if (prev.length >= maxGuestPhotos) return prev;
+4899:         const nextPhotos = [...prev, photo];
+4900:         capturedPhotosCountRef.current = nextPhotos.length;
+4901:         analyzeGuestPhotoLocal(photo, nextPhotos);
+4902:         return nextPhotos;
+4903:       });
+4904:       setGuestPreviewUrl('');
+4905:       return true;
+4906:     } finally {
+4907:       setFlashActive(false);
+4908:       setIsCapturingGuestPhoto(false);
+4909:       captureBusyRef.current = false;
+4910:     }
+4911:   };
+4912: 

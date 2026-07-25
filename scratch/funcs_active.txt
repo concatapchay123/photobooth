@@ -1,0 +1,1495 @@
+77: const standardFrameAssetModules = import.meta.glob([
+87: const fallbackFrameAssetModules = import.meta.glob('../frames/*.{jpg,jpeg,png,JPG,JPEG,PNG}', {
+93: const frameAssetModules = { ...standardFrameAssetModules, ...fallbackFrameAssetModules };
+95: const formatGuestTimerTime = (seconds) => {
+96: const safeSeconds = Math.max(0, Math.floor((Number(seconds) || 0) + 0.001));
+97: const minutes = Math.floor(safeSeconds / 60);
+98: const remainingSeconds = safeSeconds % 60;
+102: function GuestTimerBadge({ active, secondsLeft, label = 'Còn lại' }) {
+115: const ADMIN_PIN_STORAGE_KEY = 'photobooth-admin-pin:v1';
+116: const DEFAULT_ADMIN_PIN = String(import.meta.env.VITE_PHOTOBOOTH_ADMIN_PIN || '2468').trim();
+117: const KIOSK_CONTROL_ORIGIN = String(import.meta.env.VITE_KIOSK_CONTROL_ORIGIN || '').trim().replace(/\/+$/, '');
+118: const ADMIN_UNLOCK_CLICK_COUNT = 5;
+119: const ADMIN_UNLOCK_CLICK_WINDOW_MS = 2500;
+121: const getStoredAdminPin = () => {
+129: const saveStoredAdminPin = (pin) => {
+137: const callKioskControl = async (path) => {
+140: const response = await fetch(`${KIOSK_CONTROL_ORIGIN}${path}`, { method: 'POST' });
+147: function KioskAdminModal({
+268: const getFrameAssetUrl = (assetPath, { preferUpscaled = true } = {}) => {
+269: const normalizedPath = String(assetPath || '').replace(/\\/g, '/').replace(/^\/+/, '');
+270: const upscaledPath = `upscaled/${normalizedPath}`;
+271: const standardUrl = frameAssetModules[`../frames/${normalizedPath}`] || '';
+272: const upscaledUrl = frameAssetModules[`../frames/${upscaledPath}`] || '';
+276: const getRegistryFrameLibrary = () => {
+280: const previewUrl = getFrameAssetUrl(frame.preview);
+281: const overlayUrl = getFrameAssetUrl(frame.overlay);
+282: const previewRenderUrl = getFrameAssetUrl(frame.preview, { preferUpscaled: true });
+283: const overlayRenderUrl = getFrameAssetUrl(frame.overlay, { preferUpscaled: true });
+303: const getFrameTypeFromName = (name = '') => (name.toLowerCase().endsWith('.png') ? 'png' : 'jpg');
+305: const getFallbackFrameLibrary = () => {
+306: const pairedAssetsByName = new Map();
+307: const sourceFrames = [];
+308: const topLevelFrames = [];
+309: const sourceFileNames = new Set();
+312: const pairedMatch = path.match(/^\.\.\/frames\/(?:(upscaled)\/)?(preview|overlay)\/([^/]+)$/);
+315: const entry = pairedAssetsByName.get(fileName) || {
+321: const quality = upscaledMarker ? 'upscaled' : 'standard';
+327: const sourceMatch = path.match(/^\.\.\/frames\/source\/([^/]+)$/);
+347: const fileName = path.split('/').pop();
+358: const pairedFrames = Array.from(pairedAssetsByName.values()).flatMap((entry) => {
+361: const previewUrl = entry.upscaledPreviewUrl || entry.standardPreviewUrl || entry.upscaledOverlayUrl || entry.standardOverlayUrl;
+362: const overlayUrl = entry.upscaledOverlayUrl || entry.standardOverlayUrl || previewUrl;
+363: const previewRenderUrl = entry.upscaledPreviewUrl || entry.standardPreviewUrl || previewUrl;
+364: const overlayRenderUrl = entry.upscaledOverlayUrl || entry.standardOverlayUrl || overlayUrl;
+381: const REGISTRY_FRAME_LIBRARY = getRegistryFrameLibrary();
+382: const getFrameDedupeKey = (frame) =>
+384: const FRAME_LIBRARY = [...REGISTRY_FRAME_LIBRARY, ...getFallbackFrameLibrary()]
+390: const TRANSPARENT_SLOT_ALPHA_LIMIT = 24;
+391: const SLOT_PHOTO_BLEED_PIXELS = 0;
+392: const CACHE_PREFIX = 'photobooth-frame-slots:v3-transparent';
+393: const SLOT_MAP_SCHEMA = 'photobooth-slot-map:v1';
+394: const FRAME_PACKAGE_SCHEMA = 'photobooth-frame-package:v1';
+395: const GUEST_OUTPUT_SCHEMA = 'photobooth-guest-output:v1';
+396: const GUEST_STEP_ORDER = ['capture', 'frame', 'select', 'adjust', 'result'];
+397: const GUEST_CAPTURE_TARGET = 6;
+398: const GUEST_CAPTURE_MIN_TO_CONTINUE = 6;
+399: const GUEST_TOTAL_TIMER_SECONDS = 300;
+400: const GUEST_CAPTURE_TOTAL_SECONDS = 60;
+401: const GUEST_CAPTURE_INTERVAL_SECONDS = 10;
+402: const GUEST_FRAME_SELECTION_TARGET = 1;
+403: const GUEST_FRAME_CHOOSE_TARGET = 1;
+404: const GUEST_FRAME_PAGE_SIZE = 10;
+405: const GUEST_FRAME_PREFETCH_AHEAD_PAGES = 1;
+406: const GUEST_FRAME_PREVIEW_PHOTO_TARGET = 4;
+407: const GUEST_AUTO_NEW_SESSION_SECONDS = 60;
+408: const PRINT_OUTPUT_SCALE = 2;
+409: const PRINT_PIXELS_PER_CM = 100 * PRINT_OUTPUT_SCALE;
+410: const STANDARD_PRINT_FRAME = { width: 620 * PRINT_OUTPUT_SCALE, height: 870 * PRINT_OUTPUT_SCALE };
+411: const PRINT_SHEET = { width: 1000 * PRINT_OUTPUT_SCALE, height: 1500 * PRINT_OUTPUT_SCALE };
+412: const PRINT_CUT_GAP = 12 * PRINT_OUTPUT_SCALE;
+413: const PRINT_EDGE_PADDING = 20 * PRINT_OUTPUT_SCALE;
+414: const SELECTED_CAMERA_STORAGE_KEY = 'selectedCameraId';
+415: const PREFERRED_CAMERA_STORAGE_KEY = 'preferredCameraId';
+417: const urlToDataUrl = async (url) => {
+420: const res = await fetch(url);
+422: const blob = await res.blob();
+424: const reader = new FileReader();
+435: const createLowResPreview = (dataUrl, maxDimension = 640) => {
+437: const img = new Image();
+439: const canvas = document.createElement('canvas');
+440: let w = img.naturalWidth;
+441: let h = img.naturalHeight;
+453: const ctx = canvas.getContext('2d');
+464: const STAGE_PERCENTAGES = {
+470: const GUEST_TOTAL_TIMER_STEPS = ['capture', 'frame', 'select', 'adjust'];
+471: const GUEST_TIMED_WARNING_SECONDS = 30;
+472: const GUEST_STAGE_WEIGHT_TOTAL = GUEST_TOTAL_TIMER_STEPS.reduce(
+476: const createGuestStepBudgets = (totalSeconds = GUEST_TOTAL_TIMER_SECONDS) => {
+477: const budgets = GUEST_TOTAL_TIMER_STEPS.reduce((budgets, stepId) => ({
+485: const minCaptureBudget = GUEST_CAPTURE_TARGET * (GUEST_CAPTURE_INTERVAL_SECONDS + 5);
+491: const GUEST_TIMED_STEPS = {
+496: const GUEST_WARNING_POPUP_MS = 7000;
+497: const HIGH_QUALITY_CAMERA_CONSTRAINTS = {
+503: const getFriendlyTimeText = (secondsLeft) => {
+504: const roundedSeconds = Math.ceil(secondsLeft);
+508: const getGuestTimedWarning = ({ stepId, secondsLeft, selectedCount = 0, requiredCount = 0 }) => {
+509: const timeText = getFriendlyTimeText(secondsLeft);
+522: const createFrameCacheKey = (frameName, width, height) =>
+525: const readFrameCache = (key) => {
+528: const raw = localStorage.getItem(key);
+530: const parsed = JSON.parse(raw);
+538: const writeFrameCache = (key, value) => {
+547: const clearFrameCache = (key) => {
+556: const rectToPoints = (zone) =>
+564: const getZoneBoundsFromPoints = (points) => {
+565: const xs = points.map((point) => point.x);
+566: const ys = points.map((point) => point.y);
+567: const minX = Math.min(...xs);
+568: const maxX = Math.max(...xs);
+569: const minY = Math.min(...ys);
+570: const maxY = Math.max(...ys);
+574: const getPolygonCss = (zone) => {
+575: const points = rectToPoints(zone);
+581: const getFrameClipPath = (zone, frameDimensions, outset = 0) => {
+583: const points = rectToPoints(zone);
+589: const getPhotoZone = (photo, zones) =>
+592: const clipCanvasToZone = (ctx, zone, outset = SLOT_PHOTO_BLEED_PIXELS) => {
+593: const points = rectToPoints(zone);
+602: const getSvgPoints = (zone) =>
+607: const getZoneAngle = (zone) => {
+608: const points = rectToPoints(zone);
+613: const normalizeZone = (zone, index = 0) => {
+614: const points = rectToPoints(zone);
+615: const bounds = getZoneBoundsFromPoints(points);
+616: const angle = getZoneAngle({ ...zone, points });
+636: const scaleZonesToDimensions = (zones, sourceDimensions, targetDimensions) => {
+638: const sourceWidth = Number(sourceDimensions?.width) || 0;
+639: const sourceHeight = Number(sourceDimensions?.height) || 0;
+640: const targetWidth = Number(targetDimensions?.width) || 0;
+641: const targetHeight = Number(targetDimensions?.height) || 0;
+644: const scaleX = targetWidth / sourceWidth;
+645: const scaleY = targetHeight / sourceHeight;
+649: const scaledPoints = rectToPoints(zone).map((point) => ({
+660: const clampValue = (value, min, max) => Math.max(min, Math.min(max, value));
+662: const clampZoom = (value) => clampValue(Math.round(value * 100) / 100, 0.75, 3);
+664: const sortZonesNatural = (zones) =>
+667: const rowTolerance = Math.max(24, Math.min(a.height || 0, b.height || 0) * 0.35);
+672: const roundSlotCoord = (value) => Math.round(value * 100) / 100;
+674: const sanitizeFramePackageFileName = (frameName) => {
+675: const baseName = (frameName || 'khung')
+682: const getFrameMimeType = (frameType) => (frameType === 'png' ? 'image/png' : 'image/jpeg');
+684: const createSlotMapPayload = ({ selectedFrame, frameDimensions, zones, detectionMode }) => {
+685: const normalizedZones = sortZonesNatural(zones);
+707: const getFrameDataUrl = (imgObj, frameType) => {
+708: const canvas = document.createElement('canvas');
+711: const ctx = canvas.getContext('2d');
+716: const createFramePackagePayload = ({ selectedFrame, frameDimensions, zones, detectionMode, frameImage }) => {
+717: const slotMap = createSlotMapPayload({
+723: const frameType = selectedFrame?.type || slotMap.frameType || 'jpg';
+742: const downloadJsonPayload = (payload, fileName) => {
+743: const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+744: const url = URL.createObjectURL(blob);
+745: const link = document.createElement('a');
+752: const validateSlotMapPayload = (payload) => {
+772: const frameWidth = Math.round(payload.frameWidth);
+773: const frameHeight = Math.round(payload.frameHeight);
+774: const zonesWithOrder = payload.zones.map((zone, index) => ({ zone, index }));
+776: const aSlot = Number.isInteger(a.zone?.slotIndex) ? a.zone.slotIndex : a.index;
+777: const bSlot = Number.isInteger(b.zone?.slotIndex) ? b.zone.slotIndex : b.index;
+781: const importedZones = [];
+783: const points = zone?.points;
+788: const cleanedPoints = [];
+812: const zones = sortZonesNatural(importedZones);
+825: const validateFramePackagePayload = (payload) => {
+832: const frame = payload.frame;
+865: const createSlotFitSubject = (img, method = 'slot-cover') => ({
+872: const fitPhotoToSlot = (img, zone) => {
+873: const normalizedZone = normalizeZone(zone, zone.slotIndex || 0);
+874: const scale = getSlotCoverScale(img.naturalWidth, img.naturalHeight, normalizedZone, 0);
+875: const drawW = img.naturalWidth * scale;
+876: const drawH = img.naturalHeight * scale;
+889: const getSlotContainScale = (naturalWidth, naturalHeight, zone, rotation = 0) => {
+890: const bounds = getZoneBoundsFromPoints(rectToPoints(zone));
+891: const radians = (Math.abs(rotation) % 180) * Math.PI / 180;
+892: const sin = Math.abs(Math.sin(radians));
+893: const cos = Math.abs(Math.cos(radians));
+894: const rotatedW = Math.max(1, naturalWidth * cos + naturalHeight * sin);
+895: const rotatedH = Math.max(1, naturalWidth * sin + naturalHeight * cos);
+899: const fitPhotoInsideSlot = (img, zone) => {
+900: const normalizedZone = normalizeZone(zone, zone.slotIndex || 0);
+901: const bounds = getZoneBoundsFromPoints(rectToPoints(normalizedZone));
+902: const scale = getSlotContainScale(img.naturalWidth, img.naturalHeight, normalizedZone, 0);
+903: const drawW = img.naturalWidth * scale;
+904: const drawH = img.naturalHeight * scale;
+921: const getSlotCoverScale = (naturalWidth, naturalHeight, zone, rotation = 0) => {
+922: const bounds = getZoneBoundsFromPoints(rectToPoints(zone));
+923: const radians = (Math.abs(rotation) % 180) * Math.PI / 180;
+924: const sin = Math.abs(Math.sin(radians));
+925: const cos = Math.abs(Math.cos(radians));
+926: const rotatedW = Math.max(1, naturalWidth * cos + naturalHeight * sin);
+927: const rotatedH = Math.max(1, naturalWidth * sin + naturalHeight * cos);
+931: const normalizeSlotEditTransform = (edit, zone, updates = {}) => {
+932: const next = { ...edit, ...updates };
+933: const shouldContain = next.fitMode === 'contain';
+934: const minScale = shouldContain
+937: const maxScale = Math.max(minScale, next.baseScale * 6);
+938: const requestedScale = Number.isFinite(next.scale) ? next.scale : next.baseScale;
+939: const scale = clampValue(requestedScale, minScale * 0.05, maxScale);
+940: const drawW = next.naturalWidth * scale;
+941: const drawH = next.naturalHeight * scale;
+942: const bounds = getZoneBoundsFromPoints(rectToPoints(zone));
+943: const centerX = Number.isFinite(next.x) ? next.x + drawW / 2 : bounds.x + bounds.width / 2;
+944: const centerY = Number.isFinite(next.y) ? next.y + drawH / 2 : bounds.y + bounds.height / 2;
+945: const minCenterX = bounds.x + Math.min(bounds.width, drawW) * 0.18;
+946: const maxCenterX = bounds.x + bounds.width - Math.min(bounds.width, drawW) * 0.18;
+947: const minCenterY = bounds.y + Math.min(bounds.height, drawH) * 0.18;
+948: const maxCenterY = bounds.y + bounds.height - Math.min(bounds.height, drawH) * 0.18;
+960: const slotEditToPhoto = (edit) => ({
+976: const extractTransformFromPlacement = (placement, img, zone) => {
+977: const base = {
+992: const extractBaseTransform = (edit) => ({
+1001: const extractSlotStyle = (zone, frameDimensions) => ({
+1009: const extractPhotoStyle = (edit, zone) => ({
+1017: const extractZoomValue = (edit) => Math.round((edit.scale / Math.max(0.0001, edit.baseScale)) * 100);
+1019: const extractZoomScale = (edit, zoomValue) => edit.baseScale * (Number(zoomValue) / 100);
+1021: const extractRotationValue = (edit) => Math.round((((edit.rotation || 0) + 180) % 360) - 180);
+1023: const getAxisOverlap = (aMin, aMax, bMin, bMax) => Math.max(0, Math.min(aMax, bMax) - Math.max(aMin, bMin) + 1);
+1025: const getAxisGap = (aMin, aMax, bMin, bMax) => {
+1031: const mergeNearbyTransparentSlotParts = (components, frameWidth, frameHeight) => {
+1034: const bridgeGap = Math.max(6, Math.round(Math.min(frameWidth, frameHeight) * 0.018));
+1035: const parents = components.map((_, index) => index);
+1037: const findParent = (index) => {
+1038: let root = index;
+1041: const next = parents[index];
+1048: const join = (aIndex, bIndex) => {
+1049: const aRoot = findParent(aIndex);
+1050: const bRoot = findParent(bIndex);
+1054: const shouldMerge = (a, b) => {
+1055: const yOverlap = getAxisOverlap(a.minY, a.maxY, b.minY, b.maxY);
+1056: const xGap = getAxisGap(a.minX, a.maxX, b.minX, b.maxX);
+1057: const minHeight = Math.min(a.height, b.height);
+1058: const combinedMinX = Math.min(a.minX, b.minX);
+1059: const combinedMaxX = Math.max(a.maxX, b.maxX);
+1060: const combinedWidth = combinedMaxX - combinedMinX + 1;
+1061: const keepsFrameMargins = combinedMinX > frameWidth * 0.025 && combinedMaxX < frameWidth * 0.975;
+1062: const sharedVerticalBand = yOverlap >= Math.max(6, minHeight * 0.14);
+1073: const groups = new Map();
+1075: const root = findParent(index);
+1076: const current = groups.get(root);
+1097: const detectFrameSlots = (imgObj) => {
+1098: const width = imgObj.naturalWidth || imgObj.width;
+1099: const height = imgObj.naturalHeight || imgObj.height;
+1100: const canvas = document.createElement('canvas');
+1103: const ctx = canvas.getContext('2d', { willReadFrequently: true });
+1106: const imageData = ctx.getImageData(0, 0, width, height);
+1107: const totalPixels = width * height;
+1108: const transparent = new Uint8Array(totalPixels);
+1114: const visited = new Uint8Array(totalPixels);
+1115: const queue = new Int32Array(totalPixels);
+1116: const minArea = Math.max(12000, Math.floor(totalPixels * 0.012));
+1117: const minWidth = Math.floor(width * 0.28);
+1118: const minHeight = Math.floor(height * 0.06);
+1119: const componentMinArea = Math.max(1200, Math.floor(totalPixels * 0.001));
+1120: const componentMinWidth = Math.max(24, Math.floor(width * 0.04));
+1121: const componentMinHeight = Math.max(24, Math.floor(height * 0.018));
+1122: const components = [];
+1127: let head = 0;
+1128: let tail = 0;
+1129: let area = 0;
+1130: let minX = width;
+1131: let minY = height;
+1132: let maxX = 0;
+1133: let maxY = 0;
+1140: const index = queue[head];
+1144: const x = index % width;
+1145: const y = Math.floor(index / width);
+1151: const left = index - 1;
+1152: const right = index + 1;
+1153: const up = index - width;
+1154: const down = index + width;
+1178: const slotWidth = maxX - minX + 1;
+1179: const slotHeight = maxY - minY + 1;
+1193: const slots = mergeNearbyTransparentSlotParts(components, width, height)
+1196: const slotWidth = component.width;
+1197: const slotHeight = component.height;
+1198: const minX = component.minX;
+1199: const minY = component.minY;
+1219: const zones = sortZonesNatural(slots.sort((a, b) => a.y - b.y || a.x - b.x).slice(0, 8));
+1226: const loadImage = (src) =>
+1228: const img = new Image();
+1234: const cropDataUrlTo3x4 = async (dataUrl) => {
+1236: const img = await loadImage(dataUrl);
+1237: const W = img.naturalWidth || img.width;
+1238: const H = img.naturalHeight || img.height;
+1240: let cropW = W;
+1241: let cropH = H;
+1242: let cropX = 0;
+1243: let cropY = 0;
+1253: const canvas = document.createElement('canvas');
+1256: const ctx = canvas.getContext('2d');
+1266: const getFrameLibraryKey = (frame) =>
+1269: const areSameFrameChoice = (a, b) => getFrameLibraryKey(a) === getFrameLibraryKey(b);
+1271: const getFirstCaptureIndices = (photoCount, targetCount = 4) =>
+1274: const createFrameOverlayCanvasFromImage = (frameImage, dimensions) => {
+1275: const canvas = document.createElement('canvas');
+1278: const ctx = canvas.getContext('2d', { willReadFrequently: true });
+1285: const drawImageIntoTransparentSlot = (targetCtx, img, placement, slot) => {
+1287: const naturalWidth = img.naturalWidth !== undefined ? img.naturalWidth : (img.videoWidth !== undefined ? img.videoWidth : (img.width || 0));
+1288: const naturalHeight = img.naturalHeight !== undefined ? img.naturalHeight : (img.videoHeight !== undefined ? img.videoHeight : (img.height || 0));
+1289: const drawW = naturalWidth * placement.scale;
+1290: const drawH = naturalHeight * placement.scale;
+1305: const canvasToPreviewDataUrl = (sourceCanvas, maxLongSide = 920) => {
+1306: const longSide = Math.max(sourceCanvas.width, sourceCanvas.height);
+1307: const scale = Math.min(1, maxLongSide / Math.max(1, longSide));
+1310: const canvas = document.createElement('canvas');
+1313: const ctx = canvas.getContext('2d');
+1318: const getCanvasContentBounds = (sourceCanvas) => {
+1319: const width = sourceCanvas?.width || 0;
+1320: const height = sourceCanvas?.height || 0;
+1323: const ctx = sourceCanvas.getContext('2d', { willReadFrequently: true });
+1334: let minX = width;
+1335: let minY = height;
+1336: let maxX = -1;
+1337: let maxY = -1;
+1340: const row = y * width * 4;
+1342: const index = row + x * 4;
+1343: const alpha = data[index + 3];
+1345: const red = data[index];
+1346: const green = data[index + 1];
+1347: const blue = data[index + 2];
+1348: const isBlankPaper = red >= 250 && green >= 250 && blue >= 250;
+1360: const padding = 4;
+1361: const x = Math.max(0, minX - padding);
+1362: const y = Math.max(0, minY - padding);
+1363: const right = Math.min(width, maxX + padding + 1);
+1364: const bottom = Math.min(height, maxY + padding + 1);
+1373: const createGuestPrintSheetCanvas = (frameCanvases) => {
+1374: const canvas = document.createElement('canvas');
+1377: const ctx = canvas.getContext('2d');
+1385: const firstCanvas = frameCanvases[0];
+1388: const aspect = firstCanvas.width / firstCanvas.height;
+1389: const isStrip = aspect < 0.5;
+1392: const drawImageCover = (source, dx, dy, dWidth, dHeight) => {
+1393: const scale = Math.max(dWidth / source.width, dHeight / source.height);
+1394: const w = Math.round(source.width * scale);
+1395: const h = Math.round(source.height * scale);
+1396: const x = Math.round(dx + (dWidth - w) / 2);
+1397: const y = Math.round(dy + (dHeight - h) / 2);
+1403: const halfWidth = canvas.width / 2;
+1409: const secondCanvas = frameCanvases[1] || firstCanvas;
+1419: const QR_VERSION_CONFIGS = [
+1431: const QR_ALIGNMENT_PATTERN_POSITIONS = {
+1440: const createQrDataCodewords = (bytes, totalDataCodewords) => {
+1441: const bits = [];
+1442: const capacity = totalDataCodewords * 8;
+1443: const pushBits = (value, length) => {
+1455: const terminatorLength = Math.min(4, capacity - bits.length);
+1459: const dataCodewords = [];
+1461: let value = 0;
+1466: const padBytes = [0xec, 0x11];
+1467: let padIndex = 0;
+1475: const createQrGfTables = () => {
+1476: const exp = new Array(512).fill(0);
+1477: const log = new Array(256).fill(0);
+1478: let value = 1;
+1489: const QR_GF = createQrGfTables();
+1490: const QR_RS_GENERATOR_CACHE = new Map();
+1492: const qrGfMultiply = (a, b) => {
+1497: const getQrRsGenerator = (degree) => {
+1499: let generator = [1];
+1501: const next = new Array(generator.length + 1).fill(0);
+1512: const computeQrErrorCorrection = (dataCodewords, degree) => {
+1513: const generator = getQrRsGenerator(degree);
+1514: const result = [...dataCodewords, ...new Array(degree).fill(0)];
+1516: const factor = result[index];
+1525: const addQrErrorCorrection = (dataCodewords, config) => {
+1526: const blocks = [];
+1527: let offset = 0;
+1529: const data = dataCodewords.slice(offset, offset + blockLength);
+1534: const codewords = [];
+1535: const maxDataLength = Math.max(...blocks.map((block) => block.data.length));
+1547: const createQrState = (size) => ({
+1552: const cloneQrState = (state) => ({
+1557: const setQrFunctionModule = (state, x, y, isDark) => {
+1558: const size = state.modules.length;
+1564: const drawQrFinderPattern = (state, x, y) => {
+1567: const isInPattern = dx >= 0 && dx <= 6 && dy >= 0 && dy <= 6;
+1568: const isDark = isInPattern && (
+1580: const drawQrAlignmentPattern = (state, centerX, centerY) => {
+1584: const distance = Math.max(Math.abs(dx), Math.abs(dy));
+1590: const getQrFormatBits = (mask) => {
+1591: const data = mask & 0b111;
+1592: let remainder = data << 10;
+1599: const setQrFormatInfo = (state, mask) => {
+1600: const size = state.modules.length;
+1601: const bits = getQrFormatBits(mask);
+1602: const getBit = (index) => ((bits >>> index) & 1) !== 0;
+1615: const createQrBaseState = (version) => {
+1616: const size = version * 4 + 17;
+1617: const state = createQrState(size);
+1623: const isDark = index % 2 === 0;
+1628: const alignmentPositions = QR_ALIGNMENT_PATTERN_POSITIONS[version] || [];
+1637: const getQrMaskValue = (mask, x, y) => {
+1648: const placeQrDataBits = (state, codewords, mask) => {
+1649: const bits = [];
+1654: const size = state.modules.length;
+1655: let bitIndex = 0;
+1656: let upward = true;
+1660: const y = upward ? size - 1 - vertical : vertical;
+1662: const x = right - column;
+1664: let isDark = bitIndex < bits.length ? bits[bitIndex] === 1 : false;
+1674: const getQrRunPenalty = (line) => {
+1675: let penalty = 0;
+1676: let runColor = line[0];
+1677: let runLength = 1;
+1691: const hasQrFinderLikePattern = (line, index) => {
+1692: const pattern = [true, false, true, true, true, false, true];
+1694: const hasLightBefore = index >= 4 && line.slice(index - 4, index).every((value) => !value);
+1695: const hasLightAfter = index + 11 <= line.length && line.slice(index + 7, index + 11).every((value) => !value);
+1699: const scoreQrModules = (modules) => {
+1700: const size = modules.length;
+1701: let penalty = 0;
+1702: let darkCount = 0;
+1705: const row = modules[y];
+1710: const color = row[x];
+1720: const column = modules.map((row) => row[x]);
+1727: const total = size * size;
+1728: const balancePenalty = Math.ceil(Math.abs(darkCount * 20 - total * 10) / total) - 1;
+1733: const buildQrModules = (codewords, version) => {
+1734: const baseState = createQrBaseState(version);
+1735: let bestModules = null;
+1736: let bestScore = Number.POSITIVE_INFINITY;
+1739: const state = cloneQrState(baseState);
+1742: const score = scoreQrModules(state.modules);
+1752: const qrModulesToPngDataUrl = (modules) => {
+1753: const quietZone = 4;
+1754: const moduleSize = 8;
+1755: const size = (modules.length + quietZone * 2) * moduleSize;
+1756: const canvas = document.createElement('canvas');
+1759: const ctx = canvas.getContext('2d');
+1778: const createQrCodeDataUrl = (text) => {
+1780: const bytes = Array.from(new TextEncoder().encode(String(text)));
+1782: const dataCodewords = createQrDataCodewords(bytes, config.dataCodewords);
+1784: const codewords = addQrErrorCorrection(dataCodewords, config);
+1790: const removeVietnameseTones = (str) => {
+1798: const createDownloadSlug = (value, fallback = 'photobooth') => {
+1799: const clean = removeVietnameseTones(value || fallback);
+1808: const getConfiguredShareOrigin = () =>
+1813: const buildShareUrlFromOrigin = (origin, sharePath) => {
+1814: const cleanOrigin = String(origin || '').trim().replace(/\/+$/, '');
+1818: const getUrlHostname = (origin) => {
+1826: const isLoopbackShareOrigin = (origin) => {
+1827: const hostname = getUrlHostname(origin);
+1831: const isTryCloudflareShareOrigin = (origin) => getUrlHostname(origin).endsWith('.trycloudflare.com');
+1833: const isHttpsShareUrl = (url) => {
+1841: const resolveGuestShareUrl = (shareData) => {
+1842: const sharePath = shareData?.sharePath || (shareData?.id ? `/guest/${shareData.id}` : '');
+1843: const sameOriginUrl = buildShareUrlFromOrigin(window.location.origin, sharePath);
+1844: const isCurrentPublicOrigin = window.location.protocol === 'https:' && !isLoopbackShareOrigin(window.location.origin);
+1849: const configuredUrl = buildShareUrlFromOrigin(getConfiguredShareOrigin(), sharePath);
+1854: const lanShareUrl = Array.isArray(shareData?.lanShareUrls) ? shareData.lanShareUrls.find(Boolean) : '';
+1864: const createGuestOutputPayload = ({ printDataUrl, printPngDataUrl = '', frameCanvases, draftsForPrint, capturedPhotosForSave = [], outputMeta, frameVideos = [], hasPendingVideos = false }) => {
+1865: const frameNames = Array.isArray(outputMeta?.frameNames) && outputMeta.frameNames.length > 0
+1868: const slug = createDownloadSlug(frameNames.join('-'), 'photobooth');
+1869: const payload = {
+1883: const jpegUrl = canvas.toDataURL('image/jpeg', 0.97);
+1884: const frameData = {
+1893: const fVideo = frameVideos?.[index];
+1905: const captureData = {
+1927: const getCanvasFrameStats = (canvas, sampleSize = 24) => {
+1928: const width = canvas?.width || 0;
+1929: const height = canvas?.height || 0;
+1932: const sampleCanvas = document.createElement('canvas');
+1935: const ctx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+1939: const pixels = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
+1940: let sum = 0;
+1941: let sumSquares = 0;
+1942: let min = 255;
+1943: let max = 0;
+1944: let count = 0;
+1947: const alpha = pixels[index + 3];
+1949: const luminance = 0.299 * pixels[index] + 0.587 * pixels[index + 1] + 0.114 * pixels[index + 2];
+1958: const mean = sum / count;
+1959: const variance = sumSquares / count - mean * mean;
+1968: const isProbablyBlankCanvas = (canvas) => {
+1969: const stats = getCanvasFrameStats(canvas);
+1971: const nearlyFlat = stats.variance < 6 && stats.range < 18;
+1972: const nearBlack = stats.mean < 10 && stats.range < 28;
+1973: const nearWhite = stats.mean > 246 && stats.range < 18;
+1977: const getGuestPrintLoadingHtml = () => `<!doctype html>
+1989: const getGuestPrintHtml = (imageUrl) => `<!doctype html>
+2007: const runPrint = () => window.setTimeout(() => {
+2011: const image = document.querySelector('img');
+2018: const openGuestPrintWindow = () => {
+2019: const printWindow = window.open('', 'photobooth-print', 'width=900,height=1100');
+2031: const printGuestImageUrl = (imageUrl, existingPrintWindow = null) => {
+2033: const printWindow = existingPrintWindow && !existingPrintWindow.closed
+2048: const fetchJson = async (url, options) => {
+2050: const response = await fetch(url, options);
+2058: const readFramePackageFromServer = async (frameName, width, height) => {
+2059: const params = new URLSearchParams({
+2064: const data = await fetchJson(`/api/frame-store/find?${params.toString()}`);
+2074: const saveFramePackageToServer = async (payload) => {
+2075: const data = await fetchJson('/api/frame-store/save', {
+2083: const saveSlotMapToServer = async (payload) => {
+2084: const data = await fetchJson('/api/frame-store/save-slot-map', {
+2092: const loadFrameProfilesFromServer = async () => {
+2093: const data = await fetchJson('/api/frame-store/profiles');
+2097: const saveFrameProfileToServer = async (frameName, profile) => {
+2098: const data = await fetchJson('/api/frame-store/profiles/save', {
+2106: const cleanupFrameProfilesOnServer = async () => {
+2107: const data = await fetchJson('/api/frame-store/profiles/cleanup', { method: 'POST' });
+2111: const saveGuestOutputToServer = async (payload) => {
+2112: const data = await fetchJson('/api/guest-output/save', {
+2120: const getAiConfig = () => ({
+2126: const callVisionProfileAi = async ({ images, prompt }) => {
+2129: const messages = [{
+2136: const apiBase = endpoint.replace(/\/$/, '');
+2137: const chatUrl = apiBase.endsWith('/v1') ? `${apiBase}/chat/completions` : `${apiBase}/v1/chat/completions`;
+2138: const response = await fetch(chatUrl, {
+2147: const data = await response.json();
+2151: let shutterBuffer = null;
+2152: let shutterAudioElement = null;
+2154: const initShutterAudio = async (ctx) => {
+2157: const response = await fetch(shutterSound);
+2158: const arrayBuffer = await response.arrayBuffer();
+2167: const playShutterSound = async () => {
+2169: const AudioContext = window.AudioContext || window.webkitAudioContext;
+2172: let ctx = window.__shutterAudioCtx;
+2182: const buffer = await initShutterAudio(ctx);
+2184: const source = ctx.createBufferSource();
+2207: const isPartnerMode = useMemo(() => {
+2208: const params = new URLSearchParams(window.location.search);
+2211: const isDashboardMode = useMemo(() => {
+2212: const params = new URLSearchParams(window.location.search);
+2215: const isKioskGuardEnabled = useMemo(() => {
+2216: const params = new URLSearchParams(window.location.search);
+2269: const reconnectAttemptsRef = useRef(0);
+2270: const lastStateSendTimeRef = useRef(0);
+2271: const sendStateUpdateRef = useRef(null);
+2272: const handleMessageRef = useRef(null);
+2273: const reconnectTimeoutRef = useRef(null);
+2274: const reconnectIntervalIdRef = useRef(null);
+2275: const isUsingFallbackCameraRef = useRef(false);
+2276: const preferredCameraIdRef = useRef(localStorage.getItem(PREFERRED_CAMERA_STORAGE_KEY) || '');
+2283: const captureCancelTriggerRef = useRef(null);
+2292: const latestGuestStepRef = useRef(guestStep);
+2295: const latestIsLockedCaptureRunningRef = useRef(isLockedCaptureRunning);
+2298: const latestCaptureSessionSecondsLeftRef = useRef(captureSessionSecondsLeft);
+2301: const latestGuestTimedStepSecondsLeftRef = useRef(0);
+2303: const latestGuestStepBudgetsRef = useRef(guestStepBudgets);
+2320: const guestNewSessionIntervalRef = useRef(null);
+2344: const guestAiAnalysisStartedRef = useRef(false);
+2359: const originalImgRef = useRef(null);
+2360: const frameCanvasRef = useRef(null);
+2361: const editorRef = useRef(null);
+2362: const beautyCameraRef = useRef(null);
+2363: const fileInputRef = useRef(null);
+2364: const frameInputRef = useRef(null);
+2365: const slotDataInputRef = useRef(null);
+2366: const lastLoadedFrameKeyRef = useRef(null);
+2367: const skipNextCacheWriteRef = useRef(false);
+2368: const cacheSaveTimerRef = useRef(null);
+2369: const serverSaveTimerRef = useRef(null);
+2370: const cameraStreamRef = useRef(null);
+2371: const capturedPhotosCountRef = useRef(0);
+2372: const captureBusyRef = useRef(false);
+2373: const capturePausedRef = useRef(false);
+2374: const guestTimerPausedTotalMsRef = useRef(0);
+2375: const guestTimerPauseStartedAtRef = useRef(null);
+2376: const guestTimedWarningShownKeysRef = useRef(new Set());
+2377: const guestTimedAutoAdvanceKeysRef = useRef(new Set());
+2378: const guestFramePreviewRequestRef = useRef(0);
+2379: const guestFramePreviewsRef = useRef([]);
+2380: const guestPreviewPhotoCacheRef = useRef(new Map());
+2381: const guestPreviewFrameCacheRef = useRef(new Map());
+2382: const guestAdjustAutoFinishRef = useRef(false);
+2383: const guestNewSessionTimerRef = useRef(null);
+2384: const guestSessionIdRef = useRef(0);
+2385: const adminModalModeRef = useRef(adminModalMode);
+2386: const adminPinRef = useRef(adminPin);
+2387: const adminTapCountRef = useRef(0);
+2388: const adminLastTapAtRef = useRef(0);
+2389: const isProgrammaticScrollingRef = useRef(false);
+2390: const clipRecorderRef = useRef(null);
+2391: const clipChunksRef = useRef([]);
+2392: const clipStreamRef = useRef(null);
+2393: const clipCanvasRef = useRef(null);
+2398: const cacheKey = useMemo(
+2403: const visibleFrameLibrary = useMemo(() => {
+2404: const seen = new Set();
+2406: const key = `${frame.name}:${frame.width || ''}:${frame.height || ''}`;
+2413: const recommendedFrames = useMemo(
+2418: const recommendedFrameKeys = useMemo(
+2423: const guestFrameDisplayLibrary = useMemo(() => {
+2424: const visibleFramesByKey = new Map(visibleFrameLibrary.map((frame) => [getFrameLibraryKey(frame), frame]));
+2425: const pickedKeys = new Set();
+2426: const orderedFrames = [];
+2429: const key = getFrameLibraryKey(frame);
+2430: const visibleFrame = visibleFramesByKey.get(key);
+2437: const key = getFrameLibraryKey(frame);
+2457: const clearGuestNewSessionTimer = () => {
+2469: const startGuestNewSessionCountdown = () => {
+2471: let timeLeft = GUEST_AUTO_NEW_SESSION_SECONDS;
+2485: const startGuestNextSessionNow = () => {
+2490: const requestKioskFullscreen = useCallback(async () => {
+2498: const target = document.documentElement;
+2517: const exitKioskFullscreen = useCallback(async () => {
+2529: const openAdminUnlock = useCallback(() => {
+2538: const closeAdminModal = useCallback(() => {
+2546: const handleAdminUnlock = useCallback((event) => {
+2558: const handleShowChangePin = useCallback(() => {
+2565: const handleSaveAdminPin = useCallback((event) => {
+2567: const nextPin = adminNewPinEntry.trim();
+2585: const handleAdminRestartSession = useCallback(() => {
+2591: const handleAdminReload = useCallback(() => {
+2595: const handleAdminExitKiosk = useCallback(async () => {
+2596: const didExit = await callKioskControl('/exit');
+2603: const handleAdminOpenEditor = useCallback(async () => {
+2604: const didOpen = await callKioskControl('/open-editor');
+2609: const handleAdminHotspotPointerDown = useCallback((event) => {
+2614: const now = Date.now();
+2630: const syncFullscreenState = () => {
+2631: const fullscreenActive = Boolean(document.fullscreenElement);
+2646: const stopEvent = (event) => {
+2652: const handleKeyDown = (event) => {
+2653: const isAdminCombo = event.ctrlKey && event.altKey && event.shiftKey && (event.key === 'F12' || event.code === 'F12');
+2664: const handleProtectedPointerEvent = (event) => {
+2669: const handleVisibilityChange = () => {
+2690: const framePreviewCards = useMemo(() => {
+2691: const previewCardsByKey = new Map(guestFramePreviews.map((card) => [card.key, card]));
+2693: const key = getFrameLibraryKey(frame);
+2704: const guestFramePageCount = Math.max(1, Math.ceil(framePreviewCards.length / GUEST_FRAME_PAGE_SIZE));
+2705: const safeGuestFramePageIndex = Math.min(Math.max(guestFramePageIndex, 0), guestFramePageCount - 1);
+2706: const guestFramePageStart = safeGuestFramePageIndex * GUEST_FRAME_PAGE_SIZE;
+2707: const guestFramePageEnd = Math.min(framePreviewCards.length, guestFramePageStart + GUEST_FRAME_PAGE_SIZE);
+2708: const pagedFramePreviewCards = useMemo(
+2719: const goToGuestFramePage = useCallback((nextPageIndex) => {
+2723: const recommendedFrameCards = useMemo(() => {
+2724: const cardsByKey = new Map(framePreviewCards.map((card) => [getFrameLibraryKey(card.frame), card]));
+2725: const pickedKeys = new Set();
+2726: const pickedCards = recommendedFrames.reduce((cards, frame) => {
+2727: const card = cardsByKey.get(getFrameLibraryKey(frame));
+2738: const fallbackCards = framePreviewCards.filter((card) => !pickedKeys.has(card.key));
+2742: const guestAutoPhotos = useMemo(
+2745: const photo = capturedPhotos[captureIndex];
+2750: const guestAutoCapturePhotoKey = useMemo(
+2758: const maxGuestPhotos = boothMode === 'photobooth' ? GUEST_CAPTURE_TARGET : 4;
+2759: const minGuestPhotosToContinue = boothMode === 'photobooth' ? GUEST_CAPTURE_MIN_TO_CONTINUE : 4;
+2760: const getGuestStepIndex = (stepId) => GUEST_STEP_ORDER.indexOf(stepId);
+2761: const commitGuestStep = (stepId) => {
+2762: const stepIndex = getGuestStepIndex(stepId);
+2766: const isGuestStepLocked = (stepId) => {
+2767: const stepIndex = getGuestStepIndex(stepId);
+2770: const openGuestTransitionPrompt = (stepId, payload = {}) => {
+2803: let cancelled = false;
+2804: const loadServerLibrary = async () => {
+2805: const profiles = await loadFrameProfilesFromServer();
+2807: const data = await fetchJson('/api/frame-store/list');
+2810: const byKey = new Map(prev.map((frame) => [`${frame.name}:${frame.width || ''}:${frame.height || ''}`, frame]));
+2835: const selectedZoneId = useMemo(() => {
+2841: const selectedPhoto = selectedPhotoId ? photos.find((photo) => photo.id === selectedPhotoId) : null;
+2842: const selectedZone = selectedZoneId ? zones.find((zone) => zone.id === selectedZoneId) : null;
+2843: const requiredPhotoCount = zones.length;
+2844: const isAnalyzingPhotos = photoAnalysisStatus.startsWith('Đang');
+2845: const canUploadPhotos = originalFrame && requiredPhotoCount > 0 && !isAutoDetecting && !isAnalyzingPhotos;
+2846: const canExport = !isPartnerMode && originalFrame && requiredPhotoCount > 0 && photos.length === requiredPhotoCount;
+2848: const applyFrameToCanvas = useCallback(() => {
+2849: const canvas = frameCanvasRef.current;
+2851: const ctx = canvas.getContext('2d', { willReadFrequently: true });
+2858: const renderTimer = window.setTimeout(() => {
+2883: const payload = createSlotMapPayload({
+2889: const saved = await saveSlotMapToServer(payload);
+2896: const key = `${saved.name}:${saved.width || ''}:${saved.height || ''}`;
+2897: const byKey = new Map(prev.map((frame) => [`${frame.name}:${frame.width || ''}:${frame.height || ''}`, frame]));
+2918: const runAutoDetect = useCallback((imgObj, nextCacheKey = cacheKey) => {
+2922: const result = detectFrameSlots(imgObj);
+2924: const normalizedZones = sortZonesNatural(result.zones);
+2949: const loadFrame = useCallback(async ({
+2962: const displayUrl = previewUrl || url;
+2963: const renderUrl = overlayUrl || url;
+2964: const img = await loadImage(renderUrl);
+2965: const loadedDimensions = { width: img.naturalWidth, height: img.naturalHeight };
+2966: const nextFrame = {
+2978: const nextCacheKey = createFrameCacheKey(name, img.naturalWidth, img.naturalHeight);
+3020: const handleFrameUpload = (event) => {
+3021: const file = event.target.files?.[0];
+3023: const url = URL.createObjectURL(file);
+3032: const handleClearCache = () => {
+3037: const handleClearCacheAndRedetect = () => {
+3044: const handleFramePackageExport = async () => {
+3051: const payload = createFramePackagePayload({
+3059: const saved = await saveFramePackageToServer(payload);
+3071: const loadFramePackage = async ({ frame, slotMap, fileName }) => {
+3075: const img = await loadImage(frame.dataUrl);
+3080: const normalizedZones = sortZonesNatural(slotMap.zones);
+3081: const nextFrame = {
+3087: const nextCacheKey = createFrameCacheKey(nextFrame.name, img.naturalWidth, img.naturalHeight);
+3124: const handleSlotDataImport = async (event) => {
+3125: const files = Array.from(event.target.files || []);
+3129: let importedCount = 0;
+3130: let failedCount = 0;
+3131: let activeSlotMap = null;
+3132: let activeFramePackage = null;
+3133: let legacySlotMapToOpen = null;
+3134: const importedFrameItems = [];
+3136: const importResults = await Promise.all(files.map(async (file) => {
+3138: const payload = JSON.parse(await file.text());
+3144: const nextCacheKey = createFrameCacheKey(
+3175: const nextCacheKey = createFrameCacheKey(slotMap.frameName, slotMap.frameWidth, slotMap.frameHeight);
+3229: const byKey = new Map(prev.map((frame) => [`${frame.name}:${frame.width || ''}:${frame.height || ''}`, frame]));
+3240: const failedText = failedCount > 0 ? `, ${failedCount} file lỗi` : '';
+3252: const matchingFrame = visibleFrameLibrary.find((frame) => {
+3254: const hasKnownSize = Number.isFinite(frame.width) && Number.isFinite(frame.height);
+3263: const failedText = failedCount > 0 ? `, ${failedCount} file lỗi` : '';
+3283: const activeText = activeSlotMap ? ` Khung đang mở đã cập nhật ${activeSlotMap.zones.length} slot.` : '';
+3284: const legacyText = legacySlotMapToOpen && !activeSlotMap
+3287: const failedText = failedCount > 0 ? `, ${failedCount} file lỗi` : '';
+3291: const handlePhotoUpload = async (event) => {
+3292: const files = Array.from(event.target.files || []);
+3311: const normalizedZones = sortZonesNatural(zones);
+3312: const photoResults = await Promise.all(files.map(async (file, index) => {
+3313: const url = URL.createObjectURL(file);
+3314: const img = await loadImage(url);
+3315: const previewUrl = await createLowResPreview(url, 640);
+3316: const newId = Math.random().toString(36).slice(2, 11);
+3317: const assignedZone = normalizedZones[index];
+3318: const placement = fitPhotoToSlot(img, assignedZone);
+3319: const subject = placement.subject;
+3345: const nextPhotos = photoResults.map((result) => result.photo);
+3346: const nextAssignments = photoResults.map((result) => result.assignment);
+3361: const getCanvasCoordinates = (event) => {
+3362: const rect = editorRef.current.getBoundingClientRect();
+3363: const scaleX = frameDimensions.width / rect.width;
+3364: const scaleY = frameDimensions.height / rect.height;
+3371: const clampCanvasPoint = (point) => ({
+3376: const moveZoneBy = (zoneId, dx, dy) => {
+3380: const points = rectToPoints(zone);
+3381: const minX = Math.min(...points.map((point) => point.x));
+3382: const maxX = Math.max(...points.map((point) => point.x));
+3383: const minY = Math.min(...points.map((point) => point.y));
+3384: const maxY = Math.max(...points.map((point) => point.y));
+3385: const safeDx = clampValue(dx, -minX, frameDimensions.width - maxX);
+3386: const safeDy = clampValue(dy, -minY, frameDimensions.height - maxY);
+3387: const nextPoints = points.map((point) => ({ x: point.x + safeDx, y: point.y + safeDy }));
+3393: const resizeZoneBy = (zoneId, delta) => {
+3397: const points = rectToPoints(zone);
+3398: const center = points.reduce(
+3402: const shortestSide = Math.max(1, Math.min(zone.width, zone.height));
+3403: const factor = Math.max(0.55, 1 + delta / shortestSide);
+3404: const nextPoints = points.map((point) =>
+3417: const nudgeSelectedZone = (dx, dy) => {
+3424: const updateZonePoint = (zoneId, pointIndex, nextPoint) => {
+3428: const points = rectToPoints(zone).map((point, index) =>
+3436: const insertZonePoint = (zoneId, afterIndex, nextPoint) => {
+3440: const points = rectToPoints(zone);
+3441: const insertIndex = afterIndex + 1;
+3442: const nextPoints = [
+3454: const removeZonePoint = (zoneId, pointIndex) => {
+3458: const points = rectToPoints(zone);
+3460: const nextPoints = points.filter((_, index) => index !== pointIndex);
+3468: const finishSlotPointEdit = () => {
+3475: const handleZonePointPointerDown = (event, zoneId, pointIndex) => {
+3484: const handleEdgeHandlePointerDown = (event, zoneId, pointIndex) => {
+3488: const coords = getCanvasCoordinates(event);
+3493: const handleZoneBodyPointerDown = (event, zoneId) => {
+3497: const coords = getCanvasCoordinates(event);
+3498: const zone = zones.find((item) => item.id === zoneId);
+3509: const handleEditorPointerDown = (event) => {
+3516: const coords = getCanvasCoordinates(event);
+3520: const handleEditorPointerMove = (event) => {
+3522: const coords = getCanvasCoordinates(event);
+3528: const dx = coords.clickX - draggingZone.startX;
+3529: const dy = coords.clickY - draggingZone.startY;
+3533: const minX = Math.min(...draggingZone.originalPoints.map((point) => point.x));
+3534: const maxX = Math.max(...draggingZone.originalPoints.map((point) => point.x));
+3535: const minY = Math.min(...draggingZone.originalPoints.map((point) => point.y));
+3536: const maxY = Math.max(...draggingZone.originalPoints.map((point) => point.y));
+3537: const safeDx = clampValue(dx, -minX, frameDimensions.width - maxX);
+3538: const safeDy = clampValue(dy, -minY, frameDimensions.height - maxY);
+3539: const nextPoints = draggingZone.originalPoints.map((point) => ({ x: point.x + safeDx, y: point.y + safeDy }));
+3549: const handleEditorPointerUp = () => {
+3555: const x = Math.min(drawingZone.startX, drawingZone.currentX);
+3556: const y = Math.min(drawingZone.startY, drawingZone.currentY);
+3557: const width = Math.abs(drawingZone.currentX - drawingZone.startX);
+3558: const height = Math.abs(drawingZone.currentY - drawingZone.startY);
+3560: const manualZone = normalizeZone({
+3591: const removeZone = (id) => {
+3601: const duplicatePhoto = (id) => {
+3602: const photo = photos.find((item) => item.id === id);
+3608: const removePhoto = (id) => {
+3614: const updatePhoto = (id, updates) => {
+3618: const handlePhotoPointerDown = (event, id) => {
+3628: let pendingUpdate = null;
+3629: const handleAdjustPointerMove = (event) => {
+3631: const deltaX = event.clientX - adjustDrag.startX;
+3632: const deltaY = event.clientY - adjustDrag.startY;
+3633: const zone = zones[adjustDrag.slotIndex];
+3635: const selector = adjustDrag.source === 'zoom' ? '.pink-adjust-zoom-preview' : '.pink-adjust-frame-preview';
+3636: const rect = document.querySelector(selector)?.getBoundingClientRect();
+3637: const ratio = rect ? (adjustDrag.source === 'zoom' ? zone.width / rect.width : frameDimensions.width / rect.width) : 1;
+3638: const edit = slotEdits.find((item) => item.slotIndex === adjustDrag.slotIndex);
+3641: const newX = edit.x + deltaX * ratio;
+3642: const newY = edit.y + deltaY * ratio;
+3643: const clientX = event.clientX;
+3644: const clientY = event.clientY;
+3656: const handleAdjustPointerUp = () => {
+3677: const handlePointerMove = (event) => {
+3679: const deltaX = event.clientX - dragStart.x;
+3680: const deltaY = event.clientY - dragStart.y;
+3681: const rect = editorRef.current?.getBoundingClientRect();
+3682: const ratio = rect ? frameDimensions.width / rect.width : 1;
+3693: const handlePointerUp = () => setIsDraggingPhoto(false);
+3704: const handleExport = async () => {
+3710: const canvas = document.createElement('canvas');
+3711: const ctx = canvas.getContext('2d');
+3718: const loadedPhotos = await Promise.all(photos.map(async (photo) => ({
+3722: const normalizedZones = sortZonesNatural(zones);
+3725: const assignedZone = getPhotoZone(photo, normalizedZones);
+3731: const link = document.createElement('a');
+3737: const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+3739: const captureRawGuestVideoCanvas = (video) => {
+3742: const canvas = document.createElement('canvas');
+3745: const ctx = canvas.getContext('2d');
+3752: const captureRawGuestVideoFrame = (video) => {
+3753: const canvas = captureRawGuestVideoCanvas(video);
+3758: const waitForReadableGuestVideoFrame = async (video, timeoutMs = 2500) => {
+3759: const startedAt = Date.now();
+3761: const canvas = captureRawGuestVideoCanvas(video);
+3770: const captureDslrPhotoHelper = async () => {
+3771: const initRes = await fetch('/api/dslr/last-captured');
+3773: const initData = await initRes.json();
+3774: const initialFile = initData.filename;
+3776: const captureRes = await fetch('/api/dslr/capture');
+3779: const maxWaitMs = 15000;
+3780: const pollIntervalMs = 1000;
+3781: const startTime = Date.now();
+3787: const pollRes = await fetch('/api/dslr/last-captured');
+3792: const pollData = await pollRes.json();
+3793: const currentFile = pollData.filename;
+3804: const renderFrameOverlayCanvas = (zonesForRender) => {
+3809: const getFramePreviewSlotMap = async (frame, dimensions, providedFrameImage = null) => {
+3810: const cacheKey = createFrameCacheKey(frame.name, dimensions.width, dimensions.height);
+3811: const cached = readFrameCache(cacheKey);
+3820: const frameImage = providedFrameImage || await loadImage(frame.overlayRenderUrl || frame.overlayUrl || frame.previewRenderUrl || frame.previewUrl || frame.url);
+3821: const detectDimensions = {
+3825: const detected = detectFrameSlots(frameImage);
+3826: const normalizedZones = sortZonesNatural(scaleZonesToDimensions(detected.zones, detectDimensions, dimensions));
+3829: const detectedSlotMap = {
+3846: const getGuestPreviewPhotoItem = async (captureIndex) => {
+3847: const photo = capturedPhotos[captureIndex];
+3850: const previewUrl = photo.previewUrl || photo.url;
+3851: const cached = guestPreviewPhotoCacheRef.current.get(photo.id);
+3856: const img = await loadImage(previewUrl);
+3857: const item = { captureIndex, photo, img, subject: createSlotFitSubject(img), url: previewUrl };
+3861: const validIds = new Set(capturedPhotos.map((itemPhoto) => itemPhoto.id));
+3870: const getGuestPreviewFrameAssets = async (frame) => {
+3871: const renderUrl = frame.overlayRenderUrl || frame.overlayUrl || frame.previewRenderUrl || frame.previewUrl || frame.url;
+3872: const cacheKey = `${getFrameLibraryKey(frame)}:${renderUrl}`;
+3873: const cached = guestPreviewFrameCacheRef.current.get(cacheKey);
+3876: const frameImage = await loadImage(renderUrl);
+3877: const dimensions = { width: frameImage.naturalWidth, height: frameImage.naturalHeight };
+3881: const overlayCanvas = createFrameOverlayCanvasFromImage(frameImage, dimensions);
+3882: const assets = { frameImage, dimensions, previewZones, overlayCanvas };
+3886: const oldestKey = guestPreviewFrameCacheRef.current.keys().next().value;
+3893: const renderGuestFramePreview = async (frame, photoItems, { maxLongSide = 920 } = {}) => {
+3895: const scale = Math.min(1, maxLongSide / Math.max(1, dimensions.width, dimensions.height));
+3896: const targetDimensions = {
+3900: const canvas = document.createElement('canvas');
+3903: const ctx = canvas.getContext('2d');
+3907: const scaledZones = scaleZonesToDimensions(previewZones, dimensions, targetDimensions);
+3910: const photoItem = photoItems[index];
+3912: const placement = fitPhotoToSlot(photoItem.img, zone);
+3927: const getGuestOutputBounds = (overlayCanvas, zonesForRender) => {
+3928: const width = overlayCanvas.width;
+3929: const height = overlayCanvas.height;
+3930: const ctx = overlayCanvas.getContext('2d', { willReadFrequently: true });
+3932: let minX = width;
+3933: let minY = height;
+3934: let maxX = 0;
+3935: let maxY = 0;
+3936: const includePoint = (x, y) => {
+3945: const idx = (y * width + x) * 4;
+3946: const a = data[idx + 3];
+3948: const r = data[idx];
+3949: const g = data[idx + 1];
+3950: const b = data[idx + 2];
+3951: const isNearWhite = r > 244 && g > 244 && b > 244;
+3964: const padding = Math.max(16, Math.round(Math.min(width, height) * 0.035));
+3965: const x = clampValue(Math.floor(minX - padding), 0, width - 1);
+3966: const y = clampValue(Math.floor(minY - padding), 0, height - 1);
+3967: const right = clampValue(Math.ceil(maxX + padding), 1, width);
+3968: const bottom = clampValue(Math.ceil(maxY + padding), 1, height);
+3978: const cropCanvasToBounds = (sourceCanvas, bounds) => {
+3982: const canvas = document.createElement('canvas');
+3985: const ctx = canvas.getContext('2d');
+4000: const scrollToGuestStep = (stepId) => {
+4004: const el = document.getElementById(`guest-${stepId}`);
+4009: const resetFlag = () => { isProgrammaticScrollingRef.current = false; };
+4011: const handler = () => {
+4024: const getStepRemainingSeconds = (stepId) => {
+4036: const handleCarryOverSurplus = (fromStep) => {
+4039: const surplus = getStepRemainingSeconds(fromStep);
+4042: const fromIndex = GUEST_TOTAL_TIMER_STEPS.indexOf(fromStep);
+4043: const subsequentSteps = GUEST_TOTAL_TIMER_STEPS.slice(fromIndex + 1);
+4047: const sumP = subsequentSteps.reduce((acc, step) => acc + STAGE_PERCENTAGES[step], 0);
+4051: const fromStepBudget = prevBudgets[fromStep] || 0;
+4054: const safeSurplus = Math.min(surplus, fromStepBudget);
+4055: const nextBudgets = { ...prevBudgets };
+4065: const goToGuestStep = (stepId, delay = 0, { force = false } = {}) => {
+4071: const run = () => {
+4085: const autoAdvanceGuestStep = (stepId, delay = 520) => {
+4092: const activeStepsForScroll = boothMode === 'photobooth' ? GUEST_STEP_ORDER : ['capture', 'select', 'result'];
+4093: const stepIds = ['hero', ...activeStepsForScroll];
+4097: const visibleStepsMap = new Map();
+4099: const observer = new IntersectionObserver(
+4108: let bestStep = 'hero';
+4109: let bestRatio = -1;
+4112: const elId = `guest-${stepId}`;
+4113: const ratio = visibleStepsMap.get(elId) || 0;
+4132: const el = document.getElementById(`guest-${stepId}`);
+4144: const timerConfig = GUEST_TIMED_STEPS[guestStep];
+4155: const startedAt = Date.now();
+4163: const timerId = window.setInterval(() => {
+4171: const shouldPause = Boolean(guestTransitionPrompt || adminModalMode);
+4191: const applyBeautyPreset = (preset) => {
+4196: const updateBeautyFilterSetting = (key, value) => {
+4197: const nextValue = Math.min(100, Math.max(0, Math.round(Number(value) || 0)));
+4205: const DSLR_CAPTURE_REGEX = /eos|canon|nikon|sony|fuji|virtual|obs|sparko|capture|hdmi|cam\s?link|elgato|usb\s?video/i;
+4206: const getStoredSelectedCameraId = () => localStorage.getItem(SELECTED_CAMERA_STORAGE_KEY) || '';
+4207: const getStoredPreferredCameraId = () => (
+4212: const isPreferredCameraLabel = (label) => DSLR_CAPTURE_REGEX.test(String(label || ''));
+4213: const isPreferredCameraDevice = (device) => isPreferredCameraLabel(device?.label);
+4214: const getPreferredCameraDevice = (devices) => devices.find(isPreferredCameraDevice) || null;
+4215: const hasReadableCameraLabels = (devices) => devices.some((device) => String(device.label || '').trim());
+4217: const rememberSelectedCamera = (deviceId, { preferred = false } = {}) => {
+4227: const stopStreamTracks = (stream) => {
+4239: function stopReconnectionPolling() {
+4250: const updateCameraDevices = async ({ allowDefaultSelection = false, preferPrimary = true } = {}) => {
+4253: const devices = await navigator.mediaDevices.enumerateDevices();
+4254: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4259: const labelsAreReadable = hasReadableCameraLabels(videoDevices);
+4260: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4266: const activeId = getStoredSelectedCameraId();
+4267: const stillExists = videoDevices.some((d) => d.deviceId === activeId);
+4280: const defaultDevice = preferredDevice || videoDevices[0];
+4291: const handleCameraDisconnect = ({ allowFallback = true } = {}) => {
+4305: const selectedCameraIdAtStart = getStoredSelectedCameraId();
+4306: let timeElapsed = 0;
+4308: const attemptReconnect = async () => {
+4313: const devices = await navigator.mediaDevices.enumerateDevices();
+4314: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4317: const preferredByLabel = getPreferredCameraDevice(videoDevices);
+4323: const storedPreferredId = getStoredPreferredCameraId();
+4324: const storedPreferredDevice = storedPreferredId
+4327: const selectedDevice = selectedCameraIdAtStart
+4330: const targetDevice = preferredByLabel || storedPreferredDevice || selectedDevice;
+4331: const targetIsPrimary = Boolean(preferredByLabel || storedPreferredDevice);
+4334: const activeTrack = cameraStreamRef.current?.getVideoTracks?.()[0];
+4335: const activeDeviceId = activeTrack?.getSettings?.().deviceId || '';
+4336: const isAlreadyUsingTarget = activeDeviceId && activeDeviceId === targetDevice.deviceId;
+4337: const isAlreadyUsingPrimary = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4341: const stream = await initCameraStream(targetDevice.deviceId, { stopPolling: false });
+4342: const restoredTrack = stream?.getVideoTracks?.()[0];
+4343: const restoredDeviceId = restoredTrack?.getSettings?.().deviceId || '';
+4344: const restoredIsTarget = restoredDeviceId && restoredDeviceId === targetDevice.deviceId;
+4345: const restoredIsPrimary = restoredTrack && isPreferredCameraLabel(restoredTrack.label);
+4369: const devices = await navigator.mediaDevices.enumerateDevices();
+4370: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4371: const webcamDevice = videoDevices.find((d) => !isPreferredCameraDevice(d));
+4372: const fallbackId = webcamDevice ? webcamDevice.deviceId : (videoDevices[0]?.deviceId || null);
+4375: const constraints = {
+4379: const stream = await navigator.mediaDevices.getUserMedia(constraints);
+4381: const hasPrimaryToRecover = Boolean(getStoredPreferredCameraId() || getPreferredCameraDevice(videoDevices));
+4403: const initCameraStreamLegacy = async (deviceId = null) => {
+4416: let targetDeviceId = deviceId || localStorage.getItem('selectedCameraId') || '';
+4420: const devices = await navigator.mediaDevices.enumerateDevices();
+4421: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4422: const dslr = videoDevices.find((d) => DSLR_CAPTURE_REGEX.test(d.label));
+4433: const constraints = {
+4441: const stream = await navigator.mediaDevices.getUserMedia(constraints);
+4443: const track = stream.getVideoTracks()[0];
+4444: const isDslr = track && DSLR_CAPTURE_REGEX.test(track.label);
+4475: const devices = await navigator.mediaDevices.enumerateDevices();
+4476: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4477: const webcam = videoDevices.find((d) => !DSLR_CAPTURE_REGEX.test(d.label)) || videoDevices[0];
+4481: const fallbackConstraints = {
+4486: const fallbackStream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+4514: const initCameraStream = async (deviceId = null, { stopPolling = true, userSelected = false } = {}) => {
+4524: let targetDeviceId = deviceId || getStoredPreferredCameraId() || getStoredSelectedCameraId();
+4528: const videoDevices = await updateCameraDevices({ allowDefaultSelection: false, preferPrimary: true });
+4529: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4536: const constraints = {
+4544: const stream = await navigator.mediaDevices.getUserMedia(constraints);
+4545: const track = stream.getVideoTracks()[0];
+4546: const openedDeviceId = track?.getSettings?.().deviceId || targetDeviceId || '';
+4547: const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4548: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4565: const isPrimaryStream = Boolean(
+4575: const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || preferredDevice));
+4598: const videoDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: true });
+4599: const preferredDevice = getPreferredCameraDevice(videoDevices);
+4605: const webcam = videoDevices.find((device) => !isPreferredCameraDevice(device)) || videoDevices[0];
+4609: const fallbackConstraints = {
+4614: const fallbackStream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+4615: const fallbackTrack = fallbackStream.getVideoTracks()[0];
+4616: const fallbackDeviceId = fallbackTrack?.getSettings?.().deviceId || webcam.deviceId;
+4617: const refreshedDevices = await updateCameraDevices({ allowDefaultSelection: true, preferPrimary: !userSelected });
+4618: const refreshedPreferredDevice = getPreferredCameraDevice(refreshedDevices);
+4633: const targetDeviceIsKnownPrimary = Boolean(
+4637: const hasPrimaryToRecover = Boolean(!userSelected && (getStoredPreferredCameraId() || refreshedPreferredDevice || targetDeviceIsKnownPrimary));
+4666: const handleCameraChange = async (deviceId) => {
+4674: const handleDeviceChange = async () => {
+4678: const devices = await navigator.mediaDevices.enumerateDevices();
+4679: const videoDevices = devices.filter((d) => d.kind === 'videoinput');
+4681: const targetId = getStoredPreferredCameraId() || getStoredSelectedCameraId();
+4682: const activeStream = cameraStreamRef.current;
+4684: const dslrDevice = getPreferredCameraDevice(videoDevices);
+4687: const activeTrack = activeStream?.getVideoTracks()[0];
+4688: const isCurrentlyUsingDslr = activeTrack && isPreferredCameraLabel(activeTrack.label);
+4715: const handleSelectMode = async (mode) => {
+4720: const startGuestJourney = async (selectedMode = '') => {
+4769: const initialBudgets = createGuestStepBudgets();
+4770: const initialCaptureSeconds = Math.ceil(initialBudgets.capture);
+4784: const runGuestAiAnalysis = async (photosForAi) => {
+4786: const prompt = `Analyze each guest photo and return one JSON object only. Schema: {"photos":[{"dominantColors":[{"hex":"#ffffff","tag":"white","weight":50}],"paletteTags":["bright"],"lighting":{"brightness":0,"contrast":0,"saturation":0,"warmth":0,"coolness":0},"vibes":["cute"],"concepts":["portrait"],"events":[],"scores":{"cute":0,"romantic":0,"vintage":0,"fantasy":0,"elegant":0,"minimal":0,"pastel":0,"energetic":0,"luxury":0,"fresh":0,"warm":0,"cool":0},"qualityWeight":0.8}]}. Use English tags only. Scores are integers 0-100. No markdown.`;
+4787: const aiResult = await callVisionProfileAi({ images: photosForAi.map((photo) => photo.previewUrl || photo.url), prompt });
+4788: const aiProfiles = Array.isArray(aiResult?.photos)
+4790: const profile = validateProfile({ ...item, source: 'ai' });
+4796: const nextProfiles = [...aiProfiles, ...prev.slice(aiProfiles.length)];
+4805: const analyzeGuestPhotoLocal = async (photo, nextPhotos) => {
+4807: const profile = await analyzeImageLocal(photo.previewUrl || photo.url, 'guest');
+4809: const nextProfiles = [...prev, profile];
+4810: const session = mergeGuestProfiles(nextProfiles.slice(0, 6));
+4826: const startClipRecording = () => {
+4828: const canvas = beautyCameraRef.current?.getRecordingCanvas() || beautyCameraRef.current?.getCanvas();
+4849: const stream = clipStreamRef.current;
+4852: let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 2500000 };
+4863: const chunks = [];
+4864: const recorder = new MediaRecorder(stream, options);
+4881: const stopClipRecording = () => {
+4886: const active = clipRecorderRef.current;
+4893: const mimeType = recorder.mimeType || 'video/webm';
+4894: const blob = new Blob(chunks, { type: mimeType });
+4908: const captureGuestPhotoFrame = async () => {
+4914: let videoBlob = null;
+4915: const shouldStopVideoImmediately = boothMode === 'photobooth';
+4916: const stopVideo = async () => {
+4926: const flashTimeout = setTimeout(() => {
+4935: let dslrDataUrl = null;
+4946: const fallbackVideo = beautyCameraRef.current?.getVideoElement();
+4947: const rawCanvas = await waitForReadableGuestVideoFrame(fallbackVideo);
+4961: const rawDataUrl = rawCanvas ? rawCanvas.toDataURL('image/jpeg', 0.95) : null;
+4962: const filteredDataUrl = !isKioskGuardEnabled && beautyCameraRef.current?.isReady() && rawCanvas
+4966: let dataUrl = dslrDataUrl;
+4977: const previewUrl = await createLowResPreview(dataUrl, 640);
+4978: const photoIndex = capturedPhotosCountRef.current;
+4979: const photo = {
+4991: const nextPhotos = [...prev, photo];
+5000: const activeTrack = cameraStreamRef.current?.getVideoTracks?.()[0];
+5001: const isTrackEnded = !activeTrack || activeTrack.readyState === 'ended';
+5004: const targetId = getStoredPreferredCameraId() || getStoredSelectedCameraId() || '';
+5020: const startGuestCaptureSession = async () => {
+5034: const AudioContext = window.AudioContext || window.webkitAudioContext;
+5036: const ctx = new AudioContext();
+5051: const requestFinishCaptureEarly = () => {
+5059: const finishCaptureEarly = () => {
+5061: const stepName = boothMode === 'photobooth' ? 'chọn khung' : 'tiếp tục';
+5079: let cancelled = false;
+5084: const totalSeconds = Math.max(
+5088: let totalSecondsLeft = totalSeconds;
+5095: const totalTimerInterval = window.setInterval(() => {
+5111: const runCaptureCycle = async () => {
+5136: let elapsed = 0;
+5137: const waitInterval = window.setInterval(() => {
+5166: const didCapture = await captureGuestPhotoFrame();
+5169: const savedCount = capturedPhotosCountRef.current;
+5222: const targetCount = Math.min(4, capturedPhotos.length);
+5224: const firstCaptureIndices = getFirstCaptureIndices(capturedPhotos.length, targetCount);
+5225: const isCurrentValid =
+5243: let cancelled = false;
+5244: const requestId = guestFramePreviewRequestRef.current + 1;
+5246: const totalPages = Math.max(1, Math.ceil(guestFrameDisplayLibrary.length / GUEST_FRAME_PAGE_SIZE));
+5247: const normalizedPageIndex = Math.min(Math.max(guestFramePageIndex, 0), totalPages - 1);
+5248: const pageIndicesToBuild = (() => {
+5249: const pageSet = new Set([0]);
+5264: const targetFrameKeys = new Set();
+5265: const targetFrames = [];
+5270: const key = getFrameLibraryKey(frame);
+5277: const fallbackCards = guestFrameDisplayLibrary.map((frame) => ({
+5284: const fallbackCardsByKey = new Map(fallbackCards.map((card) => [card.key, card]));
+5285: const cardsByKey = new Map(fallbackCardsByKey);
+5297: const publishCards = () => {
+5298: const nextCards = guestFrameDisplayLibrary.map((frame) => {
+5299: const key = getFrameLibraryKey(frame);
+5308: const pendingFrames = targetFrames.filter((frame) => {
+5309: const card = cardsByKey.get(getFrameLibraryKey(frame));
+5324: const firstPage = pageIndicesToBuild[0] + 1;
+5325: const lastPage = pageIndicesToBuild[pageIndicesToBuild.length - 1] + 1;
+5326: const pageText = firstPage === lastPage ? `trang ${firstPage}` : `trang ${firstPage}-${lastPage}`;
+5327: const framePageByKey = new Map();
+5335: const buildPreviews = async () => {
+5337: const photoItems = (await Promise.all(guestAutoCaptureIndices.map(getGuestPreviewPhotoItem))).filter(Boolean);
+5342: let builtCount = 0;
+5347: const frameKey = getFrameLibraryKey(frame);
+5348: const pageNumber = framePageByKey.get(frameKey) || 1;
+5379: const composedCount = guestFramePreviewsRef.current.filter((card) => card.isComposed).length;
+5391: const debounceMs = guestStep === 'capture' ? 500 : (guestStep === 'frame' ? 800 : 0);
+5392: const timerId = window.setTimeout(buildPreviews, debounceMs);
+5400: const analyzeFrameProfile = async (frame, { force = false } = {}) => {
+5403: const confirmed = window.confirm(`Khung ${frame.name} đã có hồ sơ. Phúc có muốn phân tích lại và ghi đè không?`);
+5409: const prompt = `Analyze this photobooth frame and return one JSON object only. Do not include slot count. Schema: {"dominantColors":[{"hex":"#ffffff","tag":"white","weight":50}],"paletteTags":["pink"],"lighting":{"brightness":0,"contrast":0,"saturation":0,"warmth":0,"coolness":0},"vibes":["cute"],"concepts":["decorative"],"events":[],"scores":{"cute":0,"romantic":0,"vintage":0,"fantasy":0,"elegant":0,"minimal":0,"pastel":0,"energetic":0,"luxury":0,"fresh":0,"warm":0,"cool":0}}. Use English tags only. Scores are integers 0-100. No markdown.`;
+5410: const aiResult = await callVisionProfileAi({ images: [frame.url], prompt });
+5411: const localProfile = await analyzeImageLocal(frame.url, 'frame').catch(() => null);
+5412: const profile = validateProfile(aiResult ? { ...aiResult, source: 'ai' } : localProfile, { source: aiResult ? 'ai' : 'local' });
+5414: const savedProfiles = await saveFrameProfileToServer(frame.name, profile);
+5424: const analyzeAllFrameProfiles = async () => {
+5425: const overwrite = window.confirm('Phân tích toàn bộ khung. Khung đã có hồ sơ sẽ được hỏi/ghi đè theo lượt. Tiếp tục?');
+5427: const results = await Promise.all(visibleFrameLibrary.map(async (frame) => {
+5435: const ok = results.filter(Boolean).length;
+5436: const fail = results.length - ok;
+5440: const cleanupOrphanFrameProfiles = async () => {
+5442: const data = await cleanupFrameProfilesOnServer();
+5447: const selectGuestFrame = async (frame) => {
+5455: const isSelected = selectedGuestFrames.some((item) => areSameFrameChoice(item, frame));
+5461: const nextFrames = [frame];
+5470: const duplicateSingleGuestFrameSelection = () => {
+5474: const requestGuestFrameSelectionCommit = () => {
+5480: const frame = selectedGuestFrames[0];
+5484: const pickGuestFramesForAutoCommit = () => {
+5485: const pickedFrames = selectedGuestFrames.filter(Boolean).slice(0, GUEST_FRAME_CHOOSE_TARGET);
+5486: const addFrame = (frame) => {
+5496: const commitGuestFrameSelection = async (framesToCommit) => {
+5497: let frames = (Array.isArray(framesToCommit) ? framesToCommit : [framesToCommit]).filter(Boolean);
+5522: const frameSlotChecks = await Promise.all(frames.map(async (frame) => {
+5523: const renderUrl = frame.overlayRenderUrl || frame.overlayUrl || frame.previewRenderUrl || frame.previewUrl || frame.url;
+5524: const displayUrl = frame.previewRenderUrl || frame.previewUrl || frame.url;
+5525: const frameImage = await loadImage(renderUrl);
+5526: const dimensions = { width: frameImage.naturalWidth, height: frameImage.naturalHeight };
+5527: const slotMap = await getFramePreviewSlotMap(frame, dimensions, frameImage);
+5528: const detectedZones = sortZonesNatural(slotMap.zones || []);
+5541: const missingSlotCheck = frameSlotChecks.find((item) => !item.hasSlots);
+5548: const activeFrameAsset = frameSlotChecks[0];
+5549: const activeFrame = {
+5588: const toggleGuestPhotoSelection = (index) => {
+5613: const nextSelection = [...selectedCaptureIndices, index];
+5620: const requestCreateGuestResult = (captureIndicesOverride = null) => {
+5621: const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+5649: const pickGuestCaptureIndicesForAutoCommit = () => {
+5652: const targetCount = Math.min(
+5659: const buildGuestFrameDraft = async (frame, captureIndicesForResult, draftIndex = 0) => {
+5660: const renderUrl = frame.overlayUrl || frame.previewUrl || frame.url;
+5661: const displayUrl = frame.previewUrl || frame.url;
+5662: const frameImage = await loadImage(renderUrl);
+5663: const dimensions = { width: frameImage.naturalWidth, height: frameImage.naturalHeight };
+5665: const normalizedZones = sortZonesNatural(draftZones);
+5667: const cleanOverlayUrl = createFrameOverlayCanvasFromImage(frameImage, dimensions).toDataURL('image/png');
+5669: const draftResults = await Promise.all(normalizedZones.map(async (zone, index) => {
+5670: const sourceSelectionIndex = index % captureIndicesForResult.length;
+5671: const capturedPhoto = capturedPhotos[captureIndicesForResult[sourceSelectionIndex]];
+5673: const img = await loadImage(capturedPhoto.url);
+5674: const placement = fitPhotoToSlot(img, zone);
+5675: const subject = placement.subject;
+5676: const photoId = `guest-${Date.now()}-${draftIndex}-${index}`;
+5705: const validDraftResults = draftResults.filter(Boolean);
+5706: const draftPhotos = validDraftResults.map((result) => result.photo);
+5707: const draftAssignments = validDraftResults.map((result) => result.assignment);
+5709: const draftSlotEdits = draftPhotos.map((photo) => {
+5710: const assignedZone = normalizedZones[photo.slotIndex];
+5711: const baseTransform = extractTransformFromPlacement(photo, { naturalWidth: photo.naturalWidth, naturalHeight: photo.naturalHeight }, assignedZone);
+5747: const activateGuestFrameDraft = (draftIndex) => {
+5748: const draft = guestFrameDrafts[draftIndex];
+5769: const createGuestResult = async (captureIndicesOverride = null, frameOverride = null) => {
+5770: const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+5771: const frameForResult = frameOverride?.frame || selectedFrame;
+5772: const originalImageForResult = frameOverride?.originalImage || originalImgRef.current;
+5773: const dimensionsForResult = frameOverride?.frameDimensions || frameDimensions;
+5774: const zonesForResult = frameOverride?.zones || zones;
+5796: let framesForAdjust = (selectedGuestFrames.length > 0 ? selectedGuestFrames : [frameForResult]).filter(Boolean);
+5800: const nextDrafts = await Promise.all(framesForAdjust.map((frame, index) =>
+5803: const activeDraft = nextDrafts[0];
+5805: const shouldSkipAdjust = false;
+5857: const renderGuestComposition = async ({ crop = true } = {}) => {
+5858: const normalizedZones = sortZonesNatural(zones);
+5859: const overlayCanvas = renderFrameOverlayCanvas(normalizedZones);
+5861: const canvas = document.createElement('canvas');
+5864: const ctx = canvas.getContext('2d');
+5868: const compositionItems = await Promise.all(slotEdits.map(async (edit) => ({
+5874: const assignedZone = normalizedZones[edit.slotIndex];
+5883: const renderGuestFrameDraftComposition = async (draft) => {
+5887: const normalizedZones = sortZonesNatural(draft.zones);
+5888: const overlayCanvas = createFrameOverlayCanvasFromImage(draft.originalImage, draft.frameDimensions);
+5889: const canvas = document.createElement('canvas');
+5892: const ctx = canvas.getContext('2d');
+5896: const draftCompositionItems = await Promise.all((draft.slotEdits || []).map(async (edit) => ({
+5902: const assignedZone = normalizedZones[edit.slotIndex];
+5911: const blobToDataUrl = (blob) => {
+5913: const reader = new FileReader();
+5920: const renderGuestFrameDraftVideoComposition = (draft) => {
+5928: const hasVideos = (draft.slotEdits || []).some(edit => {
+5930: const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+5940: const normalizedZones = sortZonesNatural(draft.zones);
+5941: const overlayCanvas = createFrameOverlayCanvasFromImage(draft.originalImage, draft.frameDimensions);
+5944: const scaleFactor = Math.min(1.0, 640 / draft.frameDimensions.width);
+5945: const canvas = document.createElement('canvas');
+5957: const ctx = canvas.getContext('2d');
+5961: const containerId = 'temp-composition-video-container';
+5962: let container = document.getElementById(containerId);
+5979: const videoItems = await Promise.all((draft.slotEdits || []).map(async (edit) => {
+5980: const assignedZone = normalizedZones[edit.slotIndex];
+5983: let targetVideoBlob = edit.videoBlob;
+5984: let photoUrl = edit.url;
+5986: const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+5993: const img = await loadImage(photoUrl || edit.url);
+6005: const video = document.createElement('video');
+6038: const allVideoItems = videoItems.filter(Boolean);
+6057: const check = () => {
+6074: const stream = canvas.captureStream ? canvas.captureStream(45) : canvas.mozCaptureStream(45);
+6077: let options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 3000000 };
+6088: const chunks = [];
+6089: const recorder = new MediaRecorder(stream, options);
+6110: const containerEl = document.getElementById(containerId);
+6123: const composedBlob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+6128: let isDrawing = true;
+6129: const drawFrame = () => {
+6171: const startBrowserSideVideoComposition = async (draftsForPrint, guestOutputId) => {
+6173: const draft = draftsForPrint[index];
+6185: const checkResponse = await fetch(`/api/guest-output/${guestOutputId}`);
+6187: const checkData = await checkResponse.json();
+6198: const videoBlob = await renderGuestFrameDraftVideoComposition(draft);
+6202: const checkResponse2 = await fetch(`/api/guest-output/${guestOutputId}`);
+6204: const checkData2 = await checkResponse2.json();
+6214: const dataUrl = await blobToDataUrl(videoBlob);
+6215: const mimeType = videoBlob.type || 'video/webm';
+6216: const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+6220: const updatePayload = {
+6241: const res = await saveGuestOutputToServer(updatePayload);
+6254: const renderAutoGuestFrameComposition = async (frame, captureIndicesForResult) => {
+6255: const frameImage = await loadImage(frame.overlayUrl || frame.previewUrl || frame.url);
+6256: const dimensions = { width: frameImage.naturalWidth, height: frameImage.naturalHeight };
+6258: const normalizedZones = sortZonesNatural(frameZones);
+6261: const overlayCanvas = createFrameOverlayCanvasFromImage(frameImage, dimensions);
+6262: const canvas = document.createElement('canvas');
+6265: const ctx = canvas.getContext('2d');
+6269: const autoCompositionItems = await Promise.all(normalizedZones.map(async (zone, index) => {
+6270: const sourceSelectionIndex = index % captureIndicesForResult.length;
+6271: const capturedPhoto = capturedPhotos[captureIndicesForResult[sourceSelectionIndex]];
+6273: const img = await loadImage(capturedPhoto.url);
+6274: const placement = fitPhotoToSlot(img, zone);
+6288: const updateSlotEdit = (slotIndex, updates) => {
+6290: const zone = zones[slotIndex];
+6294: const next = normalizeSlotEditTransform(edit, zone, updates);
+6300: const resetSlotEdit = (slotIndex) => {
+6302: const edit = slotEdits.find((item) => item.slotIndex === slotIndex);
+6307: const autoFitSlotEdit = async (slotIndex) => {
+6309: const edit = slotEdits.find((item) => item.slotIndex === slotIndex);
+6310: const zone = zones[slotIndex];
+6312: const img = await loadImage(edit.url);
+6313: const placement = edit.fitMode === 'contain'
+6316: const subject = placement.subject;
+6320: const refitSlotEditToZone = (edit, targetSlotIndex) => {
+6321: const zone = zones[targetSlotIndex];
+6323: const imgInfo = {
+6327: const subject = edit.subject || createSlotFitSubject(imgInfo, edit.fitMode === 'contain' ? 'slot-contain' : 'slot-cover');
+6328: const placement = edit.fitMode === 'contain' ? fitPhotoInsideSlot(imgInfo, zone) : fitPhotoToSlot(imgInfo, zone);
+6329: const baseTransform = extractTransformFromPlacement(placement, imgInfo, zone);
+6352: const swapSlotEdits = (fromSlotIndex, toSlotIndex) => {
+6356: const fromEdit = prev.find((item) => item.slotIndex === fromSlotIndex);
+6357: const toEdit = prev.find((item) => item.slotIndex === toSlotIndex);
+6370: const target = slotEdits.find((item) => item.slotIndex === toSlotIndex);
+6374: const source = slotEdits.find((item) => item.slotIndex === fromSlotIndex);
+6383: const startAdjustDrag = (event, slotIndex, source = 'full') => {
+6391: const requestFinishGuestAdjustment = () => {
+6403: const sendGuestPrintJob = async (dataUrl, { sessionId = guestSessionIdRef.current, retry = false } = {}) => {
+6410: const printResponse = await fetch('/api/print', {
+6415: const printResult = printResponse.ok ? await printResponse.json() : null;
+6437: const finishGuestAdjustment = async ({
+6444: const sessionId = guestSessionIdRef.current;
+6462: const activeSlotEdits = slotEditsOverride || [];
+6463: const activeSlotAssignments = slotAssignmentsOverride || [];
+6464: const draftSource = Array.isArray(draftsOverride) && draftsOverride.length > 0 ? draftsOverride : guestFrameDrafts;
+6465: const draftsForPrint = (draftSource.length > 0 ? draftSource : [{
+6478: const frameCanvases = await Promise.all(draftsForPrint.map((draft) => renderGuestFrameDraftComposition(draft)));
+6479: const outputCanvas = createGuestPrintSheetCanvas(frameCanvases);
+6480: const outputUrl = outputCanvas.toDataURL('image/png');
+6481: const sharePrintJpegUrl = outputCanvas.toDataURL('image/jpeg', 0.95);
+6483: const hasVideos = draftsForPrint.some(draft => {
+6486: const photo = capturedPhotos.find(p => p.id === edit.photoId || (edit.capturedPhotoId && p.id === edit.capturedPhotoId));
+6491: const outputMeta = {
+6520: const printJobPromise = sendGuestPrintJob(outputUrl, { sessionId }).then((success) => {
+6533: const capturedPhotosForSave = await Promise.all(capturedPhotos.map(async (photo) => {
+6534: const base64Url = await urlToDataUrl(photo.url);
+6535: const updatedPhoto = { ...photo, url: base64Url };
+6538: const videoDataUrl = await blobToDataUrl(photo.videoBlob);
+6539: const mimeType = photo.videoBlob.type || 'video/webm';
+6540: const ext = mimeType.includes('video/mp4') ? 'mp4' : 'webm';
+6556: const initialSharePayload = createGuestOutputPayload({
+6567: const shareData = await saveGuestOutputToServer(initialSharePayload);
+6581: const shareUrl = resolveGuestShareUrl(shareData);
+6583: const isHttpsShare = isHttpsShareUrl(shareUrl);
+6584: const isLoopbackShare = isLoopbackShareOrigin(shareUrl);
+6585: const qrDataUrl = !isLoopbackShare ? createQrCodeDataUrl(shareUrl) : '';
+6628: const createIdPhotoResult = async (captureIndicesOverride = null) => {
+6629: const captureIndicesForResult = captureIndicesOverride || selectedCaptureIndices;
+6634: const sessionId = guestSessionIdRef.current;
+6653: const selectedIndex = captureIndicesForResult[0];
+6654: const photo = capturedPhotos[selectedIndex];
+6658: const img = await loadImage(photo.url);
+6661: const idPhotoCanvas = document.createElement('canvas');
+6664: const idCtx = idPhotoCanvas.getContext('2d');
+6666: const W = img.naturalWidth || img.width;
+6667: const H = img.naturalHeight || img.height;
+6668: let cropX = 0, cropY = 0, cropW = W, cropH = H;
+6682: const idPhotoDataUrl = idPhotoCanvas.toDataURL('image/jpeg', 0.95);
+6683: const idPhotoPngUrl = idPhotoCanvas.toDataURL('image/png');
+6686: const sheetCanvas = document.createElement('canvas');
+6689: const sheetCtx = sheetCanvas.getContext('2d');
+6697: const colX = [70, 700, 1330];
+6698: const rowY = [270, 1100, 1930];
+6702: const x = colX[c];
+6703: const y = rowY[r];
+6720: const vertGaps = [685, 1315];
+6729: const horizGaps = [1085, 1915];
+6737: const sheetPngUrl = sheetCanvas.toDataURL('image/png');
+6738: const shareSheetJpegUrl = sheetCanvas.toDataURL('image/jpeg', 0.95);
+6741: const outputMeta = {
+6764: let printJobPromise = Promise.resolve(true);
+6781: const sharePayload = {
+6801: const base64Url = await urlToDataUrl(photo.url);
+6813: const shareData = await saveGuestOutputToServer(sharePayload);
+6815: const shareUrl = resolveGuestShareUrl(shareData);
+6818: const isHttpsShare = isHttpsShareUrl(shareUrl);
+6819: const isLoopbackShare = isLoopbackShareOrigin(shareUrl);
+6820: const qrDataUrl = !isLoopbackShare ? createQrCodeDataUrl(shareUrl) : '';
+6868: const closeGuestTransitionPrompt = () => {
+6873: const confirmGuestTransitionPrompt = async () => {
+6875: const prompt = guestTransitionPrompt;
+6897: const downloadGuestPhoto = () => {
+6899: const link = document.createElement('a');
+6905: const printGuestPhoto = async () => {
+6910: const openGuestBrowserPrintFallback = () => {
+6912: const didOpenPrint = printGuestImageUrl(guestPreviewUrl);
+6923: const copyGuestShareLink = async () => {
+6924: const shareUrl = guestShare?.shareUrl;
+6936: const resetGuestFlow = () => {
+6981: const initialBudgets = createGuestStepBudgets();
+7017: const getCanvasBackgroundStyle = () => {
+7027: const frameRatio = frameDimensions.height > 0 ? (frameDimensions.width / frameDimensions.height).toFixed(4) : 1;
+7028: const slotNudgeStep = Math.max(4, Math.round(Math.min(frameDimensions.width || 0, frameDimensions.height || 0) * 0.008));
+7029: const slotResizeStep = Math.max(8, Math.round(Math.min(frameDimensions.width || 0, frameDimensions.height || 0) * 0.016));
+7030: const editorZoomPercent = Math.round(editorZoom * 100);
+7031: const editorMaxWidth = `min(${Math.round(920 * editorZoom)}px, calc(88vh * ${frameRatio} * ${editorZoom}))`;
+7032: const handleEditorWheel = (event) => {
+7038: const requiredGuestPhotoCount = zones.length;
+7039: const hasEnoughGuestSetup = selectedFrame && requiredGuestPhotoCount > 0;
+7040: const activeBeautyPreset = BEAUTY_FILTER_PRESETS.find((preset) => preset.id === activeBeautyPresetId);
+7041: const uniqueSelectedFrames = selectedGuestFrames.length > 0 ? [selectedGuestFrames[0]] : [];
+7042: const selectedGuestFrameCount = uniqueSelectedFrames.length;
+7043: const getSelectedGuestFrameIndices = (frame) =>
+7045: const activeAdjustDraft = guestFrameDrafts[selectedAdjustFrameIndex] || null;
+7046: const activeSteps = boothMode === 'photobooth' ? GUEST_STEP_ORDER : ['capture', 'select', 'result'];
+7047: const visibleGuestStepIndex = activeSteps.indexOf(visibleGuestStep);
+7048: const currentGuestStepIndex = activeSteps.indexOf(guestStep);
+7049: const guestProgress = visibleGuestStepIndex < 0 ? 0 : ((visibleGuestStepIndex + 1) / activeSteps.length) * 100;
+7050: const isCaptureUnlocked = isModeSelected && currentGuestStepIndex >= activeSteps.indexOf('capture');
+7051: const shouldShowModeSelectorPopup = showModeSelector || (guestStep === 'capture' && !isModeSelected);
+7052: const isCaptureLocked = isGuestStepLocked('capture');
+7053: const hasFinishedGuestCapture = isGuestStepLocked('capture') && capturedPhotos.length >= minGuestPhotosToContinue;
+7054: const canFinishCaptureEarly = guestStep === 'capture' && !isCaptureLocked && capturedPhotos.length >= minGuestPhotosToContinue;
+7055: const isFrameUnlocked = boothMode === 'photobooth' && currentGuestStepIndex >= activeSteps.indexOf('frame') && hasFinishedGuestCapture;
+7056: const isSelectUnlocked = boothMode === 'photobooth'
+7059: const isAdjustUnlocked = boothMode === 'photobooth' && currentGuestStepIndex >= activeSteps.indexOf('adjust') && slotEdits.length > 0;
+7060: const isResultUnlocked = currentGuestStepIndex >= activeSteps.indexOf('result') && Boolean(guestPreviewUrl || isGeneratingGuestResult);
+7061: const guestShareExpiryText = (() => {
+7063: const expiresAtMs = Date.parse(guestShare.expiresAt || '');
+7073: const hours = Math.max(1, Math.round(guestShare.ttlSeconds / 3600));
+7078: const isFrameLocked = isGuestStepLocked('frame');
+7079: const isSelectLocked = isGuestStepLocked('select');
+7080: const isAdjustLocked = isGuestStepLocked('adjust');
+7081: const activeGuestTimerConfig = GUEST_TIMED_STEPS[guestStep];
+7082: const guestTimedStepDuration = guestStepBudgets[guestStep] || 0;
+7083: const hasActiveGuestStepTimer = Boolean(activeGuestTimerConfig && guestStepStartedAt && guestStepTimerStepId === guestStep);
+7084: const activeGuestPauseMs =
+7088: const guestTimedStepElapsedSeconds =
+7098: const guestTimedStepSecondsLeft = activeGuestTimerConfig
+7105: const triggerManualCapture = async () => {
+7110: const didCapture = await captureGuestPhotoFrame();
+7117: const sendStateUpdate = useCallback(() => {
+7120: const statePayload = {
+7149: const channel = new BroadcastChannel('photobooth-channel');
+7155: const now = Date.now();
+7156: const isCaptureCountdownActive = guestStep === 'capture' && isLockedCaptureRunning;
+7157: const throttleLimit = isCaptureCountdownActive ? 1500 : 200;
+7215: const channel = new BroadcastChannel('photobooth-channel');
+7217: const handleMessage = async (event) => {
+7218: const data = event.data;
+7250: const preset = BEAUTY_FILTER_PRESETS.find((p) => p.id === data.payload);
+7288: const channel = new BroadcastChannel('photobooth-channel');
+7289: const canvas = document.createElement('canvas');
+7292: const ctx = canvas.getContext('2d');
+7294: const intervalId = setInterval(() => {
+7295: const video = beautyCameraRef.current?.getVideoElement() || document.querySelector('video');
+7299: const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+7323: const channel = new BroadcastChannel('photobooth-channel');
+7324: const completeData = {
+7340: const guestAggregateTimerActive = GUEST_TOTAL_TIMER_STEPS.includes(guestStep) && !guestPreviewUrl && !guestOutputMeta;
+7341: const getGuestAggregateStepSecondsLeft = (stepId) => {
+7350: const guestAggregateSecondsLeft = guestAggregateTimerActive
+7353: const isAdjustTimeOver =
+7359: const canEditGuestAdjustment = guestStep === 'adjust' && !isAdjustLocked && !isGeneratingGuestResult && !isAdjustTimeOver;
+7360: const isGuestTimedStepDone =
+7368: const guestTimedWarning =
+7379: const shouldTriggerGuestTimedWarningPopup = Boolean(guestTimedWarning && !guestTransitionPrompt);
+7380: const guestTimedWarningKey = activeGuestTimerConfig ? `${guestStep}:${guestStepStartedAt || 0}` : '';
+7381: const guestSelectionWarning =
+7385: const selectedFramesUseDirectFit = false;
+7386: const guestCanCreateResult = boothMode === 'photobooth'
+7389: const closeGuestTimedWarningPopup = () => setGuestTimedWarningPopup(null);
+7390: const activeGuestPopup = (() => {
+7404: const uniquePromptFrames = [];
+7405: const seenIds = new Set();
+7408: const id = f.id || f.name || f.url;
+7414: const frameNames = uniquePromptFrames
+7430: const price = idPhotoService === 'print' ? '50.000đ' : '15.000đ';
+7441: const selectedCount = guestTransitionPrompt.captureIndices?.length || selectedCaptureIndices.length;
+7442: const missingCount = Math.max(0, (requiredGuestPhotoCount || 0) - selectedCount);
+7507: const activeDraftForSync = currentDrafts[selectedAdjustFrameIndex];
+7549: const autoAdvanceKey = `${guestStep}:${guestStepStartedAt || 0}`;
+7555: const framesToCommit = pickGuestFramesForAutoCommit();
+7565: const captureIndicesToCommit = pickGuestCaptureIndicesForAutoCommit();
+7607: const hideTimer = window.setTimeout(() => {
+8882: const selectionIndices = getSelectedGuestFrameIndices(card.frame);
+8883: const selectionIndex = selectionIndices[0] ?? -1;
+8884: const selectionCount = selectionIndices.length;
+8885: const isSelected = selectionCount > 0;
+8886: const isRecommended = recommendedFrameKeys.has(card.key);
+8952: const selectionOrder = selectedCaptureIndices.indexOf(index);
+8953: const isSelected = selectionOrder >= 0;
+9075: const zone = zones[edit.slotIndex];
+9102: const edit = slotEdits.find((item) => item.slotIndex === selectedAdjustSlotIndex) || slotEdits[0];
+9103: const zone = edit ? zones[edit.slotIndex] : null;
+9105: const zoomValue = extractZoomValue(edit);
+9478: const url = `${window.location.origin}${window.location.pathname}?mode=partner`;
+9860: const assignedZone = getPhotoZone(photo, zones);
+9905: const points = rectToPoints(zone);
+9906: const isSelected = selectedZoneId === zone.id;
+9907: const handleRadius = Math.max(9, frameDimensions.width * 0.01);
+9908: const edgeRadius = Math.max(6, frameDimensions.width * 0.007);
+9909: const hitRadius = Math.max(18, frameDimensions.width * 0.018);
+9937: const nextPoint = points[(index + 1) % points.length];
+9938: const midX = (point.x + nextPoint.x) / 2;
+9939: const midY = (point.y + nextPoint.y) / 2;
+10043: function OperatorDashboard() {
+10055: const lastHeartbeatRef = useRef(0);
+10056: const lastStepRef = useRef('');
+10058: const addLog = useCallback((message) => {
+10059: const timeStr = new Date().toLocaleTimeString('vi-VN', { hour12: false });
+10064: const fetchSessions = useCallback(async () => {
+10067: const res = await fetch('/api/admin/sessions');
+10069: const data = await res.json();
+10082: const channel = new BroadcastChannel('photobooth-channel');
+10090: const processStateUpdate = (state) => {
+10097: const stepNames = {
+10105: const stepName = stepNames[state.guestStep] || state.guestStep;
+10111: const handleMessage = (event) => {
+10112: const data = event.data;
+10126: const pollServer = async () => {
+10128: const res = await fetch('/api/admin/kiosk-state');
+10130: const data = await res.json();
+10145: const pollTimer = setInterval(pollServer, 2000);
+10149: const heartbeatTimer = setInterval(() => {
+10173: const sendCommand = (action, payload = null) => {
+10176: const channel = new BroadcastChannel('photobooth-channel');
+10188: const actionLabels = {
+10203: const handlePrintSession = async (session) => {
+10208: const res = await fetch('/api/admin/print-session', {
+10216: const data = await res.json();
+10228: const revenueStats = useMemo(() => {
+10229: let totalRevenue = 0;
+10230: let totalSessions = 0;
+10231: let pbCount = 0;
+10232: let pbRevenue = 0;
+10233: let idDigitalCount = 0;
+10234: let idDigitalRevenue = 0;
+10235: let idPrintCount = 0;
+10236: let idPrintRevenue = 0;
+10240: const isIdPhoto = s.isIdPhoto || s.meta?.isIdPhoto || s.frameName === 'id-photo-3x4';
+10241: const boothMode = s.boothMode || s.meta?.boothMode || (isIdPhoto ? 'id_photo' : 'photobooth');
+10242: const idPhotoService = s.idPhotoService || s.meta?.idPhotoService || 'print';
+10274: const formatVND = (value) => {
+10278: const getStepProgressIndex = (step) => {
+10279: const steps = ['hero', 'capture', 'frame', 'select', 'adjust', 'result'];
+10402: const stepNames = {
+10410: const isActive = kioskState.guestStep === step;
+10411: const isCompleted = getStepProgressIndex(kioskState.guestStep) > idx;
+10634: const isActive = kioskState?.activeBeautyPresetId === preset.id;
+10686: const isIdPhoto = session.isIdPhoto || session.meta?.isIdPhoto || session.frameName === 'id-photo-3x4';
+10687: const boothMode = session.boothMode || session.meta?.boothMode || (isIdPhoto ? 'id_photo' : 'photobooth');
+10688: const idPhotoService = session.idPhotoService || session.meta?.idPhotoService || 'print';
+10690: const shareUrl = `${shareOrigin}/guest/${session.id}`;
+10691: const printImagePath = session.files?.print?.path;
+10866: function CuteProcessingLoader({ progress, boothMode, hasVideos, idPhotoService }) {
+10870: const tasks = [];
+10959: const completedCount = tasks.filter(t => t.status === 'completed').length;
+10960: const percent = Math.round((completedCount / tasks.length) * 100);

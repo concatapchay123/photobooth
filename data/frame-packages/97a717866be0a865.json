@@ -1,0 +1,105 @@
+{
+  "schema": "photobooth-slot-map:v1",
+  "frameName": "04 - Nắng Mai Má Hồng",
+  "frameWidth": 880,
+  "frameHeight": 2650,
+  "frameType": "png",
+  "slotCount": 4,
+  "detectionMode": "alpha",
+  "zones": [
+    {
+      "slotIndex": 0,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 56,
+          "y": 55
+        },
+        {
+          "x": 824,
+          "y": 55
+        },
+        {
+          "x": 824,
+          "y": 637
+        },
+        {
+          "x": 56,
+          "y": 637
+        }
+      ]
+    },
+    {
+      "slotIndex": 1,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 55,
+          "y": 669
+        },
+        {
+          "x": 825,
+          "y": 669
+        },
+        {
+          "x": 825,
+          "y": 1250
+        },
+        {
+          "x": 55,
+          "y": 1250
+        }
+      ]
+    },
+    {
+      "slotIndex": 2,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 56,
+          "y": 1286
+        },
+        {
+          "x": 824,
+          "y": 1286
+        },
+        {
+          "x": 824,
+          "y": 1865
+        },
+        {
+          "x": 56,
+          "y": 1865
+        }
+      ]
+    },
+    {
+      "slotIndex": 3,
+      "shape": "rect",
+      "detectionMode": "alpha",
+      "points": [
+        {
+          "x": 56,
+          "y": 1902
+        },
+        {
+          "x": 825,
+          "y": 1902
+        },
+        {
+          "x": 825,
+          "y": 2474
+        },
+        {
+          "x": 56,
+          "y": 2474
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-06-10T08:01:11.356Z",
+  "savedAt": "2026-06-10T08:01:11.357Z"
+}
